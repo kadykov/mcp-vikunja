@@ -1,0 +1,55 @@
+{
+  "name": "mcp-vikunja",
+  "version": "0.1.0",
+  "description": "MCP server for Vikunja project management",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kadykov/mcp-vikunja.git"
+  },
+  "keywords": [
+    "mcp",
+    "vikunja",
+    "project-management"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kadykov/mcp-vikunja/issues"
+  },
+  "homepage": "https://github.com/kadykov/mcp-vikunja#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "axios": "^1.8.4",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.14",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "eslint": "^9.23.0",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jest-silent-reporter": "^0.6.0",
+    "msw": "^2.7.3",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.0",
+    "typescript": "^5.8.2"
+  }
+}
