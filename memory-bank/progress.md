@@ -10,44 +10,80 @@
 - Development environment configured
 - Configuration system implemented with validation
 - Configuration tests implemented and passing
+- OpenAPI type generation implemented
+  - Script created using swagger2openapi and openapi-typescript
+  - Type definitions generated and exported
+  - Clean type export API through src/types/index.ts
+  - Documentation added for type generation and usage
 
 ## What's Left to Build
 
-### Phase 2: Core Implementation with Tests
+### Phase 2: API Client Foundation
 
-- [ ] Vikunja API Client
-  - [ ] Client interface design
-  - [ ] HTTP client setup
-  - [ ] Error handling system
-  - [ ] Tests
+- [x] OpenAPI Setup
 
-### Phase 3: Resource Handlers
+  - [x] Type generation script
+  - [x] Type definitions
+  - [ ] Runtime type validation
 
-- [ ] Base resource handler tests
-- [ ] Base resource handler implementation
-- [ ] Project resource
-  - [ ] Project tests
+- [ ] HTTP Client Layer
+
+  - [ ] MSW setup for API mocking
+  - [ ] Client tests with MSW
+  - [ ] HTTP client implementation
+  - [ ] Test debugging and validation
+
+- [ ] Core CRUD Operations
+  - [ ] Operation tests with MSW
   - [ ] Implementation
-  - [ ] Integration tests
-- [ ] Task resource
-  - [ ] Task tests
-  - [ ] Implementation
-  - [ ] Integration tests
-- [ ] Resource relationship tests
-- [ ] Relationship implementation
+  - [ ] Test debugging and validation
+  - [ ] Error handling tests
+  - [ ] Error handling implementation
+  - [ ] Test debugging and validation
 
-### Phase 4: Tool Handlers
+### Phase 3: Resource Handlers (Test-Driven)
 
-- [ ] Base tool handler tests
-- [ ] Base tool handler implementation
-- [ ] Project tools
+- [ ] Base Resource Handler
+
+  - [ ] Handler tests
+  - [ ] Implementation and debugging
+  - [ ] Integration test suite
+
+- [ ] Project Resource
+
+  - [ ] Resource tests
+  - [ ] Implementation and debugging
+  - [ ] Integration test suite
+
+- [ ] Task Resource
+
+  - [ ] Resource tests
+  - [ ] Implementation and debugging
+  - [ ] Integration test suite
+
+- [ ] Resource Relationships
+  - [ ] Relationship tests
+  - [ ] Implementation and debugging
+  - [ ] Integration test suite
+
+### Phase 4: Tool Handlers (Test-Driven)
+
+- [ ] Base Tool Handler
+
+  - [ ] Handler tests
+  - [ ] Implementation and debugging
+  - [ ] Integration test suite
+
+- [ ] Project Tools
+
   - [ ] CRUD operation tests
-  - [ ] Implementation
-  - [ ] Integration tests
-- [ ] Task tools
+  - [ ] Implementation and debugging
+  - [ ] Integration test suite
+
+- [ ] Task Tools
   - [ ] CRUD operation tests
-  - [ ] Implementation
-  - [ ] Integration tests
+  - [ ] Implementation and debugging
+  - [ ] Integration test suite
 
 ### Phase 5: Documentation & Publishing
 
@@ -63,7 +99,8 @@
 ## Current Status
 
 - Configuration system completed
-- Ready to implement API client
+- OpenAPI type generation implemented and working
+- Ready to implement HTTP client layer
 - Test infrastructure working
 
 ## Known Issues
@@ -72,8 +109,8 @@ None
 
 ## Next Milestone
 
-Vikunja API Client Implementation
+HTTP Client Layer Implementation
 
-- Target: Working API client with error handling
+- Target: Working HTTP client with proper types
 - Priority: High
-- Dependencies: Configuration system
+- Dependencies: Configuration system, Type definitions

@@ -48,9 +48,17 @@ graph TD
 ### 4. API Client Pattern
 
 - Centralized API communication
+- OpenAPI-generated type definitions
 - Type-safe request/response handling
 - Error normalization
 - Rate limiting consideration
+
+### 5. Test-Driven Pattern
+
+- Write tests before implementation
+- Small, focused test cycles
+- Immediate debugging and validation
+- Continuous test coverage maintenance
 
 ## Design Decisions
 
@@ -58,12 +66,14 @@ graph TD
 
    - Use TypeScript strict mode
    - Generate types from OpenAPI spec
-   - Runtime type validation
+   - Runtime type validation with Zod
+   - Auto-updated type definitions
 
 2. **Testing Strategy**
 
-   - Unit tests for business logic
-   - Integration tests for API interaction
+   - MSW for API mocking
+   - Test-first development cycle
+   - Integration tests with mocked responses
    - Mock MCP context for testing
 
 3. **Error Handling**

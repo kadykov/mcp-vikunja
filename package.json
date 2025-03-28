@@ -6,6 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "generate-types": "./scripts/generate-types.sh",
+    "prebuild": "npm run generate-types",
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -35,7 +37,6 @@
   "homepage": "https://github.com/kadykov/mcp-vikunja#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
-    "axios": "^1.8.4",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -43,12 +44,15 @@
     "@types/node": "^22.13.14",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
+    "axios": "^1.8.4",
     "eslint": "^9.23.0",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-silent-reporter": "^0.6.0",
     "msw": "^2.7.3",
+    "openapi-typescript": "^7.6.1",
     "prettier": "^3.5.3",
+    "swagger2openapi": "^7.0.8",
     "ts-jest": "^29.3.0",
     "typescript": "^5.8.2"
   }

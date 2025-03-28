@@ -140,3 +140,7 @@ kadykov-*
 
 # Local copies of the docs for LLMs
 local-docs/
+
+# Temporary OpenAPI schema files
+scripts/generate-types/schema.json
+scripts/generate-types/.cache/

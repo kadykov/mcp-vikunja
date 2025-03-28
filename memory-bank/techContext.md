@@ -19,10 +19,11 @@
 
 ### Testing Stack
 
-- Jest
-- ts-jest
+- Jest (Test runner)
+- ts-jest (TypeScript support)
+- Mock Service Worker (API mocking)
 - OpenAPI Types
-- Mock Service Worker (optional)
+- Zod (Runtime validation)
 
 ## Development Setup
 
@@ -40,16 +41,25 @@ typescript >= 4.8
 src/
 ├── config/          # Configuration handling
 ├── types/          # TypeScript types
+│   └── openapi/    # Generated OpenAPI types
+├── client/         # Vikunja API client
+│   ├── types/      # Client type definitions
+│   ├── http/       # HTTP client implementation
+│   └── handlers/   # API endpoint handlers
 ├── resources/      # MCP resource implementations
 ├── tools/          # MCP tool implementations
-├── client/         # Vikunja API client
 ├── utils/          # Shared utilities
 └── index.ts        # Main entry point
 
+scripts/
+└── generate-types/ # OpenAPI type generation
+
 test/
-├── unit/           # Unit tests
-├── integration/    # Integration tests
-└── fixtures/       # Test data
+├── mocks/          # MSW handlers and fixtures
+├── client/         # API client tests
+├── resources/      # Resource handler tests
+├── tools/          # Tool handler tests
+└── fixtures/       # Test data and helpers
 
 docs/               # Documentation
 ```
