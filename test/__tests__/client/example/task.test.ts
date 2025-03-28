@@ -1,9 +1,9 @@
-import { server } from '../../mocks/server';
+import { server } from '../../../mocks/server';
 import { http } from 'msw';
-import { factories } from '../../mocks/index';
-import { createErrorResponse } from '../../mocks/types';
-import { apiFetch, apiPut, testData, API_BASE, expectApiError } from '../../utils/test-helpers';
-import type { Task } from '../../../src/types';
+import { factories } from '../../../mocks/index';
+import { createErrorResponse } from '../../../mocks/types';
+import { apiFetch, apiPut, testData, API_BASE, expectApiError } from '../../../utils/test-helpers';
+import type { Task } from '../../../../src/types';
 
 describe('Task API', () => {
   describe('GET /tasks/:id', () => {
