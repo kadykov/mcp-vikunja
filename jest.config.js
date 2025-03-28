@@ -1,5 +1,6 @@
 /** @type {import('jest').Config} */
 export default {
+  testPathIgnorePatterns: ['/node_modules/', '/local-docs/'],
   preset: 'ts-jest',
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
