@@ -8,9 +8,9 @@ import { createErrorResponse } from './types';
 const API_BASE = process.env.VIKUNJA_API_BASE || 'http://localhost:3456/api/v1';
 
 // Base response creators
-const success = <T>(data: T, status = 200): ApiSuccessResponse<T> => ({
+const success = <T>(data: T, status?: number): ApiSuccessResponse<T> => ({
   data,
-  status,
+  status: status || 200,
 });
 
 /**
@@ -47,7 +47,7 @@ export const projectHandlers = [
   // Create Project
   http.put(`${API_BASE}/projects`, async ({ request }) => {
     const data = (await request.json()) as Partial<Project>;
-    return Response.json(success(createProject(data)), { status: 201 });
+    return Response.json(success(createProject(data), 201));
   }),
 ];
 
@@ -73,7 +73,7 @@ export const taskHandlers = [
     const projectId = Number(params.projectId);
     const data = (await request.json()) as Partial<Task>;
 
-    return Response.json(success(createTask({ ...data, project_id: projectId })), { status: 201 });
+    return Response.json(success(createTask({ ...data, project_id: projectId }), 201));
   }),
 ];
 
