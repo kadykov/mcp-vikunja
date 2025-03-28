@@ -1,36 +1,39 @@
-import { setupServer } from 'msw/node';
+import { server } from './mocks/server';
+import { handlers } from './mocks/handlers';
+import { createProject, createTask, createComment, createUser } from './mocks/factories';
 
-/**
- * Mock server for intercepting API requests during tests
- */
-export const server = setupServer();
+export { server, handlers };
 
-/**
- * Setup mock server before all tests
- */
+// Export factory functions
+export const factories = {
+  project: createProject,
+  task: createTask,
+  comment: createComment,
+  user: createUser,
+};
+
+// Test configuration
+export const TEST_API_URL = 'http://localhost:3456';
+export const TEST_API_TOKEN = 'test-token';
+
+export const createTestConfig = (override = {}) => ({
+  apiUrl: TEST_API_URL,
+  token: TEST_API_TOKEN,
+  ...override,
+});
+
+// Setup MSW
 beforeAll(() => {
+  // Listen on all requests, error on unhandled ones
   server.listen({ onUnhandledRequest: 'error' });
 });
 
-/**
- * Reset handlers between tests
- */
 afterEach(() => {
+  // Reset handlers between tests for clean state
   server.resetHandlers();
 });
 
-/**
- * Clean up after all tests
- */
 afterAll(() => {
+  // Clean up
   server.close();
-});
-
-/**
- * Create a test configuration object
- */
-export const createTestConfig = (override = {}) => ({
-  apiUrl: 'http://localhost:3456',
-  token: 'test-token',
-  ...override,
 });

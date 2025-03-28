@@ -59,6 +59,9 @@ graph TD
 - Small, focused test cycles
 - Immediate debugging and validation
 - Continuous test coverage maintenance
+- MSW-based API testing
+- Factory-based test data
+- Standardized error handling
 
 ## Design Decisions
 
@@ -68,6 +71,7 @@ graph TD
    - Generate types from OpenAPI spec
    - Runtime type validation with Zod
    - Auto-updated type definitions
+   - Type-safe test factories
 
 2. **Testing Strategy**
 
@@ -75,14 +79,20 @@ graph TD
    - Test-first development cycle
    - Integration tests with mocked responses
    - Mock MCP context for testing
+   - Reusable test utilities
+   - Consistent error patterns
 
 3. **Error Handling**
 
    - Standardized error responses
    - Clear error messages
    - Error categorization
+   - Type-safe error handling
+   - Test coverage for error cases
 
 4. **Code Organization**
    - Feature-based structure
    - Clear separation of concerns
    - Dependency injection ready
+   - Test utilities organization
+   - Shared factory patterns

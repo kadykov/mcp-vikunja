@@ -83,6 +83,30 @@ docs/               # Documentation
    - Integration test suite
    - Mocked external dependencies
 
+## Testing Infrastructure
+
+### MSW Testing Setup
+
+1. **Type-Safe Handlers**
+
+   - Integration with OpenAPI types
+   - Consistent response formats
+   - Error handling patterns
+   - Factory-based test data ```
+
+2. **Factory System**
+
+   - Type-safe data generation
+   - Default values with overrides
+   - Relationship support
+   - Valid test data guarantees
+
+3. **Error Handling**
+   - Custom ApiError class
+   - Consistent error responses
+   - Status code normalization
+   - Error assertion utilities
+
 ## Dependencies
 
 ### Production Dependencies
@@ -97,6 +121,7 @@ docs/               # Documentation
 - typescript
 - jest
 - ts-jest
+- msw
 - @types/node
 - @types/jest
 - eslint
