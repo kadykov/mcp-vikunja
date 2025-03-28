@@ -1,11 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 import { validateTaskResponse } from '../../../src/validation/responses';
+import { ValidationError } from '../../../src/validation/errors';
 import type { Task } from '../../../src/types';
 
 describe('Response Schema Validation', () => {
   describe('Task Response Validation', () => {
     it('should validate a proper task response', () => {
-      // This represents a valid task response according to the OpenAPI spec
       const validTaskResponse: Task = {
         id: 1,
         title: 'Test Task',
@@ -25,12 +25,10 @@ describe('Response Schema Validation', () => {
         project_id: 1,
       };
 
-      expect(() => {
-        validateTaskResponse(validTaskResponse);
-      }).not.toThrow();
+      expect(() => validateTaskResponse(validTaskResponse)).not.toThrow();
     });
 
-    it('should fail validation with invalid data types', () => {
+    it('should throw ValidationError with invalid data types', () => {
       const invalidTaskResponse = {
         id: 'not-a-number', // Should be a number
         title: '', // Should not be empty
@@ -44,12 +42,21 @@ describe('Response Schema Validation', () => {
         },
       };
 
-      expect(() => {
+      expect(() => validateTaskResponse(invalidTaskResponse)).toThrow(ValidationError);
+      try {
         validateTaskResponse(invalidTaskResponse);
-      }).toThrow('Invalid task response');
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          expect(error.message).toContain('id: Expected number');
+          expect(error.message).toContain('Title cannot be empty');
+          expect(error.message).toContain('Invalid email address');
+        } else {
+          throw error;
+        }
+      }
     });
 
-    it('should fail with missing required fields', () => {
+    it('should throw ValidationError with missing required fields', () => {
       const taskWithMissingFields = {
         id: 1,
         // Missing title
@@ -61,9 +68,17 @@ describe('Response Schema Validation', () => {
         // Missing created_by
       };
 
-      expect(() => {
+      expect(() => validateTaskResponse(taskWithMissingFields)).toThrow(ValidationError);
+      try {
         validateTaskResponse(taskWithMissingFields);
-      }).toThrow('Invalid task response');
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          expect(error.message).toContain('title: Required');
+          expect(error.message).toContain('created_by: Required');
+        } else {
+          throw error;
+        }
+      }
     });
 
     it('should validate optional fields when present', () => {
@@ -93,12 +108,10 @@ describe('Response Schema Validation', () => {
         bucket_id: 2,
       };
 
-      expect(() => {
-        validateTaskResponse(taskWithOptionalFields);
-      }).not.toThrow();
+      expect(() => validateTaskResponse(taskWithOptionalFields)).not.toThrow();
     });
 
-    it('should fail with invalid optional field values', () => {
+    it('should throw ValidationError with invalid optional field values', () => {
       const taskWithInvalidOptionalFields: Task = {
         id: 1,
         title: 'Test Task',
@@ -121,9 +134,17 @@ describe('Response Schema Validation', () => {
         bucket_id: 0, // Should be positive
       } as any; // Using 'as any' to allow invalid types for testing
 
-      expect(() => {
+      expect(() => validateTaskResponse(taskWithInvalidOptionalFields)).toThrow(ValidationError);
+      try {
         validateTaskResponse(taskWithInvalidOptionalFields);
-      }).toThrow('Invalid task response');
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          expect(error.message).toContain('Invalid start date');
+          expect(error.message).toContain('Bucket ID must be positive');
+        } else {
+          throw error;
+        }
+      }
     });
   });
 });
