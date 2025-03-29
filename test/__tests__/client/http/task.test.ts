@@ -1,15 +1,16 @@
 import { server } from '../../../mocks/server';
 import { http } from 'msw';
-import { factories } from '../../../mocks';
-import {
-  apiFetch,
-  apiPut,
-  apiPost,
-  testData,
-  API_BASE,
-  expectApiError,
-} from '../../../utils/test-helpers';
+import { factories, createErrorResponse } from '../../../mocks';
+import { API_BASE, testData } from '../../../utils/test-helpers';
+import { VikunjaHttpClient } from '../../../../src/client/http/client';
 import type { Task } from '../../../../src/types';
+
+const client = new VikunjaHttpClient({
+  config: {
+    apiUrl: API_BASE,
+    token: 'test-token',
+  },
+});
 
 describe('Task API', () => {
   describe('GET /tasks/:id', () => {
@@ -28,12 +29,20 @@ describe('Task API', () => {
         })
       );
 
-      const result = await apiFetch<Task>(testData.taskPath(123));
+      const result = await client.get<{ data: Task }>(testData.taskPath(123));
       expect(result.data).toEqual(testTask);
     });
 
     test('should handle task not found', async () => {
-      await expectApiError(apiFetch(testData.taskPath(999)), 404, 'Task not found');
+      server.use(
+        http.get(`${API_BASE}/tasks/999`, () => {
+          return new Response(JSON.stringify(createErrorResponse(404, 'Task not found')), {
+            status: 404,
+          });
+        })
+      );
+
+      await expect(client.get(testData.taskPath(999))).rejects.toThrow('Task not found');
     });
   });
 
@@ -57,12 +66,20 @@ describe('Task API', () => {
         })
       );
 
-      const result = await apiFetch<Task[]>(testData.projectTasksPath(projectId));
+      const result = await client.get<{ data: Task[] }>(testData.projectTasksPath(projectId));
       expect(result.data).toEqual(testTasks);
     });
 
     test('should handle non-existent project', async () => {
-      await expectApiError(apiFetch(testData.projectTasksPath(999)), 404, 'Project not found');
+      server.use(
+        http.get(`${API_BASE}/projects/999/tasks`, () => {
+          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+            status: 404,
+          });
+        })
+      );
+
+      await expect(client.get(testData.projectTasksPath(999))).rejects.toThrow('Project not found');
     });
   });
 
@@ -74,7 +91,25 @@ describe('Task API', () => {
         description: 'Task created in test',
       };
 
-      const result = await apiPut<Task>(testData.projectTasksPath(projectId), newTask);
+      server.use(
+        http.put(`${API_BASE}/projects/${projectId}/tasks`, () => {
+          return Response.json({
+            data: {
+              ...newTask,
+              id: 1,
+              project_id: projectId,
+              created: expect.any(String),
+              updated: expect.any(String),
+            },
+            status: 201,
+          });
+        })
+      );
+
+      const result = await client.put<{ data: Task }>(
+        testData.projectTasksPath(projectId),
+        newTask
+      );
       expect(result.data).toMatchObject({
         ...newTask,
         project_id: projectId,
@@ -83,38 +118,73 @@ describe('Task API', () => {
     });
 
     test('should validate required fields', async () => {
-      await expectApiError(apiPut(testData.projectTasksPath(456), {}), 400, 'Title is required');
+      server.use(
+        http.put(`${API_BASE}/projects/456/tasks`, () => {
+          return new Response(JSON.stringify(createErrorResponse(400, 'Title is required')), {
+            status: 400,
+          });
+        })
+      );
+
+      await expect(client.put(testData.projectTasksPath(456), {})).rejects.toThrow(
+        'Title is required'
+      );
     });
 
     test('should handle creating task in non-existent project', async () => {
-      await expectApiError(
-        apiPut(testData.projectTasksPath(999), { title: 'Test Task' }),
-        404,
-        'Project not found'
+      server.use(
+        http.put(`${API_BASE}/projects/999/tasks`, () => {
+          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+            status: 404,
+          });
+        })
       );
+
+      await expect(
+        client.put(testData.projectTasksPath(999), { title: 'Test Task' })
+      ).rejects.toThrow('Project not found');
     });
   });
 
   describe('POST /tasks/:id', () => {
+    test('should handle non-existent task update', async () => {
+      server.use(
+        http.post(`${API_BASE}/tasks/999`, () => {
+          return new Response(JSON.stringify(createErrorResponse(404, 'Task not found')), {
+            status: 404,
+          });
+        })
+      );
+
+      await expect(client.post(testData.taskPath(999), { title: 'Update' })).rejects.toThrow(
+        'Task not found'
+      );
+    });
+
     test('should update an existing task', async () => {
       const updateData = {
         title: 'Updated Task',
         description: 'Updated description',
       };
 
-      const result = await apiPost<Task>(testData.taskPath(123), updateData);
+      server.use(
+        http.post(`${API_BASE}/tasks/123`, () => {
+          return Response.json({
+            data: {
+              ...updateData,
+              id: 123,
+              created: expect.any(String),
+              updated: expect.any(String),
+            },
+          });
+        })
+      );
+
+      const result = await client.post<{ data: Task }>(testData.taskPath(123), updateData);
       expect(result.data).toMatchObject({
         ...updateData,
         id: 123,
       });
-    });
-
-    test('should handle non-existent task update', async () => {
-      await expectApiError(
-        apiPost(testData.taskPath(999), { title: 'Update' }),
-        404,
-        'Task not found'
-      );
     });
   });
 
@@ -126,15 +196,19 @@ describe('Task API', () => {
         })
       );
 
-      await expect(apiFetch(testData.taskPath(123), { method: 'DELETE' })).resolves.toBeDefined();
+      await expect(client.delete(testData.taskPath(123))).resolves.toBeUndefined();
     });
 
     test('should handle deleting non-existent task', async () => {
-      await expectApiError(
-        apiFetch(testData.taskPath(999), { method: 'DELETE' }),
-        404,
-        'Task not found'
+      server.use(
+        http.delete(`${API_BASE}/tasks/999`, () => {
+          return new Response(JSON.stringify(createErrorResponse(404, 'Task not found')), {
+            status: 404,
+          });
+        })
       );
+
+      await expect(client.delete(testData.taskPath(999))).rejects.toThrow('Task not found');
     });
   });
 });

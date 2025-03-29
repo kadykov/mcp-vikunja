@@ -1,6 +1,6 @@
 import { ApiSuccessResponse, ApiErrorResponse } from '../mocks/types';
 
-const API_BASE = process.env.VIKUNJA_API_BASE || 'http://localhost:3456/api/v1';
+export const API_BASE = process.env.VIKUNJA_API_BASE || 'http://localhost:3456/api/v1';
 
 /**
  * Custom API Error class for better error handling
@@ -25,6 +25,7 @@ export async function apiFetch<T>(
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
+      Authorization: 'Bearer test-token',
       'Content-Type': 'application/json',
       ...options.headers,
     },
@@ -92,6 +93,3 @@ export const testData = {
   taskPath: (id: number | string) => `/tasks/${id}`,
   projectTasksPath: (projectId: number | string) => `/projects/${projectId}/tasks`,
 };
-
-// Export API base for use in tests
-export { API_BASE };

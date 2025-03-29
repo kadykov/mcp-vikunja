@@ -1,15 +1,16 @@
 import { server } from '../../../mocks/server';
 import { http } from 'msw';
-import { factories } from '../../../mocks';
-import {
-  apiFetch,
-  apiPut,
-  apiPost,
-  testData,
-  API_BASE,
-  expectApiError,
-} from '../../../utils/test-helpers';
+import { factories, createErrorResponse } from '../../../mocks';
+import { API_BASE, testData } from '../../../utils/test-helpers';
+import { VikunjaHttpClient } from '../../../../src/client/http/client';
 import type { Project } from '../../../../src/types';
+
+const client = new VikunjaHttpClient({
+  config: {
+    apiUrl: API_BASE,
+    token: 'test-token',
+  },
+});
 
 describe('Project API', () => {
   describe('GET /projects/:id', () => {
@@ -28,12 +29,12 @@ describe('Project API', () => {
         })
       );
 
-      const result = await apiFetch<Project>(testData.projectPath(123));
+      const result = await client.get<{ data: Project }>(testData.projectPath(123));
       expect(result.data).toEqual(testProject);
     });
 
     test('should handle project not found', async () => {
-      await expectApiError(apiFetch(testData.projectPath(999)), 404, 'Project not found');
+      await expect(client.get(testData.projectPath(999))).rejects.toThrow('Project not found');
     });
   });
 
@@ -51,7 +52,7 @@ describe('Project API', () => {
         })
       );
 
-      const result = await apiFetch<Project[]>('/projects?page=1&per_page=5');
+      const result = await client.get<{ data: Project[] }>('/projects?page=1&per_page=5');
       expect(result.data).toEqual(testProjects);
     });
   });
@@ -63,7 +64,21 @@ describe('Project API', () => {
         description: 'Project created in test',
       };
 
-      const result = await apiPut<Project>('/projects', newProject);
+      server.use(
+        http.put(`${API_BASE}/projects`, () => {
+          return Response.json({
+            data: {
+              ...newProject,
+              id: 1,
+              created: expect.any(String),
+              updated: expect.any(String),
+            },
+            status: 201,
+          });
+        })
+      );
+
+      const result = await client.put<{ data: Project }>('/projects', newProject);
       expect(result.data).toMatchObject({
         ...newProject,
         id: expect.any(Number),
@@ -71,7 +86,15 @@ describe('Project API', () => {
     });
 
     test('should validate required fields', async () => {
-      await expectApiError(apiPut('/projects', {}), 400, 'Title is required');
+      server.use(
+        http.put(`${API_BASE}/projects`, () => {
+          return new Response(JSON.stringify(createErrorResponse(400, 'Title is required')), {
+            status: 400,
+          });
+        })
+      );
+
+      await expect(client.put('/projects', {})).rejects.toThrow('Title is required');
     });
   });
 
@@ -82,7 +105,18 @@ describe('Project API', () => {
         description: 'Updated description',
       };
 
-      const result = await apiPost<Project>(testData.projectPath(123), updateData);
+      server.use(
+        http.post(`${API_BASE}/projects/123`, () => {
+          return Response.json({
+            data: {
+              ...updateData,
+              id: 123,
+            },
+          });
+        })
+      );
+
+      const result = await client.post<{ data: Project }>(testData.projectPath(123), updateData);
       expect(result.data).toMatchObject({
         ...updateData,
         id: 123,
@@ -90,9 +124,15 @@ describe('Project API', () => {
     });
 
     test('should handle non-existent project update', async () => {
-      await expectApiError(
-        apiPost(testData.projectPath(999), { title: 'Update' }),
-        404,
+      server.use(
+        http.post(`${API_BASE}/projects/999`, () => {
+          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+            status: 404,
+          });
+        })
+      );
+
+      await expect(client.post(testData.projectPath(999), { title: 'Update' })).rejects.toThrow(
         'Project not found'
       );
     });
@@ -106,17 +146,19 @@ describe('Project API', () => {
         })
       );
 
-      await expect(
-        apiFetch(testData.projectPath(123), { method: 'DELETE' })
-      ).resolves.toBeDefined();
+      await expect(client.delete(testData.projectPath(123))).resolves.toBeUndefined();
     });
 
     test('should handle deleting non-existent project', async () => {
-      await expectApiError(
-        apiFetch(testData.projectPath(999), { method: 'DELETE' }),
-        404,
-        'Project not found'
+      server.use(
+        http.delete(`${API_BASE}/projects/999`, () => {
+          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+            status: 404,
+          });
+        })
       );
+
+      await expect(client.delete(testData.projectPath(999))).rejects.toThrow('Project not found');
     });
   });
 });

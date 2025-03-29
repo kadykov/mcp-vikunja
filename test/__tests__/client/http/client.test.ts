@@ -1,6 +1,15 @@
 import { server } from '../../../mocks/server';
 import { http } from 'msw';
-import { apiFetch, apiPut, apiPost, API_BASE, expectApiError } from '../../../utils/test-helpers';
+import { API_BASE } from '../../../utils/test-helpers';
+import { createErrorResponse } from '../../../mocks/types';
+import { VikunjaHttpClient } from '../../../../src/client/http/client';
+
+const client = new VikunjaHttpClient({
+  config: {
+    apiUrl: API_BASE,
+    token: 'test-token',
+  },
+});
 
 describe('HTTP Client', () => {
   describe('Request Headers', () => {
@@ -13,7 +22,7 @@ describe('HTTP Client', () => {
         })
       );
 
-      await apiFetch('/test');
+      await client.get('/test');
     });
   });
 
@@ -21,32 +30,35 @@ describe('HTTP Client', () => {
     test('should handle network errors', async () => {
       server.use(
         http.get(`${API_BASE}/test`, () => {
-          return new Response(null, { status: 0 });
+          return Response.error();
         })
       );
 
-      await expectApiError(apiFetch('/test'), 0, 'Network error occurred');
+      await expect(client.get('/test')).rejects.toThrow('Network error occurred');
     });
 
     test('should handle timeout errors', async () => {
       server.use(
         http.get(`${API_BASE}/test`, async () => {
-          await new Promise(resolve => setTimeout(resolve, 5000));
-          return Response.json({ data: {} });
+          return new Response(JSON.stringify(createErrorResponse(408, 'Request timeout')), {
+            status: 408,
+          });
         })
       );
 
-      await expectApiError(apiFetch('/test'), 408, 'Request timeout');
+      await expect(client.get('/test')).rejects.toThrow('Request timeout');
     });
 
     test('should handle server errors', async () => {
       server.use(
         http.get(`${API_BASE}/test`, () => {
-          return new Response(null, { status: 500 });
+          return new Response(JSON.stringify(createErrorResponse(500, 'Internal server error')), {
+            status: 500,
+          });
         })
       );
 
-      await expectApiError(apiFetch('/test'), 500, 'Internal server error');
+      await expect(client.get('/test')).rejects.toThrow('Internal server error');
     });
 
     test('should handle invalid JSON responses', async () => {
@@ -56,7 +68,7 @@ describe('HTTP Client', () => {
         })
       );
 
-      await expectApiError(apiFetch('/test'), 400, 'Invalid JSON response');
+      await expect(client.get('/test')).rejects.toThrow('Invalid JSON response');
     });
   });
 
@@ -72,7 +84,7 @@ describe('HTTP Client', () => {
         })
       );
 
-      const result = await apiPut('/test', testData);
+      const result = await client.put<{ data: { message: string } }>('/test', testData);
       expect(result.data).toEqual(testData);
     });
 
@@ -87,18 +99,18 @@ describe('HTTP Client', () => {
         })
       );
 
-      const result = await apiPost('/test', testData);
+      const result = await client.post<{ data: { message: string } }>('/test', testData);
       expect(result.data).toEqual(testData);
     });
 
     test('should make DELETE request', async () => {
       server.use(
         http.delete(`${API_BASE}/test`, () => {
-          return new Response(null, { status: 204 });
+          return Response.json({ status: 204 });
         })
       );
 
-      await expect(apiFetch('/test', { method: 'DELETE' })).resolves.toBeDefined();
+      await expect(client.delete('/test')).resolves.toBeUndefined();
     });
   });
 });

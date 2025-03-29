@@ -56,10 +56,15 @@ export class VikunjaHttpClient {
    * Make an HTTP request
    */
   private async request<T>(method: string, path: string, data?: unknown): Promise<T> {
-    const url = new URL(path.startsWith('/') ? path.substring(1) : path, this.baseUrl);
+    // Ensure proper URL construction without double /api
+    let requestPath = path;
+    if (!requestPath.startsWith('/')) {
+      requestPath = '/' + requestPath;
+    }
+    const url = this.baseUrl + requestPath;
 
     try {
-      const response = await fetch(url.toString(), {
+      const response = await fetch(url, {
         method,
         headers: {
           Authorization: `Bearer ${this.token}`,
@@ -81,16 +86,18 @@ export class VikunjaHttpClient {
         const json = await response.json();
         return json as T;
       } catch {
+        // Handle JSON parse errors
         throw new InvalidResponseError('Invalid JSON response');
       }
     } catch (error) {
-      if (error instanceof VikunjaError) {
-        throw error;
+      // Handle network errors (Response.error())
+      if (error instanceof TypeError) {
+        throw new NetworkError();
       }
 
-      // Network errors from fetch
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        throw new NetworkError();
+      // Re-throw VikunjaErrors
+      if (error instanceof VikunjaError) {
+        throw error;
       }
 
       // Other unknown errors
