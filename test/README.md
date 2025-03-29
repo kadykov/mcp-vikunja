@@ -9,6 +9,7 @@ test/
 ├── __tests__/        # Test files
 │   ├── client/       # API client tests
 │   ├── config/       # Configuration tests
+│   ├── integration/  # Integration tests
 │   └── validation/   # Validation tests
 ├── mocks/            # MSW mocking setup
 │   ├── factories.ts  # Test data factories
@@ -17,21 +18,24 @@ test/
 │   ├── server.ts     # MSW server setup
 │   └── types.ts      # Mock type definitions
 ├── utils/            # Test utilities
-│   └── test-helpers.ts
+│   ├── test-helpers.ts
+│   └── vikunja-test-helpers.ts
 ├── setup.ts          # Jest setup file
 └── README.md         # This file
 ```
 
-## Mock Service Worker (MSW)
+## Testing Strategies
 
-We use MSW to intercept and mock API requests during tests. The setup includes:
+### 1. Unit Tests with MSW
+
+We use MSW to intercept and mock API requests during unit tests:
 
 - Type-safe request handlers based on OpenAPI types
 - Factory functions for generating test data
 - Consistent error handling
 - Utility functions for testing API responses
 
-### Usage
+#### MSW Usage
 
 ```typescript
 import { server } from '../mocks/server';
@@ -55,6 +59,75 @@ server.use(
   })
 );
 ```
+
+### 2. Integration Tests with Real Vikunja Instance
+
+Integration tests interact with a real Vikunja instance to verify actual API behavior:
+
+```typescript
+import { createTestUser } from '../../utils/vikunja-test-helpers';
+import { ProjectResource } from '../../../src/client/resource/project';
+
+describe('Project Resource Integration Tests', () => {
+  let testUser;
+  let projectResource;
+
+  beforeAll(async () => {
+    // Setup test user and resource
+    testUser = await createTestUser();
+    projectResource = new ProjectResource({
+      apiUrl: 'http://vikunja:3456/api/v1',
+      token: testUser.token,
+    });
+  });
+
+  test('should perform CRUD operations', async () => {
+    // Test real API interactions
+    const project = await projectResource.create({
+      title: 'Test Project',
+      description: 'Integration test project',
+    });
+  });
+});
+```
+
+#### Integration Test Infrastructure
+
+1. User Management Pattern
+
+   ```typescript
+   // test/utils/vikunja-test-helpers.ts
+   export async function createTestUser() {
+     const credentials = {
+       username: 'mcp-test-user',
+       email: 'mcp-test@example.com',
+       password: 'test-password-123',
+     };
+
+     // Register or reuse existing user
+     try {
+       await register(credentials);
+     } catch (error) {
+       // User might already exist
+     }
+
+     // Login and get token
+     return login(credentials);
+   }
+   ```
+
+2. Test Organization
+
+   - Group tests by resource type
+   - Start with basic CRUD verification
+   - Add error case testing
+   - Include comprehensive logging
+
+3. Response Handling
+   - Direct API response handling
+   - Type-safe response validation
+   - Response structure verification
+   - Error response testing
 
 ### Test Data Factories
 
@@ -80,6 +153,8 @@ Common test utilities:
 - `apiPut/apiPost`: Typed request helpers
 - `expectApiError`: Error response assertions
 - `testData`: Common path builders
+- `createTestUser`: Integration test user management
+- `vikunjaRequest`: Direct API communication helper
 
 ## Running Tests
 
@@ -92,4 +167,31 @@ npm run test:coverage
 
 # Run in watch mode
 npm run test:watch
+
+# Run integration tests only
+npm test test/__tests__/integration
 ```
+
+## Best Practices
+
+1. Unit Tests
+
+   - Use MSW for API mocking
+   - Keep tests focused and isolated
+   - Mock all external dependencies
+   - Test both success and error cases
+
+2. Integration Tests
+
+   - Test against real Vikunja instance
+   - Use fixed test user pattern
+   - Add detailed logging
+   - Verify actual API behavior
+   - Test real error scenarios
+
+3. General Guidelines
+   - Write tests before implementation
+   - Keep test cases focused
+   - Use proper type assertions
+   - Add meaningful error messages
+   - Document complex test setups

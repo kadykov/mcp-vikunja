@@ -30,6 +30,8 @@ graph TD
 - URIs follow pattern: `vikunja://{entity}/{id}`
 - Resources are read-only snapshots
 - Include essential metadata
+- Direct API response handling
+- Type-safe CRUD operations
 
 ### 2. Tool Pattern
 
@@ -52,8 +54,11 @@ graph TD
 - Type-safe request/response handling
 - Error normalization
 - Rate limiting consideration
+- Direct response mapping
 
-### 5. Test-Driven Pattern
+## Testing Patterns
+
+### 1. Unit Testing Strategy
 
 - Write tests before implementation
 - Small, focused test cycles
@@ -62,6 +67,38 @@ graph TD
 - MSW-based API testing
 - Factory-based test data
 - Standardized error handling
+
+### 2. Integration Testing Strategy
+
+Key Components:
+
+- Test helper for user management
+- Fixed test user approach
+- Direct API interaction
+- Real response validation
+- Error case testing
+- Logging and debugging support
+
+Patterns:
+
+1. User Management
+
+   - Create test user if not exists
+   - Reuse existing user if possible
+   - Maintain authentication state
+
+2. Test Organization
+
+   - Group by resource type
+   - Separate basic and error cases
+   - Clear test case isolation
+   - Comprehensive logging
+
+3. Response Handling
+   - Direct API response mapping
+   - Type-safe response validation
+   - Error response testing
+   - Response structure verification
 
 ## Design Decisions
 
@@ -88,9 +125,12 @@ graph TD
    - Integration Testing with Local Vikunja
 
      - Test against actual API behavior
-     - User and token management automation
+     - Fixed test user pattern
+     - Direct API response handling
+     - Real-world response validation
      - Docker-based test environment
      - Reference implementation validation
+     - Debug logging for troubleshooting
 
    - Error Handling Patterns
 
@@ -114,6 +154,7 @@ graph TD
    - Error categorization
    - Type-safe error handling
    - Test coverage for error cases
+   - Integration error validation
 
 4. **Code Organization**
    - Feature-based structure
@@ -121,3 +162,4 @@ graph TD
    - Dependency injection ready
    - Test utilities organization
    - Shared factory patterns
+   - Integration test helpers

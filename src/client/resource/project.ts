@@ -11,18 +11,15 @@ export interface IProjectResource {
 
 export class ProjectResource extends BaseResource<Project> implements IProjectResource {
   async get(id: number): Promise<Project> {
-    const response = await this.client.get<{ data: Project }>(`/projects/${id}`);
-    return response.data;
+    return this.client.get<Project>(`/projects/${id}`);
   }
 
   async create(data: Partial<Project>): Promise<Project> {
-    const response = await this.client.put<{ data: Project }>('/projects', data);
-    return response.data;
+    return this.client.put<Project>('/projects', data);
   }
 
   async update(id: number, data: Partial<Project>): Promise<Project> {
-    const response = await this.client.post<{ data: Project }>(`/projects/${id}`, data);
-    return response.data;
+    return this.client.post<Project>(`/projects/${id}`, data);
   }
 
   async delete(id: number): Promise<void> {
@@ -30,7 +27,6 @@ export class ProjectResource extends BaseResource<Project> implements IProjectRe
   }
 
   async list(): Promise<Project[]> {
-    const response = await this.client.get<{ data: Project[] }>('/projects');
-    return response.data;
+    return this.client.get<Project[]>('/projects');
   }
 }

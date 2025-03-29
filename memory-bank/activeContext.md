@@ -4,9 +4,10 @@
 
 ### Focus Areas
 
-1. Resource layer design and implementation
-2. Error handling and validation integration
-3. Documentation and architecture clarification
+1. Resource layer testing and validation
+2. Integration test implementation
+3. Error handling and validation integration
+4. Documentation and architecture clarification
 
 ### Recent Decisions
 
@@ -19,20 +20,23 @@
 7. Jest with silent reporter for testing
 8. Two-layer architecture: HTTP client and Resource layer
 9. Keep optional features documented in component READMEs
+10. Integration tests with real Vikunja instance
+11. Use fixed test user for integration tests
+12. Direct API response handling in Resource layer
 
 ### Next Steps (Prioritized)
 
-1. Design and implement Resource Layer
+1. Expand Resource Layer Testing
 
-   - Create base resource class
-   - Design resource-specific implementations
-   - Plan test migration strategy
-   - Implement initial resources
+   - Add integration tests for remaining CRUD operations
+   - Implement error case testing
+   - Add test cases for resource-specific validation
+   - Document testing patterns and best practices
 
-2. Migrate CRUD tests to resource layer
-   - Keep existing tests until migration complete
-   - Move test logic to resource-specific tests
-   - Clean up after successful migration
+2. Continue Resource Layer Implementation
+   - Implement remaining resource types
+   - Add comprehensive validation
+   - Document resource-specific behaviors
 
 ## Architecture
 
@@ -45,11 +49,12 @@
    - Response parsing
    - Auth management
 
-2. Resource Layer (New)
+2. Resource Layer
    - Resource-specific APIs (Project, Task, etc.)
    - CRUD operations
    - Resource validation
    - Type safety
+   - Direct API response handling
 
 ### Technical Design
 
@@ -65,6 +70,21 @@
    - Resource-specific implementations
    - Type-safe methods
    - Validation integration
+   - Response transformation
+
+### Testing Strategy
+
+1. Unit Tests
+
+   - Mock service worker for API simulation
+   - Test core functionality in isolation
+   - Validate error handling
+
+2. Integration Tests
+   - Real Vikunja instance
+   - Fixed test user
+   - Full CRUD operation testing
+   - Error case validation
 
 ### Implementation Strategy
 
@@ -72,6 +92,7 @@
 2. Validation-first development using Zod schemas
 3. Immediate test coverage for new functionality
 4. Clear separation between layers
+5. Integration tests against real API
 
 ### Reference Implementations
 
@@ -93,21 +114,21 @@
 
 1. How to manage resource relationships in the new layer
 2. How to handle resource-specific validation
+3. Strategy for cleaning up test data in integration tests
 
 ## Current Work Items
 
 ### Recently Completed
 
-- Basic HTTP client implemented and tested
-- MSW testing infrastructure set up
-- Project and Task endpoint tests implemented
-- Core error handling established
-- HTTP client documentation and README
+- Project resource integration tests implemented
+- Test helper for Vikunja user management created
+- Direct API response handling in Resource layer
+- Integration test setup with real Vikunja instance
 
 ### In Progress
 
-- Resource layer design
-- Test migration strategy
+- Expanding integration test coverage
+- Resource layer implementation for other types
 
 ### Blocked
 
@@ -128,3 +149,5 @@ None currently
   - Comprehensive test coverage
 - API client implementation strategy defined
 - HTTP client implementation and documentation
+- Basic Project resource implementation and unit tests
+- Integration test infrastructure setup

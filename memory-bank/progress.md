@@ -37,6 +37,11 @@
   - Project resource CRUD operations
   - Full test coverage using existing infrastructure
   - Documentation and patterns established
+- Integration testing infrastructure
+  - Test helper for Vikunja user management
+  - Direct API interaction testing
+  - Project resource integration tests
+  - Real Vikunja instance testing support
 
 ## What's Left to Build
 
@@ -74,14 +79,19 @@
 - [x] Project Resource
 
   - [x] Implementation
-  - [x] Test migration from existing tests
-  - [x] Validation integration
+  - [x] Unit test migration from existing tests
+  - [x] Integration test implementation
+  - [x] Basic CRUD operations verified
   - [x] Documentation
+  - [ ] Error case testing
+  - [ ] Resource-specific validation
+  - [ ] Query parameter support
 
 - [ ] Task Resource
 
   - [ ] Implementation
-  - [ ] Test migration from existing tests
+  - [ ] Unit test migration from existing tests
+  - [ ] Integration test implementation
   - [ ] Validation integration
   - [ ] Documentation
 
@@ -123,18 +133,22 @@
 
 ## Current Status
 
-Phase 3 in progress - Resource Layer Implementation
+Phase 3 in progress - Resource Layer Implementation & Testing
 
 Key achievements:
 
 - Base resource layer design and implementation completed
 - Project resource implementation with full CRUD support
-- Test infrastructure successfully reused
-- Documentation started
+- Unit test infrastructure successfully reused
+- Integration test infrastructure established
+- Project resource integration tests implemented
+- Direct API response handling implemented
 
 ## Next Steps:
 
-1. Handle edge cases and improve error handling
+1. Implement more comprehensive error case testing
 2. Add pagination support to list operations
 3. Implement query parameter handling
 4. Begin Task resource implementation
+5. Document testing patterns and best practices
+6. Consider cleanup strategy for integration test data
