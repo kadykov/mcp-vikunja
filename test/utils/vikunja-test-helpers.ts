@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+interface VikunjaErrorResponse {
+  code: number;
+  message: string;
+}
+
 export async function createTestUser() {
   const credentials = {
     username: 'mcp-test-user',
@@ -16,35 +21,27 @@ export async function createTestUser() {
   });
 
   try {
-    console.log('Attempting to register user...');
-    // Try to register the user (will fail if exists, which is fine)
     await axiosInstance.post('/register', credentials);
-    console.log('User registration successful');
   } catch (error) {
-    if (error instanceof Error && 'response' in error) {
-      const axiosError = error as { response?: { status: number; data: unknown } };
-      console.log(
-        'Registration error (might be expected if user exists):',
-        axiosError.response?.status,
-        axiosError.response?.data
-      );
+    if (axios.isAxiosError(error) && error.response?.status === 400) {
+      const errorData = error.response.data as VikunjaErrorResponse;
+      if (errorData.code !== 1001) {
+        throw new Error(`Unexpected registration error: ${errorData.message}`);
+      }
+      // Code 1001 means user exists, which is fine
     } else {
-      console.log('Unknown registration error:', error);
+      throw error; // Rethrow other errors (network issues, etc)
     }
   }
 
-  console.log('Attempting to login...');
   const loginResponse = await axiosInstance.post('/login', credentials);
-  console.log('Login successful, got token');
 
-  const token = loginResponse.data.token;
-  if (!token) {
-    console.error('No token in login response:', loginResponse.data);
+  if (!loginResponse.data.token) {
     throw new Error('No token received from login');
   }
 
   return {
     credentials,
-    token,
+    token: loginResponse.data.token,
   };
 }
