@@ -119,8 +119,13 @@
 - OpenAPI type generation implemented and working
 - Runtime type validation system implemented
 - MSW testing infrastructure completed and documented
-- Ready to implement HTTP client layer
-- Test infrastructure working
+  - Success/error response patterns established
+  - Test structure patterns defined
+  - Type-safe request/response handling
+- HTTP client layer partially implemented
+  - Core request handling complete
+  - Error handling patterns established
+  - Tests for projects and tasks passing
 
 ## Known Issues
 

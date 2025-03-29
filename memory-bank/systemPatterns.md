@@ -76,11 +76,26 @@ graph TD
 2. **Testing Strategy**
 
    - MSW for API mocking
+   - Test organization
+
+     - One MSW handler per test case
+     - Group by endpoint/method
+     - Cover success and error paths
+     - Type-safe request/response handling
+     - Clear test data setup using factories
+
+   - Error handling patterns
+
+     - Network errors (Failed to fetch)
+     - Invalid JSON responses
+     - HTTP error codes (400, 404, 500)
+     - Authentication errors
+     - Validation errors
+
    - Test-first development cycle
    - Integration tests with mocked responses
    - Mock MCP context for testing
    - Reusable test utilities
-   - Consistent error patterns
 
 3. **Error Handling**
 
