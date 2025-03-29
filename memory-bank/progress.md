@@ -44,46 +44,43 @@
   - [x] Testing utilities
   - [x] Example tests
 
-- [ ] HTTP Client Layer
+- [x] HTTP Client Layer
+  - [x] Client implementation
+  - [x] Error handling
+  - [x] Type integration
+  - [ ] Documentation and README
 
-  - [ ] Client implementation
-  - [ ] Error handling
+### Phase 3: Resource Layer Implementation
+
+- [ ] Base Resource Class
+
+  - [ ] Design and interface
+  - [ ] Core functionality
   - [ ] Type integration
-
-- [ ] Core CRUD Operations
-  - [ ] Operation tests with MSW
-  - [ ] Implementation
-  - [ ] Test debugging and validation
-  - [ ] Error handling tests
-  - [ ] Error handling implementation
-  - [ ] Test debugging and validation
-
-### Phase 3: Resource Handlers (Test-Driven)
-
-- [ ] Base Resource Handler
-
-  - [ ] Handler tests
-  - [ ] Implementation and debugging
-  - [ ] Integration test suite
+  - [ ] Error handling
+  - [ ] Test patterns
 
 - [ ] Project Resource
 
-  - [ ] Resource tests
-  - [ ] Implementation and debugging
-  - [ ] Integration test suite
+  - [ ] Implementation
+  - [ ] Test migration from existing tests
+  - [ ] Validation integration
+  - [ ] Documentation
 
 - [ ] Task Resource
 
-  - [ ] Resource tests
-  - [ ] Implementation and debugging
-  - [ ] Integration test suite
+  - [ ] Implementation
+  - [ ] Test migration from existing tests
+  - [ ] Validation integration
+  - [ ] Documentation
 
-- [ ] Resource Relationships
-  - [ ] Relationship tests
-  - [ ] Implementation and debugging
-  - [ ] Integration test suite
+- [ ] Additional Resources
+  - [ ] Labels
+  - [ ] Comments
+  - [ ] Teams
+  - [ ] Users
 
-### Phase 4: Tool Handlers (Test-Driven)
+### Phase 4: MCP Integration
 
 - [ ] Base Tool Handler
 
@@ -115,36 +112,21 @@
 
 ## Current Status
 
-- Configuration system completed
-- OpenAPI type generation implemented and working
-- Runtime type validation system implemented
-- MSW testing infrastructure completed and documented
-  - Success/error response patterns established
-  - Test structure patterns defined
-  - Type-safe request/response handling
-- HTTP client layer implemented with MSW tests
+- HTTP client layer implemented and tested
   - Core request handling complete
-  - Basic error handling patterns established
-  - Project and Task CRUD operations tested
-  - Next phases identified:
-    1. Reference implementation review
-    2. Integration testing with local Vikunja
-    3. Optional features (rate limiting, retry policies)
-
-## Known Issues
-
-None
+  - Error handling established
+  - Tests implemented with MSW
+  - Documentation in progress
 
 ## Next Milestone
 
-HTTP Client Layer Integration Testing
+Resource Layer Implementation
 
-- Target: Fully tested HTTP client verified against real Vikunja API
+- Target: Type-safe resource abstractions over HTTP client
 - Priority: High
-- Dependencies: Local Vikunja instance, Reference implementations review
+- Dependencies: Current HTTP client implementation
 - Next Steps:
-  1. Review reference implementations in local-docs/ for patterns
-  2. Set up local Vikunja instance using Docker
-  3. Create test automation for user/token setup
-  4. Implement integration tests
-  5. Plan optional features implementation
+  1. Create HTTP client README.md
+  2. Design resource layer architecture
+  3. Implement base resource class
+  4. Begin migrating existing tests

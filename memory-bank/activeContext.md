@@ -4,10 +4,10 @@
 
 ### Focus Areas
 
-1. HTTP client setup with MSW for testing
-2. Core CRUD operations implementation
+1. HTTP client implementation refinement
+2. Resource layer design and implementation
 3. Error handling and validation integration
-4. Integration testing with MSW
+4. Documentation and architecture clarification
 
 ### Recent Decisions
 
@@ -18,33 +18,65 @@
 5. Comprehensive validation test strategy
 6. Feature-focused architecture with clear separation of concerns
 7. Jest with silent reporter for testing
+8. Two-layer architecture: HTTP client and Resource layer
 
 ### Next Steps (Prioritized)
 
-1. Set up MSW for API mocking
-2. Create HTTP client tests with MSW
-3. Implement base HTTP client and debug tests
-4. Create CRUD operation tests
-5. Implement core CRUD operations and debug tests
-6. Create error handling tests
-7. Implement error handling and debug tests
-8. Set up CI validation
+1. Document current HTTP client implementation
 
-## Active Considerations
+   - Create client README.md
+   - Document extension points and features
+
+2. Design and implement Resource Layer
+
+   - Create base resource class
+   - Design resource-specific implementations
+   - Plan test migration strategy
+   - Implement initial resources
+
+3. Migrate CRUD tests to resource layer
+   - Keep existing tests until migration complete
+   - Move test logic to resource-specific tests
+   - Clean up after successful migration
+
+## Architecture
+
+### Layers
+
+1. HTTP Client Layer (Base)
+
+   - Generic HTTP operations
+   - Error handling
+   - Response parsing
+   - Auth management
+
+2. Resource Layer (New)
+   - Resource-specific APIs (Project, Task, etc.)
+   - CRUD operations
+   - Resource validation
+   - Type safety
 
 ### Technical Design
 
-1. HTTP client architecture with axios
-2. Resource URI patterns and entity modeling
-3. Error handling and validation integration
-4. Request/Response validation strategies
+1. HTTP client architecture
+
+   - Core request handling
+   - Error handling patterns
+   - Response parsing
+   - Extension points documented in README
+
+2. Resource layer design
+   - Base resource class
+   - Resource-specific implementations
+   - Type-safe methods
+   - Validation integration
 
 ### Implementation Strategy
 
 1. Test-driven development with small cycles
 2. Validation-first development using Zod schemas
 3. Immediate test coverage for new functionality
-4. Clear separation between HTTP client and validation logic
+4. Clear separation between layers
 
 ### Reference Implementations
 
@@ -64,33 +96,24 @@
 
 ### Open Questions
 
-1. When to implement optional features:
-   - Rate limiting implementation details
-   - Request retry policies
-   - Error recovery strategies
-2. How to set up automated test user creation and API token generation for local Vikunja testing
+1. How to manage resource relationships in the new layer
+2. How to handle resource-specific validation
+3. How to set up automated test user creation and API token generation for local Vikunja testing
 
 ## Current Work Items
 
 ### Recently Completed
 
-- MSW setup for API mocking
-  - Standardized response patterns for success/error cases
-  - Type-safe request handlers
-  - Comprehensive error simulation
-  - Clear test structure and organization
+- Basic HTTP client implemented and tested
+- MSW testing infrastructure set up
+- Project and Task endpoint tests implemented
+- Core error handling established
 
 ### In Progress
 
-- HTTP client implementation and testing
-  - Basic HTTP client implemented and tested with MSW
-  - Project and Task CRUD operations tested
-  - Core error handling patterns established
-  - Next phases:
-    1. Complete reference implementation review
-    2. Set up local Vikunja instance for integration testing
-    3. Write integration tests against local instance
-    4. Plan optional features implementation
+- HTTP client documentation
+- Resource layer design
+- Test migration strategy
 
 ### Blocked
 
