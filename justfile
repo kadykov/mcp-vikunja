@@ -7,5 +7,5 @@ install:
 
 # Run tests
 test *ARGS='':
-    npm run test -- {{ARGS}}
-    echo "Tests passed"
+    npm run test {{ARGS}}
+    @echo "All tests passed successfully!"
