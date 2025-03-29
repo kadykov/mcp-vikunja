@@ -75,16 +75,24 @@ graph TD
 
 2. **Testing Strategy**
 
-   - MSW for API mocking
-   - Test organization
+   - Unit Testing with MSW
 
      - One MSW handler per test case
      - Group by endpoint/method
      - Cover success and error paths
      - Type-safe request/response handling
      - Clear test data setup using factories
+     - Test organization by resource (project.test.ts, task.test.ts)
+     - Core client testing (client.test.ts)
 
-   - Error handling patterns
+   - Integration Testing with Local Vikunja
+
+     - Test against actual API behavior
+     - User and token management automation
+     - Docker-based test environment
+     - Reference implementation validation
+
+   - Error Handling Patterns
 
      - Network errors (Failed to fetch)
      - Invalid JSON responses
@@ -92,10 +100,12 @@ graph TD
      - Authentication errors
      - Validation errors
 
-   - Test-first development cycle
-   - Integration tests with mocked responses
-   - Mock MCP context for testing
-   - Reusable test utilities
+   - Development Cycle
+     - Test-first development
+     - Small, focused test iterations
+     - Immediate debugging and validation
+     - Reusable test utilities
+     - Mock MCP context for testing
 
 3. **Error Handling**
 

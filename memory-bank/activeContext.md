@@ -64,10 +64,11 @@
 
 ### Open Questions
 
-1. Rate limiting implementation details
-2. Request retry policies
-3. Integration of validation with HTTP client
-4. Error recovery strategies
+1. When to implement optional features:
+   - Rate limiting implementation details
+   - Request retry policies
+   - Error recovery strategies
+2. How to set up automated test user creation and API token generation for local Vikunja testing
 
 ## Current Work Items
 
@@ -82,10 +83,14 @@
 ### In Progress
 
 - HTTP client implementation and testing
-  - Success case handling with proper response structure
-  - Error case handling with standardized patterns
-  - Network error simulation and handling
-  - Type-safe request/response patterns
+  - Basic HTTP client implemented and tested with MSW
+  - Project and Task CRUD operations tested
+  - Core error handling patterns established
+  - Next phases:
+    1. Complete reference implementation review
+    2. Set up local Vikunja instance for integration testing
+    3. Write integration tests against local instance
+    4. Plan optional features implementation
 
 ### Blocked
 

@@ -122,10 +122,14 @@
   - Success/error response patterns established
   - Test structure patterns defined
   - Type-safe request/response handling
-- HTTP client layer partially implemented
+- HTTP client layer implemented with MSW tests
   - Core request handling complete
-  - Error handling patterns established
-  - Tests for projects and tasks passing
+  - Basic error handling patterns established
+  - Project and Task CRUD operations tested
+  - Next phases identified:
+    1. Reference implementation review
+    2. Integration testing with local Vikunja
+    3. Optional features (rate limiting, retry policies)
 
 ## Known Issues
 
@@ -133,13 +137,14 @@ None
 
 ## Next Milestone
 
-HTTP Client Layer Implementation
+HTTP Client Layer Integration Testing
 
-- Target: Working HTTP client with proper types and validation
+- Target: Fully tested HTTP client verified against real Vikunja API
 - Priority: High
-- Dependencies: Configuration system, Type definitions, Validation system, MSW test infrastructure
+- Dependencies: Local Vikunja instance, Reference implementations review
 - Next Steps:
-  1. Implement HTTP client using MSW tests as contract
-  2. Add error handling using established patterns
-  3. Integrate with configuration system
-  4. Add integration tests
+  1. Review reference implementations in local-docs/ for patterns
+  2. Set up local Vikunja instance using Docker
+  3. Create test automation for user/token setup
+  4. Implement integration tests
+  5. Plan optional features implementation
