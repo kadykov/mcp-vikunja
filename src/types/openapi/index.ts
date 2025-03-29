@@ -772,7 +772,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['code_vikunja_io_api_pkg_modules_auth.Token'];
+            'application/json': components['schemas']['auth.Token'];
           };
         };
         /** @description Invalid user password model. */
@@ -1645,8 +1645,6 @@ export interface paths {
           s?: string;
           /** @description If true, also returns all archived projects. */
           is_archived?: boolean;
-          /** @description If set to `rights`, Vikunja will return the max right the current user has on this project. You can currently only set this to `rights`. */
-          expand?: string;
         };
         header?: never;
         path?: never;
@@ -2724,7 +2722,7 @@ export interface paths {
     };
     /**
      * Get tasks in a project
-     * @description Returns all tasks for the selected project. When the requested view is a kanban view, a list of buckets containing the tasks will be returned. Otherwise, a list of tasks will be returned.
+     * @description Returns all tasks for the current project.
      */
     get: {
       parameters: {
@@ -2745,8 +2743,8 @@ export interface paths {
           filter_timezone?: string;
           /** @description If set to true the result will include filtered fields whose value is set to `null`. Available values are `true` or `false`. Defaults to `false`. */
           filter_include_nulls?: string;
-          /** @description If set to `subtasks`, Vikunja will fetch only tasks which do not have subtasks and then in a second step, will fetch all of these subtasks. This may result in more tasks than the pagination limit being returned, but all subtasks will be present in the response. If set to `buckets`, the buckets of each task will be present in the response. If set to `reactions`, the reactions of each task will be present in the response. If set to `comments`, the first 50 comments of each task will be present in the response. You can set this multiple times with different values. */
-          expand?: unknown[];
+          /** @description If set to `subtasks`, Vikunja will fetch only tasks which do not have subtasks and then in a second step, will fetch all of these subtasks. This may result in more tasks than the pagination limit being returned, but all subtasks will be present in the response. You can only set this to `subtasks`. */
+          expand?: string;
         };
         header?: never;
         path: {
@@ -4056,10 +4054,10 @@ export interface paths {
         path?: never;
         cookie?: never;
       };
-      /** @description The user with credentials to create */
+      /** @description The user credentials */
       requestBody: {
         content: {
-          'application/json': components['schemas']['v1.UserRegister'];
+          'application/json': components['schemas']['user.APIUserPassword'];
         };
       };
       responses: {
@@ -4173,7 +4171,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['code_vikunja_io_api_pkg_modules_auth.Token'];
+            'application/json': components['schemas']['auth.Token'];
           };
         };
         /** @description Invalid link share object provided. */
@@ -4358,8 +4356,8 @@ export interface paths {
           filter_timezone?: string;
           /** @description If set to true the result will include filtered fields whose value is set to `null`. Available values are `true` or `false`. Defaults to `false`. */
           filter_include_nulls?: string;
-          /** @description If set to `subtasks`, Vikunja will fetch only tasks which do not have subtasks and then in a second step, will fetch all of these subtasks. This may result in more tasks than the pagination limit being returned, but all subtasks will be present in the response. If set to `buckets`, the buckets of each task will be present in the response. If set to `reactions`, the reactions of each task will be present in the response. If set to `comments`, the first 50 comments of each task will be present in the response. You can set this multiple times with different values. */
-          expand?: unknown[];
+          /** @description If set to `subtasks`, Vikunja will fetch only tasks which do not have subtasks and then in a second step, will fetch all of these subtasks. This may result in more tasks than the pagination limit being returned, but all subtasks will be present in the response. You can only set this to `subtasks`. */
+          expand?: string;
         };
         header?: never;
         path?: never;
@@ -4479,10 +4477,7 @@ export interface paths {
      */
     get: {
       parameters: {
-        query?: {
-          /** @description If set to `subtasks`, Vikunja will fetch only tasks which do not have subtasks and then in a second step, will fetch all of these subtasks. This may result in more tasks than the pagination limit being returned, but all subtasks will be present in the response. If set to `buckets`, the buckets of each task will be present in the response. If set to `reactions`, the reactions of each task will be present in the response. If set to `comments`, the first 50 comments of each task will be present in the response. You can set this multiple times with different values. */
-          expand?: unknown[];
-        };
+        query?: never;
         header?: never;
         path: {
           /** @description The task ID */
@@ -6197,6 +6192,59 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/teams/{id}/members/{userID}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remove a user from a team
+     * @description Remove a user from a team. This will also revoke any access this user might have via that team. A user can remove themselves from the team if they are not the last user in the team.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description Team ID */
+          id: number;
+          /** @description User ID */
+          userID: number;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description The user was successfully removed from the team. */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['models.Message'];
+          };
+        };
+        /** @description Internal error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['models.Message'];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/teams/{id}/members/{userID}/admin': {
     parameters: {
       query?: never;
@@ -6245,59 +6293,6 @@ export interface paths {
       };
     };
     delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/teams/{id}/members/{username}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /**
-     * Remove a user from a team
-     * @description Remove a user from a team. This will also revoke any access this user might have via that team. A user can remove themselves from the team if they are not the last user in the team.
-     */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description The ID of the team you want to remove th user from */
-          id: number;
-          /** @description The username of the user you want to remove */
-          username: number;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description The user was successfully removed from the team. */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['models.Message'];
-          };
-        };
-        /** @description Internal error */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['models.Message'];
-          };
-        };
-      };
-    };
     options?: never;
     head?: never;
     patch?: never;
@@ -8010,7 +8005,7 @@ export interface paths {
             [name: string]: unknown;
           };
           content: {
-            'application/json': components['schemas']['code_vikunja_io_api_pkg_modules_auth.Token'];
+            'application/json': components['schemas']['auth.Token'];
           };
         };
         /** @description Only user token are available for renew. */
@@ -8375,6 +8370,10 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    'auth.Token': {
+      /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c */
+      token?: string;
+    };
     'background.Image': {
       blur_hash?: string;
       id?: string;
@@ -8382,10 +8381,6 @@ export interface components {
       info?: unknown;
       thumb?: string;
       url?: string;
-    };
-    'code_vikunja_io_api_pkg_modules_auth.Token': {
-      /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c */
-      token?: string;
     };
     'files.File': {
       created?: string;
@@ -8462,10 +8457,6 @@ export interface components {
       /** @description The bucket id. Will only be populated when the task is accessed via a view with buckets.
        *     Can be used to move a task between buckets. In that case, the new bucket must be in the same view as the old one. */
       bucket_id?: number;
-      /** @description All buckets across all views this task is part of. Only present when fetching tasks with the `expand` parameter set to `buckets`. */
-      buckets?: components['schemas']['models.Bucket'][];
-      /** @description All comments of this task. Only present when fetching tasks with the `expand` parameter set to `comments`. */
-      comments?: components['schemas']['models.TaskComment'][];
       /** @description If this task has a cover image, the field will return the id of the attachment that is the cover image. */
       cover_image_attachment_id?: number;
       /** @description A timestamp when this task was created. You cannot change this value. */
@@ -8617,7 +8608,6 @@ export interface components {
       is_archived?: boolean;
       /** @description True if a project is a favorite. Favorite projects show up in a separate parent project. This value depends on the user making the call to the api. */
       is_favorite?: boolean;
-      max_right?: components['schemas']['models.Right'];
       /** @description The user who created this project. */
       owner?: components['schemas']['user.User'];
       parent_project_id?: number;
@@ -8665,7 +8655,7 @@ export interface components {
       /** @description If tasks are moved to the done bucket, they are marked as done. If they are marked as done individually, they are moved into the done bucket. */
       done_bucket_id?: number;
       /** @description The filter query to match tasks by. Check out https://vikunja.io/docs/filters for a full explanation. */
-      filter?: components['schemas']['models.TaskCollection'];
+      filter?: string;
       /** @description The unique numeric id of this view */
       id?: number;
       /** @description The position of this view in the list. The list of all views will be sorted by this parameter. */
@@ -8680,7 +8670,7 @@ export interface components {
       view_kind?: components['schemas']['models.ProjectViewKind'];
     };
     'models.ProjectViewBucketConfiguration': {
-      filter?: components['schemas']['models.TaskCollection'];
+      filter?: string;
       title?: string;
     };
     /** @enum {integer} */
@@ -8758,10 +8748,6 @@ export interface components {
       /** @description The bucket id. Will only be populated when the task is accessed via a view with buckets.
        *     Can be used to move a task between buckets. In that case, the new bucket must be in the same view as the old one. */
       bucket_id?: number;
-      /** @description All buckets across all views this task is part of. Only present when fetching tasks with the `expand` parameter set to `buckets`. */
-      buckets?: components['schemas']['models.Bucket'][];
-      /** @description All comments of this task. Only present when fetching tasks with the `expand` parameter set to `comments`. */
-      comments?: components['schemas']['models.TaskComment'][];
       /** @description If this task has a cover image, the field will return the id of the attachment that is the cover image. */
       cover_image_attachment_id?: number;
       /** @description A timestamp when this task was created. You cannot change this value. */
@@ -8833,10 +8819,9 @@ export interface components {
       task_id?: number;
     };
     'models.TaskBucket': {
-      bucket?: components['schemas']['models.Bucket'];
       bucket_id?: number;
       project_view_id?: number;
-      task?: components['schemas']['models.Task'];
+      task_done?: boolean;
       task_id?: number;
     };
     'models.TaskCollection': {
@@ -8846,7 +8831,6 @@ export interface components {
       filter_include_nulls?: boolean;
       /** @description The query parameter to order the items by. This can be either asc or desc, with asc being the default. */
       order_by?: string[];
-      s?: string;
       /** @description The query parameter to sort by. This is for ex. done, priority, etc. */
       sort_by?: string[];
     };
@@ -8902,8 +8886,6 @@ export interface components {
       created_by?: components['schemas']['user.User'];
       /** @description The team's description. */
       description?: string;
-      /** @description The team's external id provided by the openid or ldap provider */
-      external_id?: string;
       /** @description The unique, numeric id of this team. */
       id?: number;
       /** @description Query parameter controlling whether to include public projects or not */
@@ -8914,6 +8896,8 @@ export interface components {
       members?: components['schemas']['models.TeamUser'][];
       /** @description The name of this team. */
       name?: string;
+      /** @description The team's oidc id delivered by the oidc provider */
+      oidc_id?: string;
       /** @description A timestamp when this relation was last updated. You cannot change this value. */
       updated?: string;
     };
@@ -8965,8 +8949,6 @@ export interface components {
       created_by?: components['schemas']['user.User'];
       /** @description The team's description. */
       description?: string;
-      /** @description The team's external id provided by the openid or ldap provider */
-      external_id?: string;
       /** @description The unique, numeric id of this team. */
       id?: number;
       /** @description Query parameter controlling whether to include public projects or not */
@@ -8977,6 +8959,8 @@ export interface components {
       members?: components['schemas']['models.TeamUser'][];
       /** @description The name of this team. */
       name?: string;
+      /** @description The team's oidc id delivered by the oidc provider */
+      oidc_id?: string;
       right?: components['schemas']['models.Right'];
       /** @description A timestamp when this relation was last updated. You cannot change this value. */
       updated?: string;
@@ -9034,18 +9018,26 @@ export interface components {
     'openid.Provider': {
       auth_url?: string;
       client_id?: string;
-      email_fallback?: boolean;
       key?: string;
       logout_url?: string;
       name?: string;
       scope?: string;
-      username_fallback?: boolean;
     };
     'todoist.Migration': {
       code?: string;
     };
     'trello.Migration': {
       code?: string;
+    };
+    'user.APIUserPassword': {
+      /** @description The user's email address */
+      email?: string;
+      /** @description The unique, numeric id of this user. */
+      id?: number;
+      /** @description The user's password in clear text. Only used when registering the user. The maximum limi is 72 bytes, which may be less than 72 characters. This is due to the limit in the bcrypt hashing algorithm used to store passwords in Vikunja. */
+      password?: string;
+      /** @description The user's username. Cannot contain anything that looks like an url or whitespaces. */
+      username?: string;
     };
     'user.EmailConfirm': {
       /** @description The email confirm token sent via email. */
@@ -9122,16 +9114,6 @@ export interface components {
     'v1.UserPasswordConfirmation': {
       password?: string;
     };
-    'v1.UserRegister': {
-      /** @description The user's email address */
-      email?: string;
-      /** @description The language of the new user. Must be a valid IETF BCP 47 language code and exist in Vikunja. */
-      language?: string;
-      /** @description The user's password in clear text. Only used when registering the user. The maximum limi is 72 bytes, which may be less than 72 characters. This is due to the limit in the bcrypt hashing algorithm used to store passwords in Vikunja. */
-      password?: string;
-      /** @description The user's username. Cannot contain anything that looks like an url or whitespaces. */
-      username?: string;
-    };
     'v1.UserSettings': {
       /** @description If a task is created without a specified project this value should be used. Applies
        *     to tasks made directly in API and from clients. */
@@ -9158,7 +9140,6 @@ export interface components {
       week_start?: number;
     };
     'v1.UserWithSettings': {
-      auth_provider?: string;
       /** @description A timestamp when this task was created. You cannot change this value. */
       created?: string;
       deletion_scheduled_at?: string;
@@ -9176,12 +9157,8 @@ export interface components {
       username?: string;
     };
     'v1.authInfo': {
-      ldap?: components['schemas']['v1.ldapAuthInfo'];
       local?: components['schemas']['v1.localAuthInfo'];
       openid_connect?: components['schemas']['v1.openIDAuthInfo'];
-    };
-    'v1.ldapAuthInfo': {
-      enabled?: boolean;
     };
     'v1.legalInfo': {
       imprint_url?: string;
@@ -9189,7 +9166,6 @@ export interface components {
     };
     'v1.localAuthInfo': {
       enabled?: boolean;
-      registration_enabled?: boolean;
     };
     'v1.openIDAuthInfo': {
       enabled?: boolean;
@@ -9208,6 +9184,7 @@ export interface components {
       max_file_size?: string;
       motd?: string;
       public_teams_enabled?: boolean;
+      registration_enabled?: boolean;
       task_attachments_enabled?: boolean;
       task_comments_enabled?: boolean;
       totp_enabled?: boolean;
@@ -9282,7 +9259,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['code_vikunja_io_api_pkg_modules_auth.Token'];
+          'application/json': components['schemas']['auth.Token'];
         };
       };
       /** @description Internal error */
