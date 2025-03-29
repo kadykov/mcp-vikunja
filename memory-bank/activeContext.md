@@ -4,10 +4,9 @@
 
 ### Focus Areas
 
-1. HTTP client implementation refinement
-2. Resource layer design and implementation
-3. Error handling and validation integration
-4. Documentation and architecture clarification
+1. Resource layer design and implementation
+2. Error handling and validation integration
+3. Documentation and architecture clarification
 
 ### Recent Decisions
 
@@ -19,22 +18,18 @@
 6. Feature-focused architecture with clear separation of concerns
 7. Jest with silent reporter for testing
 8. Two-layer architecture: HTTP client and Resource layer
+9. Keep optional features documented in component READMEs
 
 ### Next Steps (Prioritized)
 
-1. Document current HTTP client implementation
-
-   - Create client README.md
-   - Document extension points and features
-
-2. Design and implement Resource Layer
+1. Design and implement Resource Layer
 
    - Create base resource class
    - Design resource-specific implementations
    - Plan test migration strategy
    - Implement initial resources
 
-3. Migrate CRUD tests to resource layer
+2. Migrate CRUD tests to resource layer
    - Keep existing tests until migration complete
    - Move test logic to resource-specific tests
    - Clean up after successful migration
@@ -63,7 +58,7 @@
    - Core request handling
    - Error handling patterns
    - Response parsing
-   - Extension points documented in README
+   - Optional features documented in README
 
 2. Resource layer design
    - Base resource class
@@ -98,7 +93,6 @@
 
 1. How to manage resource relationships in the new layer
 2. How to handle resource-specific validation
-3. How to set up automated test user creation and API token generation for local Vikunja testing
 
 ## Current Work Items
 
@@ -108,10 +102,10 @@
 - MSW testing infrastructure set up
 - Project and Task endpoint tests implemented
 - Core error handling established
+- HTTP client documentation and README
 
 ### In Progress
 
-- HTTP client documentation
 - Resource layer design
 - Test migration strategy
 
@@ -133,3 +127,4 @@ None currently
   - Zod schemas for API types
   - Comprehensive test coverage
 - API client implementation strategy defined
+- HTTP client implementation and documentation
