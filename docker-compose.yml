@@ -1,0 +1,47 @@
+---
+services:
+  app:
+    build: .
+    env_file: .env
+
+    volumes:
+      - ..:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: bridge
+
+    # Add initialization for Vikunja volumes during devcontainer startup
+    init: true
+    entrypoint:
+      [
+        '/bin/sh',
+        '-c',
+        'mkdir -p /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files && chown -R 1000:1000 /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files && exec sleep infinity',
+      ]
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  vikunja:
+    image: vikunja/vikunja
+    environment:
+      VIKUNJA_SERVICE_JWTSECRET: asupersecurerandomsecret
+      VIKUNJA_SERVICE_PUBLICURL: http://127.0.0.1/
+      # Note the default path is /app/vikunja/vikunja.db.
+      # This config variable moves it to a different folder so you can use a volume and
+      # store the database file outside the container so state is persisted even if the container is destroyed.
+      VIKUNJA_DATABASE_TYPE: sqlite
+      VIKUNJA_DATABASE_PATH: /db/vikunja.db
+      VIKUNJA_CORS_ENABLE: true
+    ports:
+      - 3456:3456
+    volumes:
+      - ./files:/app/vikunja/files
+      - ./db:/db
+    restart: unless-stopped
+
+    # Add "forwardPorts": ["3456"] to **devcontainer.json** to forward PostgreSQL locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
