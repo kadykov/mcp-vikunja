@@ -22,10 +22,11 @@ describe('Project API', () => {
       });
 
       server.use(
-        http.get(`${API_BASE}/projects/123`, () => {
-          return Response.json({
+        http.get(`${API_BASE}/projects/123`, async () => {
+          const response = await Promise.resolve({
             data: testProject,
           });
+          return Response.json(response);
         })
       );
 
@@ -45,10 +46,11 @@ describe('Project API', () => {
         .map((_, i) => factories.createProject({ id: i + 1 }));
 
       server.use(
-        http.get(`${API_BASE}/projects`, () => {
-          return Response.json({
+        http.get(`${API_BASE}/projects`, async () => {
+          const response = await Promise.resolve({
             data: testProjects,
           });
+          return Response.json(response);
         })
       );
 
@@ -59,36 +61,40 @@ describe('Project API', () => {
 
   describe('PUT /projects', () => {
     test('should create a new project', async () => {
-      const newProject = {
+      type NewProject = Pick<Project, 'title' | 'description'>;
+      const newProject: NewProject = {
         title: 'New Project',
         description: 'Project created in test',
       };
 
+      const responseProject: Project = {
+        ...newProject,
+        id: 1,
+        created: new Date().toISOString(),
+        updated: new Date().toISOString(),
+      };
+
       server.use(
-        http.put(`${API_BASE}/projects`, () => {
-          return Response.json({
-            data: {
-              ...newProject,
-              id: 1,
-              created: expect.any(String),
-              updated: expect.any(String),
-            },
+        http.put(`${API_BASE}/projects`, async () => {
+          const response = await Promise.resolve({
+            data: responseProject,
             status: 201,
           });
+          return Response.json(response);
         })
       );
 
       const result = await client.put<{ data: Project }>('/projects', newProject);
-      expect(result.data).toMatchObject({
-        ...newProject,
-        id: expect.any(Number),
-      });
+      const expectedFields: Pick<Project, 'title' | 'description'> = newProject;
+      expect(result.data).toMatchObject(expectedFields);
+      expect(result.data.id).toBe(1);
     });
 
     test('should validate required fields', async () => {
       server.use(
-        http.put(`${API_BASE}/projects`, () => {
-          return new Response(JSON.stringify(createErrorResponse(400, 'Title is required')), {
+        http.put(`${API_BASE}/projects`, async () => {
+          const error = await Promise.resolve(createErrorResponse(400, 'Title is required'));
+          return new Response(JSON.stringify(error), {
             status: 400,
           });
         })
@@ -100,33 +106,41 @@ describe('Project API', () => {
 
   describe('POST /projects/:id', () => {
     test('should update an existing project', async () => {
-      const updateData = {
+      type ProjectUpdate = Pick<Project, 'title' | 'description'>;
+      const updateData: ProjectUpdate = {
         title: 'Updated Project',
         description: 'Updated description',
       };
 
+      const updatedProject: Project = {
+        ...updateData,
+        id: 123,
+        created: new Date().toISOString(),
+        updated: new Date().toISOString(),
+      };
+
       server.use(
-        http.post(`${API_BASE}/projects/123`, () => {
-          return Response.json({
-            data: {
-              ...updateData,
-              id: 123,
-            },
+        http.post(`${API_BASE}/projects/123`, async () => {
+          const response = await Promise.resolve({
+            data: updatedProject,
           });
+          return Response.json(response);
         })
       );
 
       const result = await client.post<{ data: Project }>(testData.projectPath(123), updateData);
-      expect(result.data).toMatchObject({
+      const expectedPartialProject: ProjectUpdate & { id: number } = {
         ...updateData,
         id: 123,
-      });
+      };
+      expect(result.data).toMatchObject(expectedPartialProject);
     });
 
     test('should handle non-existent project update', async () => {
       server.use(
-        http.post(`${API_BASE}/projects/999`, () => {
-          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+        http.post(`${API_BASE}/projects/999`, async () => {
+          const error = await Promise.resolve(createErrorResponse(404, 'Project not found'));
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -141,7 +155,8 @@ describe('Project API', () => {
   describe('DELETE /projects/:id', () => {
     test('should delete a project', async () => {
       server.use(
-        http.delete(`${API_BASE}/projects/123`, () => {
+        http.delete(`${API_BASE}/projects/123`, async () => {
+          await Promise.resolve(); // Simulate async work
           return new Response(null, { status: 204 });
         })
       );
@@ -151,8 +166,9 @@ describe('Project API', () => {
 
     test('should handle deleting non-existent project', async () => {
       server.use(
-        http.delete(`${API_BASE}/projects/999`, () => {
-          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+        http.delete(`${API_BASE}/projects/999`, async () => {
+          const error = await Promise.resolve(createErrorResponse(404, 'Project not found'));
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })

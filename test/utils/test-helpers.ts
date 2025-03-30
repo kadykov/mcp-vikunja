@@ -1,5 +1,11 @@
 import { ApiSuccessResponse, ApiErrorResponse } from '../mocks/types';
 
+interface RequestInit {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+}
+
 export const API_BASE = process.env.VIKUNJA_API_BASE || 'http://localhost:3456/api/v1';
 
 /**
@@ -22,26 +28,27 @@ export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<ApiSuccessResponse<T>> {
+  const requestHeaders: Record<string, string> = {
+    Authorization: 'Bearer test-token',
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  };
+
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
-    headers: {
-      Authorization: 'Bearer test-token',
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers: requestHeaders,
   });
 
-  const data = await response.json();
+  const responseData = (await response.json()) as ApiSuccessResponse<T> | ApiErrorResponse;
 
   // Handle error responses
   if (!response.ok) {
-    const error = data as ApiErrorResponse;
-    // Default to response status if error code is not provided
-    const errorCode = typeof error.code === 'number' ? error.code : response.status;
-    throw new ApiError(errorCode, error.message || 'Unknown error');
+    const errorResponse = responseData as ApiErrorResponse;
+    const errorCode = errorResponse.code ?? response.status;
+    throw new ApiError(errorCode, errorResponse.message || 'Unknown error');
   }
 
-  return data as ApiSuccessResponse<T>;
+  return responseData as ApiSuccessResponse<T>;
 }
 
 /**
@@ -68,13 +75,13 @@ export async function apiPost<T>(path: string, data: unknown): Promise<ApiSucces
  * Helper to assert API error responses
  */
 export async function expectApiError(
-  promise: Promise<any>,
+  promise: Promise<unknown>,
   expectedStatus: number,
   expectedMessage: string
 ): Promise<void> {
   try {
     await promise;
-    fail('Expected API call to fail');
+    expect(true).toBe(false); // Force test failure if promise resolves
   } catch (error) {
     if (error instanceof ApiError) {
       expect(error.code).toBe(expectedStatus);
@@ -89,7 +96,7 @@ export async function expectApiError(
  * Common test data builder functions
  */
 export const testData = {
-  projectPath: (id: number | string) => `/projects/${id}`,
-  taskPath: (id: number | string) => `/tasks/${id}`,
-  projectTasksPath: (projectId: number | string) => `/projects/${projectId}/tasks`,
+  projectPath: (id: number | string): string => `/projects/${id}`,
+  taskPath: (id: number | string): string => `/tasks/${id}`,
+  projectTasksPath: (projectId: number | string): string => `/projects/${projectId}/tasks`,
 };

@@ -15,9 +15,13 @@ describe('HTTP Client', () => {
   describe('Request Headers', () => {
     test('should include auth token in headers', async () => {
       server.use(
-        http.get(`${API_BASE}/test`, ({ request }) => {
-          expect(request.headers.get('Authorization')).toBeTruthy();
-          expect(request.headers.get('Content-Type')).toBe('application/json');
+        http.get(`${API_BASE}/test`, async ({ request }) => {
+          const headers = await Promise.resolve({
+            auth: request.headers.get('Authorization'),
+            contentType: request.headers.get('Content-Type'),
+          });
+          expect(headers.auth).toBeTruthy();
+          expect(headers.contentType).toBe('application/json');
           return Response.json({ data: { message: 'test' } });
         })
       );
@@ -29,8 +33,10 @@ describe('HTTP Client', () => {
   describe('Error Handling', () => {
     test('should handle network errors', async () => {
       server.use(
-        http.get(`${API_BASE}/test`, () => {
-          return Response.error();
+        http.get(`${API_BASE}/test`, async () => {
+          await Promise.resolve(); // Simulate async work
+          const error = await Promise.resolve(Response.error());
+          return error;
         })
       );
 
@@ -40,7 +46,8 @@ describe('HTTP Client', () => {
     test('should handle timeout errors', async () => {
       server.use(
         http.get(`${API_BASE}/test`, async () => {
-          return new Response(JSON.stringify(createErrorResponse(408, 'Request timeout')), {
+          const error = await Promise.resolve(createErrorResponse(408, 'Request timeout'));
+          return new Response(JSON.stringify(error), {
             status: 408,
           });
         })
@@ -51,8 +58,9 @@ describe('HTTP Client', () => {
 
     test('should handle server errors', async () => {
       server.use(
-        http.get(`${API_BASE}/test`, () => {
-          return new Response(JSON.stringify(createErrorResponse(500, 'Internal server error')), {
+        http.get(`${API_BASE}/test`, async () => {
+          const response = await Promise.resolve(createErrorResponse(500, 'Internal server error'));
+          return new Response(JSON.stringify(response), {
             status: 500,
           });
         })
@@ -64,7 +72,12 @@ describe('HTTP Client', () => {
     test('should handle invalid JSON responses', async () => {
       server.use(
         http.get(`${API_BASE}/test`, () => {
-          return new Response('invalid json');
+          return new Response('invalid json{', {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
         })
       );
 
@@ -105,7 +118,8 @@ describe('HTTP Client', () => {
 
     test('should make DELETE request', async () => {
       server.use(
-        http.delete(`${API_BASE}/test`, () => {
+        http.delete(`${API_BASE}/test`, async () => {
+          await Promise.resolve(); // Simulate async work
           return Response.json({ status: 204 });
         })
       );

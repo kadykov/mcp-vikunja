@@ -22,21 +22,23 @@ describe('Task API', () => {
       });
 
       server.use(
-        http.get(`${API_BASE}/tasks/123`, () => {
-          return Response.json({
+        http.get(`${API_BASE}/tasks/123`, async () => {
+          const response = await Promise.resolve({
             data: testTask,
           });
+          return Response.json(response);
         })
       );
 
       const result = await client.get<{ data: Task }>(testData.taskPath(123));
-      expect(result.data).toEqual(testTask);
+      expect(result.data).toStrictEqual(testTask);
     });
 
     test('should handle task not found', async () => {
       server.use(
-        http.get(`${API_BASE}/tasks/999`, () => {
-          return new Response(JSON.stringify(createErrorResponse(404, 'Task not found')), {
+        http.get(`${API_BASE}/tasks/999`, async () => {
+          const error = await Promise.resolve(createErrorResponse(404, 'Task not found'));
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -59,10 +61,11 @@ describe('Task API', () => {
         );
 
       server.use(
-        http.get(`${API_BASE}/projects/${projectId}/tasks`, () => {
-          return Response.json({
+        http.get(`${API_BASE}/projects/${projectId}/tasks`, async () => {
+          const response = await Promise.resolve({
             data: testTasks,
           });
+          return Response.json(response);
         })
       );
 
@@ -72,8 +75,9 @@ describe('Task API', () => {
 
     test('should handle non-existent project', async () => {
       server.use(
-        http.get(`${API_BASE}/projects/999/tasks`, () => {
-          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+        http.get(`${API_BASE}/projects/999/tasks`, async () => {
+          const error = await Promise.resolve(createErrorResponse(404, 'Project not found'));
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -86,23 +90,27 @@ describe('Task API', () => {
   describe('PUT /projects/:projectId/tasks', () => {
     test('should create a new task in project', async () => {
       const projectId = 456;
-      const newTask = {
+      type NewTask = Pick<Task, 'title' | 'description'>;
+      const newTask: NewTask = {
         title: 'New Task',
         description: 'Task created in test',
       };
 
       server.use(
-        http.put(`${API_BASE}/projects/${projectId}/tasks`, () => {
-          return Response.json({
-            data: {
-              ...newTask,
-              id: 1,
-              project_id: projectId,
-              created: expect.any(String),
-              updated: expect.any(String),
-            },
+        http.put(`${API_BASE}/projects/${projectId}/tasks`, async () => {
+          const taskResponse: Task = {
+            ...newTask,
+            id: 1,
+            project_id: projectId,
+            created: new Date().toISOString(),
+            updated: new Date().toISOString(),
+            done: false,
+          };
+          const response = await Promise.resolve({
+            data: taskResponse,
             status: 201,
           });
+          return Response.json(response);
         })
       );
 
@@ -110,17 +118,17 @@ describe('Task API', () => {
         testData.projectTasksPath(projectId),
         newTask
       );
-      expect(result.data).toMatchObject({
-        ...newTask,
-        project_id: projectId,
-        id: expect.any(Number),
-      });
+      const expectedFields: Pick<Task, 'title' | 'description'> = newTask;
+      expect(result.data).toMatchObject(expectedFields);
+      expect(result.data.project_id).toBe(projectId);
+      expect(result.data.id).toBe(1);
     });
 
     test('should validate required fields', async () => {
       server.use(
-        http.put(`${API_BASE}/projects/456/tasks`, () => {
-          return new Response(JSON.stringify(createErrorResponse(400, 'Title is required')), {
+        http.put(`${API_BASE}/projects/456/tasks`, async () => {
+          const error = await Promise.resolve(createErrorResponse(400, 'Title is required'));
+          return new Response(JSON.stringify(error), {
             status: 400,
           });
         })
@@ -133,8 +141,9 @@ describe('Task API', () => {
 
     test('should handle creating task in non-existent project', async () => {
       server.use(
-        http.put(`${API_BASE}/projects/999/tasks`, () => {
-          return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+        http.put(`${API_BASE}/projects/999/tasks`, async () => {
+          const error = await Promise.resolve(createErrorResponse(404, 'Project not found'));
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -149,8 +158,9 @@ describe('Task API', () => {
   describe('POST /tasks/:id', () => {
     test('should handle non-existent task update', async () => {
       server.use(
-        http.post(`${API_BASE}/tasks/999`, () => {
-          return new Response(JSON.stringify(createErrorResponse(404, 'Task not found')), {
+        http.post(`${API_BASE}/tasks/999`, async () => {
+          const error = await Promise.resolve(createErrorResponse(404, 'Task not found'));
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -162,36 +172,41 @@ describe('Task API', () => {
     });
 
     test('should update an existing task', async () => {
-      const updateData = {
+      type TaskUpdate = Pick<Task, 'title' | 'description'>;
+      const updateData: TaskUpdate = {
         title: 'Updated Task',
         description: 'Updated description',
       };
 
       server.use(
-        http.post(`${API_BASE}/tasks/123`, () => {
-          return Response.json({
-            data: {
-              ...updateData,
-              id: 123,
-              created: expect.any(String),
-              updated: expect.any(String),
-            },
+        http.post(`${API_BASE}/tasks/123`, async () => {
+          const taskResponse: Task = {
+            ...updateData,
+            id: 123,
+            created: new Date().toISOString(),
+            updated: new Date().toISOString(),
+            done: false,
+            project_id: 1,
+          };
+          const response = await Promise.resolve({
+            data: taskResponse,
           });
+          return Response.json(response);
         })
       );
 
       const result = await client.post<{ data: Task }>(testData.taskPath(123), updateData);
-      expect(result.data).toMatchObject({
-        ...updateData,
-        id: 123,
-      });
+      const expectedFields: Pick<Task, 'title' | 'description'> = updateData;
+      expect(result.data).toMatchObject(expectedFields);
+      expect(result.data.id).toBe(123);
     });
   });
 
   describe('DELETE /tasks/:id', () => {
     test('should delete a task', async () => {
       server.use(
-        http.delete(`${API_BASE}/tasks/123`, () => {
+        http.delete(`${API_BASE}/tasks/123`, async () => {
+          await Promise.resolve(); // Simulate async work
           return new Response(null, { status: 204 });
         })
       );
@@ -201,8 +216,9 @@ describe('Task API', () => {
 
     test('should handle deleting non-existent task', async () => {
       server.use(
-        http.delete(`${API_BASE}/tasks/999`, () => {
-          return new Response(JSON.stringify(createErrorResponse(404, 'Task not found')), {
+        http.delete(`${API_BASE}/tasks/999`, async () => {
+          const error = await Promise.resolve(createErrorResponse(404, 'Task not found'));
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })

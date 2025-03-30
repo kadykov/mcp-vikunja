@@ -16,7 +16,21 @@ export const factories = {
 export const TEST_API_URL = 'http://localhost:3456';
 export const TEST_API_TOKEN = 'test-token';
 
-export const createTestConfig = (override = {}) => ({
+interface ConfigOverride {
+  apiUrl?: string;
+  token?: string;
+  rateLimit?: {
+    maxRequests: number;
+    timeWindow: number;
+  };
+}
+
+export const createTestConfig = (
+  override: ConfigOverride = {}
+): {
+  apiUrl: string;
+  token: string;
+} => ({
   apiUrl: TEST_API_URL,
   token: TEST_API_TOKEN,
   ...override,

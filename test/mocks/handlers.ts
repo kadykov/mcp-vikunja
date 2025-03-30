@@ -23,12 +23,14 @@ export const projectHandlers = [
 
     // Mock "not found" for specific IDs
     if (id === 999) {
-      return new Response(JSON.stringify(createErrorResponse(404, 'Project not found')), {
+      const errorResponse = await Promise.resolve(createErrorResponse(404, 'Project not found'));
+      return new Response(JSON.stringify(errorResponse), {
         status: 404,
       });
     }
 
-    return Response.json(success(createProject({ id })));
+    const project = await Promise.resolve(createProject({ id }));
+    return Response.json(success(project));
   }),
 
   // List Projects
@@ -37,17 +39,27 @@ export const projectHandlers = [
     const page = Number(url.searchParams.get('page')) || 1;
     const perPage = Number(url.searchParams.get('per_page')) || 10;
 
-    const projects = Array(perPage)
-      .fill(null)
-      .map((_, i) => createProject({ id: (page - 1) * perPage + i + 1 }));
+    const projects = await Promise.all(
+      Array(perPage)
+        .fill(null)
+        .map((_, i) => ({ id: (page - 1) * perPage + i + 1 }))
+    );
 
-    return Response.json(success(projects));
+    // Create all projects in parallel
+    const projectsList = await Promise.all(
+      projects.map(async p => {
+        const project = await Promise.resolve(createProject(p));
+        return project;
+      })
+    );
+    return Response.json(success(projectsList));
   }),
 
   // Create Project
   http.put(`${API_BASE}/projects`, async ({ request }) => {
     const data = (await request.json()) as Partial<Project>;
-    return Response.json(success(createProject(data), 201));
+    const project = await Promise.resolve(createProject(data));
+    return Response.json(success(project, 201));
   }),
 ];
 
@@ -60,20 +72,23 @@ export const taskHandlers = [
     const id = Number(params.id);
 
     if (id === 999) {
-      return new Response(JSON.stringify(createErrorResponse(404, 'Task not found')), {
+      const errorResponse = await Promise.resolve(createErrorResponse(404, 'Task not found'));
+      return new Response(JSON.stringify(errorResponse), {
         status: 404,
       });
     }
 
-    return Response.json(success(createTask({ id })));
+    const task = await Promise.resolve(createTask({ id }));
+    return Response.json(success(task));
   }),
 
   // Create Task
   http.put(`${API_BASE}/projects/:projectId/tasks`, async ({ request, params }) => {
     const projectId = Number(params.projectId);
     const data = (await request.json()) as Partial<Task>;
+    const task = await Promise.resolve(createTask({ ...data, project_id: projectId }));
 
-    return Response.json(success(createTask({ ...data, project_id: projectId }), 201));
+    return Response.json(success(task, 201));
   }),
 ];
 

@@ -5,7 +5,20 @@ interface VikunjaErrorResponse {
   message: string;
 }
 
-export async function createTestUser() {
+interface LoginResponse {
+  token: string;
+}
+
+interface TestUser {
+  credentials: {
+    username: string;
+    email: string;
+    password: string;
+  };
+  token: string;
+}
+
+export async function createTestUser(): Promise<TestUser> {
   const credentials = {
     username: 'mcp-test-user',
     email: 'mcp-test@example.com',
@@ -34,14 +47,15 @@ export async function createTestUser() {
     }
   }
 
-  const loginResponse = await axiosInstance.post('/login', credentials);
+  const loginResponse = await axiosInstance.post<LoginResponse>('/login', credentials);
+  const { token } = loginResponse.data;
 
-  if (!loginResponse.data.token) {
+  if (!token) {
     throw new Error('No token received from login');
   }
 
   return {
     credentials,
-    token: loginResponse.data.token,
+    token,
   };
 }

@@ -90,14 +90,19 @@ export class VikunjaHttpClient {
         throw new InvalidResponseError('Invalid JSON response');
       }
     } catch (error) {
-      // Handle network errors (Response.error())
-      if (error instanceof TypeError) {
-        throw new NetworkError();
-      }
-
       // Re-throw VikunjaErrors
       if (error instanceof VikunjaError) {
         throw error;
+      }
+
+      // Handle invalid JSON responses
+      if (error instanceof SyntaxError) {
+        throw new InvalidResponseError('Invalid JSON response');
+      }
+
+      // Handle network errors (Response.error())
+      if (error instanceof TypeError) {
+        throw new NetworkError();
       }
 
       // Other unknown errors

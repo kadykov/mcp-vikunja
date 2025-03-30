@@ -54,15 +54,11 @@ describe('Configuration Validation', () => {
 
   it('includes field name in validation error', async () => {
     const config = createTestConfig({ apiUrl: 'invalid' });
-    try {
-      await validateConfig(config);
-      fail('Expected validation to fail');
-    } catch (error) {
-      if (error instanceof Error) {
-        expect(error.message).toContain('apiUrl');
-      } else {
-        fail('Expected error to be an instance of Error');
-      }
-    }
+    const validationPromise = validateConfig(config);
+    await expect(validationPromise).rejects.toThrow();
+    await expect(validationPromise).rejects.toHaveProperty(
+      'message',
+      expect.stringContaining('apiUrl')
+    );
   });
 });

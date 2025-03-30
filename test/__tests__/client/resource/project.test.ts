@@ -4,6 +4,7 @@ import { factories } from '../../../mocks';
 import { API_BASE } from '../../../utils/test-helpers';
 import { VikunjaHttpClient } from '../../../../src/client/http/client';
 import { ProjectResource } from '../../../../src/client/resource/project';
+import type { Project } from '../../../../src/types';
 
 describe('ProjectResource', () => {
   const client = new VikunjaHttpClient({
@@ -23,8 +24,9 @@ describe('ProjectResource', () => {
       });
 
       server.use(
-        http.get(`${API_BASE}/projects/123`, () => {
-          return Response.json(testProject);
+        http.get(`${API_BASE}/projects/123`, async () => {
+          const response = await Promise.resolve(testProject);
+          return Response.json(response);
         })
       );
 
@@ -34,8 +36,9 @@ describe('ProjectResource', () => {
 
     test('should handle project not found', async () => {
       server.use(
-        http.get(`${API_BASE}/projects/999`, () => {
-          return new Response(JSON.stringify({ code: 404, message: 'Project not found' }), {
+        http.get(`${API_BASE}/projects/999`, async () => {
+          const error = await Promise.resolve({ code: 404, message: 'Project not found' });
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -47,33 +50,35 @@ describe('ProjectResource', () => {
 
   describe('create()', () => {
     test('should create a new project', async () => {
-      const newProject = {
+      type NewProject = Pick<Project, 'title' | 'description'>;
+      const newProject: NewProject = {
         title: 'New Project',
         description: 'Project created in test',
       };
 
-      const createdProject = {
+      const createdProject: Pick<Project, 'title' | 'description' | 'id'> = {
         ...newProject,
         id: 1,
       };
 
       server.use(
-        http.put(`${API_BASE}/projects`, () => {
-          return Response.json(createdProject);
+        http.put(`${API_BASE}/projects`, async () => {
+          const response = await Promise.resolve(createdProject);
+          return Response.json(response);
         })
       );
 
       const result = await projectResource.create(newProject);
-      expect(result).toMatchObject({
-        ...newProject,
-        id: expect.any(Number),
-      });
+      const expectedFields: Pick<Project, 'title' | 'description'> = newProject;
+      expect(result).toMatchObject(expectedFields);
+      expect(result.id).toBe(1);
     });
 
     test('should validate required fields', async () => {
       server.use(
-        http.put(`${API_BASE}/projects`, () => {
-          return new Response(JSON.stringify({ code: 400, message: 'Title is required' }), {
+        http.put(`${API_BASE}/projects`, async () => {
+          const error = await Promise.resolve({ code: 400, message: 'Title is required' });
+          return new Response(JSON.stringify(error), {
             status: 400,
           });
         })
@@ -85,33 +90,35 @@ describe('ProjectResource', () => {
 
   describe('update()', () => {
     test('should update an existing project', async () => {
-      const updateData = {
+      type UpdateProject = Pick<Project, 'title' | 'description'>;
+      const updateData: UpdateProject = {
         title: 'Updated Project',
         description: 'Updated description',
       };
 
-      const updatedProject = {
+      const updatedProject: Pick<Project, 'title' | 'description' | 'id'> = {
         ...updateData,
         id: 123,
       };
 
       server.use(
-        http.post(`${API_BASE}/projects/123`, () => {
-          return Response.json(updatedProject);
+        http.post(`${API_BASE}/projects/123`, async () => {
+          const response = await Promise.resolve(updatedProject);
+          return Response.json(response);
         })
       );
 
       const result = await projectResource.update(123, updateData);
-      expect(result).toMatchObject({
-        ...updateData,
-        id: 123,
-      });
+      const expectedFields: Pick<Project, 'title' | 'description'> = updateData;
+      expect(result).toMatchObject(expectedFields);
+      expect(result.id).toBe(123);
     });
 
     test('should handle non-existent project update', async () => {
       server.use(
-        http.post(`${API_BASE}/projects/999`, () => {
-          return new Response(JSON.stringify({ code: 404, message: 'Project not found' }), {
+        http.post(`${API_BASE}/projects/999`, async () => {
+          const error = await Promise.resolve({ code: 404, message: 'Project not found' });
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -126,7 +133,8 @@ describe('ProjectResource', () => {
   describe('delete()', () => {
     test('should delete a project', async () => {
       server.use(
-        http.delete(`${API_BASE}/projects/123`, () => {
+        http.delete(`${API_BASE}/projects/123`, async () => {
+          await Promise.resolve(); // Simulate async work
           return new Response(null, { status: 204 });
         })
       );
@@ -136,8 +144,9 @@ describe('ProjectResource', () => {
 
     test('should handle deleting non-existent project', async () => {
       server.use(
-        http.delete(`${API_BASE}/projects/999`, () => {
-          return new Response(JSON.stringify({ code: 404, message: 'Project not found' }), {
+        http.delete(`${API_BASE}/projects/999`, async () => {
+          const error = await Promise.resolve({ code: 404, message: 'Project not found' });
+          return new Response(JSON.stringify(error), {
             status: 404,
           });
         })
@@ -154,8 +163,9 @@ describe('ProjectResource', () => {
         .map((_, i) => factories.createProject({ id: i + 1 }));
 
       server.use(
-        http.get(`${API_BASE}/projects`, () => {
-          return Response.json(testProjects);
+        http.get(`${API_BASE}/projects`, async () => {
+          const response = await Promise.resolve(testProjects);
+          return Response.json(response);
         })
       );
 
@@ -165,8 +175,9 @@ describe('ProjectResource', () => {
 
     test('should handle empty project list', async () => {
       server.use(
-        http.get(`${API_BASE}/projects`, () => {
-          return Response.json([]);
+        http.get(`${API_BASE}/projects`, async () => {
+          const response = await Promise.resolve([]);
+          return Response.json(response);
         })
       );
 

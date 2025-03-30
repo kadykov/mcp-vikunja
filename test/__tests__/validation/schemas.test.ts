@@ -112,7 +112,13 @@ describe('Response Schema Validation', () => {
     });
 
     it('should throw ValidationError with invalid optional field values', () => {
-      const taskWithInvalidOptionalFields: Task = {
+      interface InvalidTaskType extends Omit<Task, 'start_date' | 'priority' | 'bucket_id'> {
+        start_date: string;
+        priority: number;
+        bucket_id: number;
+      }
+
+      const taskWithInvalidOptionalFields: InvalidTaskType = {
         id: 1,
         title: 'Test Task',
         description: 'Test Description',
@@ -132,7 +138,7 @@ describe('Response Schema Validation', () => {
         start_date: 'invalid-date', // Should be ISO date
         priority: -1, // Should be positive
         bucket_id: 0, // Should be positive
-      } as any; // Using 'as any' to allow invalid types for testing
+      };
 
       expect(() => validateTaskResponse(taskWithInvalidOptionalFields)).toThrow(ValidationError);
       try {
