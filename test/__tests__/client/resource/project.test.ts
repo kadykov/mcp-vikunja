@@ -24,9 +24,7 @@ describe('ProjectResource', () => {
 
       server.use(
         http.get(`${API_BASE}/projects/123`, () => {
-          return Response.json({
-            data: testProject,
-          });
+          return Response.json(testProject);
         })
       );
 
@@ -57,15 +55,11 @@ describe('ProjectResource', () => {
       const createdProject = {
         ...newProject,
         id: 1,
-        created: expect.any(String),
-        updated: expect.any(String),
       };
 
       server.use(
         http.put(`${API_BASE}/projects`, () => {
-          return Response.json({
-            data: createdProject,
-          });
+          return Response.json(createdProject);
         })
       );
 
@@ -99,15 +93,11 @@ describe('ProjectResource', () => {
       const updatedProject = {
         ...updateData,
         id: 123,
-        created: expect.any(String),
-        updated: expect.any(String),
       };
 
       server.use(
         http.post(`${API_BASE}/projects/123`, () => {
-          return Response.json({
-            data: updatedProject,
-          });
+          return Response.json(updatedProject);
         })
       );
 
@@ -165,9 +155,7 @@ describe('ProjectResource', () => {
 
       server.use(
         http.get(`${API_BASE}/projects`, () => {
-          return Response.json({
-            data: testProjects,
-          });
+          return Response.json(testProjects);
         })
       );
 
@@ -178,9 +166,7 @@ describe('ProjectResource', () => {
     test('should handle empty project list', async () => {
       server.use(
         http.get(`${API_BASE}/projects`, () => {
-          return Response.json({
-            data: [],
-          });
+          return Response.json([]);
         })
       );
 
