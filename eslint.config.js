@@ -5,7 +5,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'local-docs/**'],
+    ignores: ['dist/**', 'node_modules/**', 'local-docs/**', 'src/types/openapi/index.ts'],
   },
   eslintJs.configs.recommended,
   {
@@ -19,7 +19,6 @@ export default [
       },
       globals: {
         ...globals.node,
-        ...globals.jest,
       },
     },
     plugins: {
@@ -39,6 +38,14 @@ export default [
         },
       ],
       'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
+  },
+  {
+    files: ['test/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
     },
   },
 ];

@@ -10,15 +10,16 @@
     "outDir": "dist",
     "declaration": true,
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "lib": ["ES2020"],
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["jest", "node"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist", "local-docs"]
 }
