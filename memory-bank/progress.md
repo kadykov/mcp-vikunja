@@ -41,6 +41,7 @@
   - Test helper for Vikunja user management
   - Direct API interaction testing
   - Project resource integration tests
+  - Task resource integration tests
   - Real Vikunja instance testing support
 
 ## What's Left to Build
@@ -87,13 +88,15 @@
   - [ ] Resource-specific validation
   - [ ] Query parameter support
 
-- [ ] Task Resource
+- [x] Task Resource
 
-  - [ ] Implementation
-  - [ ] Unit test migration from existing tests
-  - [ ] Integration test implementation
-  - [ ] Validation integration
-  - [ ] Documentation
+  - [x] Implementation
+  - [x] Unit test migration from existing tests
+  - [x] Integration test implementation
+  - [x] Validation integration (project_id)
+  - [x] Documentation
+  - [ ] Error case testing
+  - [ ] Query parameter support
 
 - [ ] Additional Resources
   - [ ] Labels
@@ -139,16 +142,18 @@ Key achievements:
 
 - Base resource layer design and implementation completed
 - Project resource implementation with full CRUD support
+- Task resource implementation with full CRUD support
 - Unit test infrastructure successfully reused
 - Integration test infrastructure established
-- Project resource integration tests implemented
+- Project and Task resource integration tests implemented
 - Direct API response handling implemented
+- Project_id validation added to Task resource
 
 ## Next Steps:
 
 1. Implement more comprehensive error case testing
 2. Add pagination support to list operations
 3. Implement query parameter handling
-4. Begin Task resource implementation
+4. Begin implementing additional resources (Labels, Comments)
 5. Document testing patterns and best practices
 6. Consider cleanup strategy for integration test data

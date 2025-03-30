@@ -24,11 +24,8 @@ describe('TaskResource', () => {
       });
 
       server.use(
-        http.get(`${API_BASE}/tasks/123`, async () => {
-          const response = await Promise.resolve({
-            data: testTask,
-          });
-          return Response.json(response);
+        http.get(`${API_BASE}/tasks/123`, () => {
+          return Response.json(testTask);
         })
       );
 
@@ -52,10 +49,11 @@ describe('TaskResource', () => {
 
   describe('create()', () => {
     test('should create a new task', async () => {
-      type NewTask = Pick<Task, 'title' | 'description'>;
+      type NewTask = Pick<Task, 'title' | 'description' | 'project_id'>;
       const newTask: NewTask = {
         title: 'New Task',
         description: 'Task created in test',
+        project_id: 1,
       };
 
       const createdTask: Pick<Task, 'title' | 'description' | 'id' | 'project_id'> = {
@@ -65,11 +63,8 @@ describe('TaskResource', () => {
       };
 
       server.use(
-        http.put(`${API_BASE}/projects/1/tasks`, async () => {
-          const response = await Promise.resolve({
-            data: createdTask,
-          });
-          return Response.json(response);
+        http.put(`${API_BASE}/projects/1/tasks`, () => {
+          return Response.json(createdTask);
         })
       );
 
@@ -90,7 +85,7 @@ describe('TaskResource', () => {
         })
       );
 
-      await expect(taskResource.create({})).rejects.toThrow('Title is required');
+      await expect(taskResource.create({ project_id: 1 })).rejects.toThrow('Title is required');
     });
   });
 
@@ -109,11 +104,8 @@ describe('TaskResource', () => {
       };
 
       server.use(
-        http.post(`${API_BASE}/tasks/123`, async () => {
-          const response = await Promise.resolve({
-            data: updatedTask,
-          });
-          return Response.json(response);
+        http.post(`${API_BASE}/tasks/123`, () => {
+          return Response.json(updatedTask);
         })
       );
 
@@ -171,29 +163,23 @@ describe('TaskResource', () => {
         .map((_, i) => factories.createTask({ id: i + 1, project_id: 1 }));
 
       server.use(
-        http.get(`${API_BASE}/projects/1/tasks`, async () => {
-          const response = await Promise.resolve({
-            data: testTasks,
-          });
-          return Response.json(response);
+        http.get(`${API_BASE}/projects/1/tasks`, () => {
+          return Response.json(testTasks);
         })
       );
 
-      const result = await taskResource.list();
+      const result = await taskResource.list(1);
       expect(result).toEqual(testTasks);
     });
 
     test('should handle empty task list', async () => {
       server.use(
-        http.get(`${API_BASE}/projects/1/tasks`, async () => {
-          const response = await Promise.resolve({
-            data: [],
-          });
-          return Response.json(response);
+        http.get(`${API_BASE}/projects/1/tasks`, () => {
+          return Response.json([]);
         })
       );
 
-      const result = await taskResource.list();
+      const result = await taskResource.list(1);
       expect(result).toEqual([]);
     });
   });
