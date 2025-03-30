@@ -22,6 +22,10 @@ format:
 type-check:
     npm run type-check
 
+# Generate types
+generate-types:
+    npm run generate-types
+
 # Run all checks
 all:
     just test
