@@ -2,7 +2,6 @@
 services:
   app:
     build: .
-    env_file: .env
     volumes:
       - ..:/workspaces:cached
     # Overrides default command so things don't shut down after the process ends.
