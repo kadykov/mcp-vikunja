@@ -3,17 +3,13 @@ services:
   app:
     build: .
     env_file: .env
-
     volumes:
       - ..:/workspaces:cached
-
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-
     # Use the custom network to communicate with vikunja service
     networks:
       - vikunja_net
-
     # Add initialization for Vikunja volumes during devcontainer startup
     init: true
     entrypoint:
@@ -22,9 +18,9 @@ services:
         '-c',
         'mkdir -p /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files && chown -R 1000:1000 /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files && exec sleep infinity',
       ]
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://vikunja:3456/health']
+      interval: 1s
 
   vikunja:
     image: vikunja/vikunja
@@ -45,9 +41,6 @@ services:
     restart: unless-stopped
     networks:
       - vikunja_net
-
-    # Add "forwardPorts": ["3456"] to **devcontainer.json** to forward PostgreSQL locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
 
 # Define the custom network
 networks:
