@@ -25,6 +25,7 @@
 12. Direct API response handling in Resource layer
 13. Project_id validation in Task resource
 14. Direct response handling (no .data wrapper) in Resource layer
+15. Removed example and HTTP layer tests in favor of resource layer tests
 
 ### Next Steps (Prioritized)
 
@@ -88,6 +89,9 @@
    - Core functionality testing
    - Error case validation
    - Response format verification
+   - Focus on resource layer testing
+   - Removed redundant HTTP layer tests
+   - Removed example tests
 
 2. Integration Tests
    - Real Vikunja instance
@@ -118,6 +122,7 @@
 - Project_id validation in Task resource
 - Direct response handling in resources
 - Unit test updates for unwrapped responses
+- Removed example and HTTP layer tests to streamline testing approach
 
 ### In Progress
 

@@ -24,7 +24,6 @@
   - Type-safe request handlers using OpenAPI types
   - Test data factories with proper type integration
   - Test utilities with error handling
-  - Example tests for Project and Task APIs
   - Comprehensive documentation for test setup
 - HTTP client layer implemented
   - Core request/response handling
@@ -43,6 +42,10 @@
   - Project resource integration tests
   - Task resource integration tests
   - Real Vikunja instance testing support
+- Test organization optimized
+  - Removed example tests in favor of comprehensive resource layer tests
+  - Removed HTTP layer tests as they're covered by resource layer
+  - Testing focused on resource abstractions
 
 ## What's Left to Build
 
@@ -148,6 +151,7 @@ Key achievements:
 - Project and Task resource integration tests implemented
 - Direct API response handling implemented
 - Project_id validation added to Task resource
+- Testing structure optimized (removed example and HTTP layer tests)
 
 ## Next Steps:
 
