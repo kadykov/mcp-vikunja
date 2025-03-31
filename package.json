@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "generate-types": "./scripts/generate-types.sh",
+    "generate-types": "bash ./scripts/generate-types.sh",
     "prebuild": "npm run generate-types",
     "build": "tsc",
     "test": "jest",
