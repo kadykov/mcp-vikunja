@@ -25,20 +25,7 @@ jobs:
         run: docker compose exec app npm ci
 
       - name: Generate types
-        run: |
-          docker compose exec app pwd
-          docker compose exec app whoami
-          docker compose exec app id
-          docker compose exec app ls -la scripts/
-          docker compose exec app ls -l scripts/generate-types.sh
-          docker compose exec app echo $SHELL
-          docker compose exec app which sh
-          docker compose exec app readlink -f /bin/sh
-          docker compose exec app sh -c 'echo $0'
-          # Try direct execution
-          docker compose exec app sh ./scripts/generate-types.sh
-          # Try npm run
-          docker compose exec app npm run generate-types
+        run: docker compose exec app npm run generate-types
 
       - name: Type check
         run: docker compose exec app npm run type-check
