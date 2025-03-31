@@ -38,8 +38,15 @@ export const createTestConfig = (
 
 // Setup MSW
 beforeAll(() => {
-  // Listen on all requests, error on unhandled ones
-  server.listen({ onUnhandledRequest: 'error' });
+  // Listen on all requests, but bypass Vikunja API requests and error on other unhandled ones
+  server.listen({
+    onUnhandledRequest: req => {
+      if (req.url.toString().includes('vikunja:3456')) {
+        return 'bypass';
+      }
+      return 'error';
+    },
+  });
 });
 
 afterEach(() => {
