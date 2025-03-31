@@ -39,14 +39,6 @@ jobs:
       - name: Test
         run: docker compose exec app npm run test:coverage
 
-      - name: Copy coverage from container
-        run: |
-          # Create coverage directory with correct permissions
-          mkdir -p coverage
-          # Copy coverage from container to host
-          docker compose cp app:/workspaces/mcp-vikunja/coverage/. ./coverage/
-        if: always()
-
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
