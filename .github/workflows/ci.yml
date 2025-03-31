@@ -49,5 +49,10 @@ jobs:
           path: coverage/
         if: always()
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Build
         run: docker compose exec app npm run build
