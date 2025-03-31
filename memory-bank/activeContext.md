@@ -26,7 +26,9 @@
 13. Project_id validation in Task resource
 14. Direct response handling (no .data wrapper) in Resource layer
 15. Removed example and HTTP layer tests in favor of resource layer tests
-16. Removed coverage thresholds from Jest configuration to treat coverage as informative metric rather than a blocking requirement
+16. Removed coverage thresholds from Jest configuration to treat coverage as informative metric
+17. Automated CI/CD pipeline with GitHub Actions
+18. Automated dependency updates with Dependabot
 
 ### Next Steps (Prioritized)
 
@@ -124,6 +126,7 @@
 - Direct response handling in resources
 - Unit test updates for unwrapped responses
 - Removed example and HTTP layer tests to streamline testing approach
+- Implemented CI/CD pipeline (automated testing, security scanning, and dependency updates)
 
 ### In Progress
 
