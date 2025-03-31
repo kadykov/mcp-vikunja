@@ -58,6 +58,9 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -80,7 +83,6 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: javascript, typescript
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
