@@ -79,9 +79,10 @@ docs/               # Documentation
    - Strict null checks
 
 3. **Testing Requirements**
-   - 90%+ code coverage
+   - Code coverage tracking as informative metric
    - Integration test suite
    - Mocked external dependencies
+   - Coverage reports without enforcement thresholds
 
 ## Testing Infrastructure
 

@@ -10,6 +10,10 @@ test *ARGS='':
     npm run test {{ARGS}}
     @echo "All tests passed successfully!"
 
+# Run tests with coverage
+test-coverage *ARGS='':
+    npm run test:coverage {{ARGS}}
+
 # Lint code
 lint:
     npm run lint
@@ -28,7 +32,8 @@ generate-types:
 
 # Run all checks
 all:
-    just test
-    just lint
-    just format
-    just type-check
+    @just generate-types
+    @just format
+    @just lint
+    @just type-check
+    @just test-coverage

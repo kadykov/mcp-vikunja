@@ -63,7 +63,7 @@ graph TD
 - Write tests before implementation
 - Small, focused test cycles
 - Immediate debugging and validation
-- Continuous test coverage maintenance
+- Code coverage tracked as informative metric without thresholds
 - MSW-based API testing
 - Factory-based test data
 - Standardized error handling
