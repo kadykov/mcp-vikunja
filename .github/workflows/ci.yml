@@ -11,7 +11,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -56,3 +55,38 @@ jobs:
 
       - name: Build
         run: docker compose exec app npm run build
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Dependency vulnerability scanning
+      - name: Security audit dependencies
+        run: npm audit
+        continue-on-error: true # npm audit can fail on non-critical issues
+
+      # Static code analysis with CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      # License compliance checking
+      - name: Check licenses
+        run: npx license-checker --production \
+          --onlyAllow "MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0" \
+          --excludePrivatePackages \
+          --summary

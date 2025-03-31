@@ -2,6 +2,7 @@ import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 import eslintJs from '@eslint/js';
 import globals from 'globals';
+import security from 'eslint-plugin-security';
 
 export default [
   {
@@ -23,6 +24,7 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tseslint,
+      security: security,
     },
     rules: {
       ...tseslint.configs['recommended'].rules,
@@ -38,6 +40,7 @@ export default [
         },
       ],
       'no-console': ['error', { allow: ['warn', 'error'] }],
+      ...security.configs.recommended.rules,
     },
   },
   {
