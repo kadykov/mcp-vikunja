@@ -4,10 +4,10 @@
 
 ### Focus Areas
 
-1. Resource layer testing and validation
-2. Integration test implementation
-3. Error handling and validation integration
-4. Documentation and architecture clarification
+1. MCP server implementation with FastMCP
+2. Resource exposure through MCP protocol
+3. Initial MCP server testing infrastructure
+4. Integration with existing resource layer
 
 ### Recent Decisions
 
@@ -18,103 +18,107 @@
 5. Comprehensive validation test strategy
 6. Feature-focused architecture with clear separation of concerns
 7. Jest with silent reporter for testing
-8. Two-layer architecture: HTTP client and Resource layer
+8. Three-layer architecture: MCP server, Resource layer, HTTP client
 9. Keep optional features documented in component READMEs
 10. Integration tests with real Vikunja instance
 11. Use fixed test user for integration tests
 12. Direct API response handling in Resource layer
 13. Project_id validation in Task resource
 14. Direct response handling (no .data wrapper) in Resource layer
-15. Removed example and HTTP layer tests in favor of resource layer tests
-16. Removed coverage thresholds from Jest configuration to treat coverage as informative metric
-17. Automated CI/CD pipeline with GitHub Actions
-18. Automated dependency updates with Dependabot
+15. Use FastMCP for MCP server implementation
+16. Keep JSON format for initial MCP responses
+17. Local-only MCP server (no remote authentication needed)
+18. Resource-first implementation approach for MCP
 
 ### Next Steps (Prioritized)
 
-1. Expand Error Case Testing
+1. Implement MCP Server Testing Infrastructure
 
-   - Add thorough validation error testing
-   - Test edge cases in CRUD operations
-   - Verify error message propagation
-   - Document error handling patterns
+   - Set up FastMCP test environment
+   - Create resource handling tests
+   - Mock project resource using existing factories
+   - Test error cases and configuration
 
-2. Add Pagination and Query Support
+2. Implement Basic MCP Server
 
-   - Implement pagination in list operations
-   - Add query parameter handling
-   - Test parameter validation
-   - Document usage patterns
+   - FastMCP server setup
+   - Project resource exposure
+   - Configuration validation
+   - Basic error handling
 
-3. Begin Additional Resource Types
-   - Labels implementation
-   - Comments implementation
-   - Teams implementation
-   - Users implementation
+3. Test End-to-End Flow
+   - Resource listing tests
+   - Resource reading tests
+   - Error handling tests
+   - Configuration validation tests
 
 ## Architecture
 
 ### Layers
 
-1. HTTP Client Layer (Base)
+1. MCP Server Layer (New)
 
-   - Generic HTTP operations
-   - Error handling and normalization
-   - Response parsing
-   - Auth management
+   - FastMCP integration
+   - Resource exposure via MCP protocol
+   - Configuration handling
+   - Error mapping
 
-2. Resource Layer
+2. Resource Layer (Existing)
+
    - Resource-specific APIs (Project, Task)
    - CRUD operations with validation
    - Resource-specific error handling
    - Direct API response handling
 
+3. HTTP Client Layer (Base)
+   - Generic HTTP operations
+   - Error handling and normalization
+   - Response parsing
+   - Auth management
+
 ### Technical Design
 
-1. Resource Layer Response Handling
+1. MCP Server Design
 
-   - Direct response mapping (no .data wrapper)
-   - Type-safe response processing
-   - Resource-specific validation (e.g., project_id)
-   - Error normalization and propagation
+   - FastMCP for server implementation
+   - JSON format for initial responses
+   - Resource-based URI structure (vikunja://projects/{id})
+   - Error mapping to MCP protocol
 
-2. Integration Testing Design
-   - Real API response validation
-   - Project creation for task tests
-   - Test data cleanup consideration
-   - Error case coverage
+2. Resource Layer Integration
+   - Direct resource method calls
+   - Response format mapping
+   - Error propagation
+   - Dependency injection for testing
 
 ### Testing Strategy
 
-1. Unit Tests
+1. MCP Server Tests
 
-   - MSW request simulation
-   - Core functionality testing
-   - Error case validation
-   - Response format verification
-   - Focus on resource layer testing
-   - Removed redundant HTTP layer tests
-   - Removed example tests
+   - Mock project resource using factories
+   - Test resource listing and reading
+   - Test error handling scenarios
+   - Test configuration validation
 
-2. Integration Tests
-   - Real Vikunja instance
-   - Fixed test user pattern
-   - CRUD operation coverage
-   - Error case verification
+2. Resource Integration Tests
+   - End-to-end flow testing
+   - Error propagation verification
+   - Response format validation
+   - Configuration testing
 
 ### Implementation Strategy
 
 1. Test-first development
-2. Validation at resource layer
-3. Direct response handling
-4. Comprehensive test coverage
-5. Clear error patterns
+2. Minimal working implementation
+3. Resource-first approach
+4. FastMCP integration
+5. JSON response format
 
 ### Open Questions
 
-1. How to handle pagination in list responses?
-2. Best approach for cleanup in integration tests?
-3. Strategy for handling bulk operations?
+1. Future Markdown format conversion strategy?
+2. Pagination handling in MCP resources?
+3. Resource relationship representation?
 
 ## Current Work Items
 
@@ -125,14 +129,14 @@
 - Project_id validation in Task resource
 - Direct response handling in resources
 - Unit test updates for unwrapped responses
-- Removed example and HTTP layer tests to streamline testing approach
-- Implemented CI/CD pipeline (automated testing, security scanning, and dependency updates)
+- Resource layer testing streamlined
+- Implemented CI/CD pipeline
 
 ### In Progress
 
-- Expanding error case testing
-- Planning pagination support
-- Documenting test patterns
+- MCP server implementation planning
+- FastMCP integration design
+- Test infrastructure setup
 
 ### Blocked
 
@@ -140,7 +144,7 @@ None currently
 
 ### Next Up
 
-1. Error case testing expansion
-2. Pagination implementation
-3. Query parameter support
-4. Labels resource implementation
+1. MCP server test implementation
+2. FastMCP server integration
+3. Resource exposure
+4. End-to-end testing

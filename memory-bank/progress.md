@@ -111,24 +111,27 @@
   - [ ] Teams
   - [ ] Users
 
-### Phase 4: MCP Integration
+### Phase 4: MCP Server Implementation
 
-- [ ] Base Tool Handler
+- [ ] FastMCP Server Setup
 
-  - [ ] Handler tests
-  - [ ] Implementation and debugging
-  - [ ] Integration test suite
+  - [ ] Test infrastructure setup
+  - [ ] Configuration integration
+  - [ ] Basic server implementation
+  - [ ] StdioServerTransport setup
 
-- [ ] Project Tools
+- [ ] Project Resources
 
-  - [ ] CRUD operation tests
-  - [ ] Implementation and debugging
-  - [ ] Integration test suite
+  - [ ] Resource listing implementation
+  - [ ] Resource reading implementation
+  - [ ] Error handling integration
+  - [ ] Response format validation
 
-- [ ] Task Tools
-  - [ ] CRUD operation tests
-  - [ ] Implementation and debugging
-  - [ ] Integration test suite
+- [ ] Integration Testing
+  - [ ] Server startup tests
+  - [ ] Resource handling tests
+  - [ ] Configuration validation
+  - [ ] End-to-end flow verification
 
 ### Phase 5: Documentation & Publishing
 
@@ -143,25 +146,23 @@
 
 ## Current Status
 
-Phase 3 in progress - Resource Layer Implementation & Testing
+Phase 4 in progress - MCP Server Implementation
 
 Key achievements:
 
-- Base resource layer design and implementation completed
-- Project resource implementation with full CRUD support
-- Task resource implementation with full CRUD support
-- Unit test infrastructure successfully reused
-- Integration test infrastructure established
-- Project and Task resource integration tests implemented
+- Resource layer fully implemented with CRUD support
+- Unit and integration testing infrastructure established
+- Project and Task resources implemented and tested
 - Direct API response handling implemented
-- Project_id validation added to Task resource
-- Testing structure optimized (removed example and HTTP layer tests)
+- Testing structure optimized and streamlined
+- FastMCP integration planned and designed
+- JSON format approach decided for initial implementation
 
 ## Next Steps:
 
-1. Implement more comprehensive error case testing
-2. Add pagination support to list operations
-3. Implement query parameter handling
-4. Begin implementing additional resources (Labels, Comments)
-5. Document testing patterns and best practices
-6. Consider cleanup strategy for integration test data
+1. Set up MCP server test infrastructure
+2. Implement FastMCP server with resource support
+3. Add configuration validation
+4. Create end-to-end tests for MCP resources
+5. Document MCP server patterns and usage
+6. Test with real Vikunja instance through MCP

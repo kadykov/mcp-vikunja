@@ -4,11 +4,19 @@
 
 ```mermaid
 graph TD
-    subgraph MCP Server
-        Resources[Resource Handlers]
-        Tools[Tool Handlers]
+    subgraph MCP Layer
+        FMCP[FastMCP Server]
+        RH[Resource Handlers]
         Config[Configuration]
-        Client[Vikunja API Client]
+    end
+
+    subgraph Resource Layer
+        PR[ProjectResource]
+        TR[TaskResource]
+    end
+
+    subgraph Client Layer
+        VC[VikunjaClient]
     end
 
     subgraph External
@@ -16,89 +24,87 @@ graph TD
         Settings[MCP Settings]
     end
 
-    Resources --> Client
-    Tools --> Client
-    Client --> API
+    FMCP --> RH
+    RH --> PR
+    RH --> TR
+    PR --> VC
+    TR --> VC
+    VC --> API
     Config --> Settings
 ```
 
 ## Core Patterns
 
-### 1. Resource Pattern
+### 1. MCP Resource Pattern
 
-- Expose Vikunja entities as MCP resources
+- FastMCP-based resource implementation
 - URIs follow pattern: `vikunja://{entity}/{id}`
+- Integration with existing resource layer
+- JSON format for initial responses
 - Resources are read-only snapshots
-- Include essential metadata
-- Direct API response handling
-- Type-safe CRUD operations
+- Direct mapping to Vikunja resources
 
-### 2. Tool Pattern
+### 2. Resource Layer Integration Pattern
 
-- CRUD operations implemented as tools
-- Consistent input/output schemas
-- Error handling and validation
-- Idempotent operations where possible
+- Dependency injection for resource access
+- Reuse existing resource implementations
+- Maintain type safety across layers
+- Error propagation and mapping
 
 ### 3. Configuration Pattern
 
+- FastMCP server configuration
+- Vikunja API configuration integration
+- Zod schema validation
 - Environment-based configuration
-- Validation at startup
-- Secure credential handling
-- Defaults with overrides
 
-### 4. API Client Pattern
+### 4. Error Handling Pattern
 
-- Centralized API communication
-- OpenAPI-generated type definitions
-- Type-safe request/response handling
-- Error normalization
-- Rate limiting consideration
-- Direct response mapping
+- FastMCP error mapping
+- Resource layer error propagation
+- User-friendly error messages
+- Consistent error structure
 
 ## Testing Patterns
 
-### 1. Unit Testing Strategy
+### 1. MCP Server Testing Strategy
 
-- Write tests before implementation
-- Small, focused test cycles
-- Immediate debugging and validation
-- Code coverage tracked as informative metric without thresholds
-- MSW-based API testing
-- Factory-based test data
-- Standardized error handling
+- Mock project resources using factories
+- Test resource availability and listing
+- Validate resource reading
+- Error case coverage
+- Configuration validation testing
+- FastMCP utility usage
 
 ### 2. Integration Testing Strategy
 
 Key Components:
 
-- Test helper for user management
-- Fixed test user approach
-- Direct API interaction
-- Real response validation
-- Error case testing
-- Logging and debugging support
+- FastMCP test utilities
+- End-to-end flow validation
+- Real Vikunja instance testing
 
 Patterns:
 
-1. User Management
+1. Server Testing
 
-   - Create test user if not exists
-   - Reuse existing user if possible
-   - Maintain authentication state
+   - FastMCP server setup
+   - Resource handler testing
+   - Configuration validation
+   - Error scenario testing
 
 2. Test Organization
 
-   - Group by resource type
-   - Separate basic and error cases
-   - Clear test case isolation
-   - Comprehensive logging
+   - Resource-based grouping
+   - Error case isolation
+   - Configuration testing
+   - End-to-end validation
 
-3. Response Handling
-   - Direct API response mapping
-   - Type-safe response validation
+3. Response Validation
+   - JSON format verification
+   - Resource data validation
    - Error response testing
-   - Response structure verification
+   - Configuration validation
 
 ## Design Decisions
 
