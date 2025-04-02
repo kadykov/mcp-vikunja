@@ -29,28 +29,43 @@
 16. Keep JSON format for initial MCP responses
 17. Local-only MCP server (no remote authentication needed)
 18. Resource-first implementation approach for MCP
+19. MCP Server Implementation
+    - Simplified server to follow SDK examples
+    - Separated resource handlers into dedicated files
+    - Verified with MCP Inspector
+    - Working resource templates
+    - E2E tests with real MCP client
+    - Direct URI mapping for project resources
+    - JSON format for initial responses
+    - Prepared for future Markdown support
+20. Testing Strategy Evolution
+    - Moved from class-based abstraction to direct SDK usage
+    - Implemented E2E tests with real MCP client
+    - Verified resource templates listing works
+    - Confirmed project data reading functionality
+    - Focus on testing business logic, not SDK functionality
 
 ### Next Steps (Prioritized)
 
-1. Implement MCP Server Testing Infrastructure
+1. Restructure MCP Server Implementation
 
-   - Set up FastMCP test environment
-   - Create resource handling tests
-   - Mock project resource using existing factories
-   - Test error cases and configuration
+   - Simplify server.ts to launch script
+   - Create dedicated resource handler files
+   - Remove current class-based abstraction
+   - Set up basic resource handlers
 
-2. Implement Basic MCP Server
+2. Implement Unit Tests
 
-   - FastMCP server setup
-   - Project resource exposure
-   - Configuration validation
-   - Basic error handling
+   - Create test/mcp/resources/project.test.ts
+   - Test handler functions directly
+   - Mock Vikunja API responses
+   - Test data transformation logic
 
-3. Test End-to-End Flow
-   - Resource listing tests
-   - Resource reading tests
-   - Error handling tests
-   - Configuration validation tests
+3. Set Up E2E Tests
+   - Create test/e2e/server.test.ts
+   - Test with StdioClientTransport
+   - Verify full request/response flow
+   - Test real resource registration
 
 ## Architecture
 
@@ -93,26 +108,26 @@
 
 ### Testing Strategy
 
-1. MCP Server Tests
+1. Unit Tests (Resources)
 
-   - Mock project resource using factories
-   - Test resource listing and reading
-   - Test error handling scenarios
-   - Test configuration validation
+   - Test handler functions directly
+   - Focus on data transformation
+   - Mock external dependencies
+   - Verify response formats
 
-2. Resource Integration Tests
-   - End-to-end flow testing
-   - Error propagation verification
-   - Response format validation
-   - Configuration testing
+2. E2E Tests (Server)
+   - Test full request/response flow
+   - Use real StdioClientTransport
+   - Verify resource registration
+   - Test client interactions
 
 ### Implementation Strategy
 
-1. Test-first development
-2. Minimal working implementation
-3. Resource-first approach
-4. FastMCP integration
-5. JSON response format
+1. Simplify server implementation
+2. Move to dedicated resource files
+3. Start with JSON responses
+4. Plan for Markdown transition
+5. Maintain clear separation of concerns
 
 ### Open Questions
 

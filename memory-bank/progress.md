@@ -113,25 +113,25 @@
 
 ### Phase 4: MCP Server Implementation
 
-- [ ] FastMCP Server Setup
+- [x] MCP Server Restructure
 
-  - [ ] Test infrastructure setup
-  - [ ] Configuration integration
-  - [ ] Basic server implementation
-  - [ ] StdioServerTransport setup
+  - [x] Convert server.ts to launch script
+  - [x] Create dedicated resource handlers
+  - [x] Remove class-based abstraction
+  - [x] Follow SDK example patterns
 
-- [ ] Project Resources
+- [x] Resource Handlers
 
-  - [ ] Resource listing implementation
-  - [ ] Resource reading implementation
-  - [ ] Error handling integration
-  - [ ] Response format validation
+  - [x] Move project handler to separate file
+  - [x] Implement basic JSON response
+  - [x] Add direct URI mapping
+  - [x] Prepare for future Markdown translation
 
-- [ ] Integration Testing
-  - [ ] Server startup tests
-  - [ ] Resource handling tests
-  - [ ] Configuration validation
-  - [ ] End-to-end flow verification
+- [x] Testing Infrastructure
+  - [x] Implement E2E tests
+  - [x] Test resource templates listing
+  - [x] Test resource reading
+  - [x] Remove class-based tests
 
 ### Phase 5: Documentation & Publishing
 
@@ -146,23 +146,25 @@
 
 ## Current Status
 
-Phase 4 in progress - MCP Server Implementation
+Phase 4 completed - MCP Server Implementation
 
 Key achievements:
 
 - Resource layer fully implemented with CRUD support
-- Unit and integration testing infrastructure established
-- Project and Task resources implemented and tested
+- Project and Task resources tested
 - Direct API response handling implemented
-- Testing structure optimized and streamlined
-- FastMCP integration planned and designed
-- JSON format approach decided for initial implementation
+- MCP server simplified to follow SDK examples
+- Resource handlers extracted to separate files
+- E2E tests implemented with real MCP client
+- Resource templates tested and working
+- Verified with MCP Inspector
+- Clear separation between resource handlers and server
 
 ## Next Steps:
 
-1. Set up MCP server test infrastructure
-2. Implement FastMCP server with resource support
-3. Add configuration validation
-4. Create end-to-end tests for MCP resources
-5. Document MCP server patterns and usage
-6. Test with real Vikunja instance through MCP
+1. Add error handling to resource handlers
+2. Add validation for project IDs
+3. Implement Markdown translation layer
+4. Add resource listing support
+5. Add more Vikunja resources
+6. Implement tools or prompts if needed
