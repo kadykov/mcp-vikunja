@@ -38,6 +38,9 @@ jobs:
       - name: Check formatting
         run: docker compose exec app npm run format:check
 
+      - name: Build
+        run: docker compose exec app npm run build
+
       - name: Test
         run: docker compose exec app npm run test:coverage
 
@@ -52,9 +55,6 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Build
-        run: docker compose exec app npm run build
 
   security:
     runs-on: ubuntu-latest
