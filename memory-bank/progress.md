@@ -120,18 +120,20 @@
   - [x] Remove class-based abstraction
   - [x] Follow SDK example patterns
 
-- [x] Resource Handlers
+- [ ] Resource Handlers Integration
 
   - [x] Move project handler to separate file
-  - [x] Implement basic JSON response
   - [x] Add direct URI mapping
-  - [x] Prepare for future Markdown translation
+  - [ ] Connect to Project Resource layer
+  - [ ] Add token handling from extra params
+  - [ ] Implement error handling
+  - [ ] Create translation layer (initial JSON format)
 
-- [x] Testing Infrastructure
-  - [x] Implement E2E tests
-  - [x] Test resource templates listing
-  - [x] Test resource reading
-  - [x] Remove class-based tests
+- [ ] Test Infrastructure Enhancement
+  - [ ] Update E2E tests for real data
+  - [ ] Create dedicated E2E test user
+  - [ ] Implement test data management
+  - [ ] Add URI parsing unit tests
 
 ### Phase 5: Documentation & Publishing
 
@@ -146,25 +148,32 @@
 
 ## Current Status
 
-Phase 4 completed - MCP Server Implementation
+Currently implementing connection between MCP project resource handler and project resource class:
 
-Key achievements:
+1. Translation Layer (In Progress)
 
-- Resource layer fully implemented with CRUD support
-- Project and Task resources tested
-- Direct API response handling implemented
-- MCP server simplified to follow SDK examples
-- Resource handlers extracted to separate files
-- E2E tests implemented with real MCP client
-- Resource templates tested and working
-- Verified with MCP Inspector
-- Clear separation between resource handlers and server
+   - Planning initial JSON implementation
+   - Designing for future Markdown support
+   - Setting up URI mapping utilities
+
+2. Resource Handler Integration (Planned)
+
+   - Project resource class connection
+   - Token handling implementation
+   - Error handling setup
+   - Direct URI mapping
+
+3. Testing Infrastructure (Planned)
+   - E2E test user management
+   - Test data lifecycle handling
+   - Real data test expectations
+   - URI parsing validation
 
 ## Next Steps:
 
-1. Add error handling to resource handlers
-2. Add validation for project IDs
-3. Implement Markdown translation layer
-4. Add resource listing support
-5. Add more Vikunja resources
-6. Implement tools or prompts if needed
+1. Create translation layer infrastructure
+2. Update project resource handler with real data access
+3. Implement E2E test setup with proper user management
+4. Add comprehensive error handling
+5. Add URI parsing unit tests
+6. Update E2E tests for real data validation

@@ -1,95 +1,122 @@
 # Vikunja MCP Server Active Context
 
-## Current Status
+## Current Focus
 
-### Focus Areas
+Implementing connection between MCP project resource handler and project resource class to enable real data access through the MCP protocol.
 
-1. MCP server implementation with FastMCP
-2. Resource exposure through MCP protocol
-3. Initial MCP server testing infrastructure
-4. Integration with existing resource layer
+## Implementation Plan
 
-### Recent Decisions
+### 1. Translation Layer (Initial JSON Phase)
 
-1. Using TypeScript with strict mode for type safety
-2. Test-driven development approach with small cycles
-3. Using Zod for runtime type validation
-4. Custom ValidationError class for error handling
-5. Comprehensive validation test strategy
-6. Feature-focused architecture with clear separation of concerns
-7. Jest with silent reporter for testing
-8. Three-layer architecture: MCP server, Resource layer, HTTP client
-9. Keep optional features documented in component READMEs
-10. Integration tests with real Vikunja instance
-11. Use fixed test user for integration tests
-12. Direct API response handling in Resource layer
-13. Project_id validation in Task resource
-14. Direct response handling (no .data wrapper) in Resource layer
-15. Use FastMCP for MCP server implementation
-16. Keep JSON format for initial MCP responses
-17. Local-only MCP server (no remote authentication needed)
-18. Resource-first implementation approach for MCP
-19. MCP Server Implementation
-    - Simplified server to follow SDK examples
-    - Separated resource handlers into dedicated files
-    - Verified with MCP Inspector
-    - Working resource templates
-    - E2E tests with real MCP client
-    - Direct URI mapping for project resources
-    - JSON format for initial responses
-    - Prepared for future Markdown support
-20. Testing Strategy Evolution
-    - Moved from class-based abstraction to direct SDK usage
-    - Implemented E2E tests with real MCP client
-    - Verified resource templates listing works
-    - Confirmed project data reading functionality
-    - Focus on testing business logic, not SDK functionality
+- Create src/mcp/translation/project.ts
+- Implement basic JSON serialization
+- Set up URI mapping utilities
+- Design for future Markdown compatibility
+- Define clear interfaces for testability
 
-### Next Steps (Prioritized)
+### 2. Project Resource Handler Integration
 
-1. Restructure MCP Server Implementation
+- Connect to ProjectResource class
+- Implement token handling through extra params
+- Add comprehensive error handling
+- Set up direct URI mapping (vikunja://projects/{id})
+- Integrate with translation layer
 
-   - Simplify server.ts to launch script
-   - Create dedicated resource handler files
-   - Remove current class-based abstraction
-   - Set up basic resource handlers
+### 3. E2E Testing Infrastructure
 
-2. Implement Unit Tests
+- Create dedicated E2E test user
+- Set up test data management
+- Update test expectations for real data
+- Add URI parsing unit tests
+- Ensure proper test isolation
 
-   - Create test/mcp/resources/project.test.ts
-   - Test handler functions directly
-   - Mock Vikunja API responses
-   - Test data transformation logic
+## Active Decisions
 
-3. Set Up E2E Tests
-   - Create test/e2e/server.test.ts
-   - Test with StdioClientTransport
-   - Verify full request/response flow
-   - Test real resource registration
+1. Translation Layer Strategy
 
-## Architecture
+   - Implementing basic layer now for:
+     - Clear separation of concerns
+     - Easier testing
+     - Future-proofing for Markdown format
+   - Start with direct JSON serialization
+   - Plan upgrade path to Markdown format
 
-### Layers
+2. Testing Architecture
 
-1. MCP Server Layer (New)
+   - Separate users for E2E and integration tests
+   - Full test data lifecycle management
+   - Comprehensive error scenario coverage
 
-   - FastMCP integration
-   - Resource exposure via MCP protocol
-   - Configuration handling
-   - Error mapping
+3. URI Management
+   - Direct mapping in initial version
+   - Future flexibility for complex transformations
+   - Robust error handling for invalid URIs
 
-2. Resource Layer (Existing)
+## Technical Design
 
-   - Resource-specific APIs (Project, Task)
-   - CRUD operations with validation
-   - Resource-specific error handling
-   - Direct API response handling
+```mermaid
+graph TD
+    MCP[MCP Resource Handler] --> TL[Translation Layer]
+    TL --> PR[Project Resource]
+    PR --> VA[Vikunja API]
 
-3. HTTP Client Layer (Base)
-   - Generic HTTP operations
-   - Error handling and normalization
-   - Response parsing
-   - Auth management
+    subgraph Translation Layer
+        JSON[JSON Format]
+        URI[URI Mapping]
+        Future[Future Markdown]
+    end
+```
+
+## Implementation Steps
+
+1. Translation Layer
+
+   - Create base translation utilities
+   - Implement JSON serialization
+   - Set up URI mapping functions
+   - Add error handling
+
+2. Resource Handler
+
+   - Update handler to use translation layer
+   - Add ProjectResource integration
+   - Implement token handling
+   - Add error management
+
+3. Testing
+   - Create E2E test user management
+   - Set up test data helpers
+   - Update test expectations
+   - Add URI parsing tests
+
+## Technical Considerations
+
+1. Error Handling Strategy
+
+   - URI parsing validation
+   - API communication errors
+   - Authentication failures
+   - Data validation issues
+   - Translation error handling
+
+2. Performance Optimization
+
+   - Minimize translation overhead
+   - Efficient URI parsing
+   - Future caching considerations
+
+3. Testing Coverage
+
+   - User isolation between test types
+   - Complete data lifecycle management
+   - Comprehensive error scenarios
+   - Real data validation approach
+
+4. Future Extensibility
+   - Markdown translation preparation
+   - Complex URI transformations
+   - Resource relationship handling
+   - Additional Vikunja features support
 
 ### Technical Design
 
