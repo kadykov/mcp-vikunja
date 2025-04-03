@@ -166,6 +166,10 @@ graph TD
 
 ### Recently Completed
 
+- Implemented client-side rate limiting with 500 req/min default
+- Added RateLimiter class with counter-based implementation
+- Created unit tests for rate limiter functionality
+- Added integration tests for rate limiting with real Vikunja server
 - Task resource implementation
 - Integration tests for Task resource
 - Project_id validation in Task resource

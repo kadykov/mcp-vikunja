@@ -68,7 +68,9 @@ docs/               # Documentation
 
 1. **API Limitations**
 
-   - Must respect Vikunja API rate limits
+   - Client-side rate limiting with conservative defaults (500 requests/minute)
+   - Built-in protection against request floods
+   - Rate limit configuration through VikunjaConfig
    - Handle API version compatibility
    - Consider API response time in tools
 

@@ -27,6 +27,30 @@ await client.delete('/path');
 - Authentication via Bearer token
 - JSON request/response handling
 - Error normalization
+- Built-in rate limiting with sensible defaults
+
+### Rate Limiting
+
+The client includes built-in rate limiting to prevent request floods and ensure stable operation:
+
+```typescript
+const client = new VikunjaHttpClient({
+  config: {
+    apiUrl: 'https://vikunja.example.com/api/v1',
+    token: 'your-auth-token',
+    rateLimit: {
+      // Optional, defaults shown below
+      maxRequests: 500, // Requests per window
+      timeWindow: 60000, // Window size in ms (1 minute)
+    },
+  },
+});
+```
+
+- Default limit: 500 requests per minute
+- Configurable through `VikunjaConfig`
+- Automatic request throttling
+- No external dependencies
 
 ### Error Handling
 
@@ -41,7 +65,6 @@ await client.delete('/path');
 The client can be extended with additional features:
 
 1. Advanced Features (Optional)
-   - Rate limiting for API compliance
    - Request retry for transient failures
    - File upload handling
    - Pagination handling helpers

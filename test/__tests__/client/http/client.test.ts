@@ -12,6 +12,70 @@ const client = new VikunjaHttpClient({
 });
 
 describe('HTTP Client', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  describe('Rate Limiting', () => {
+    test('should respect rate limits', async () => {
+      const client = new VikunjaHttpClient({
+        config: {
+          apiUrl: API_BASE,
+          token: 'test-token',
+          rateLimit: {
+            maxRequests: 2,
+            timeWindow: 100, // 100ms for faster tests
+          },
+        },
+      });
+
+      server.use(
+        http.get(`${API_BASE}/test`, () => {
+          return Response.json({ data: { message: 'test' } });
+        })
+      );
+
+      // Make requests up to the limit
+      await client.get('/test');
+      await client.get('/test');
+
+      // Next request should be delayed
+      const startTime = Date.now();
+      const requestPromise = client.get('/test');
+
+      // Fast-forward past the time window
+      jest.advanceTimersByTime(100);
+
+      await requestPromise;
+      expect(Date.now() - startTime).toBeGreaterThanOrEqual(100);
+    });
+
+    test('should use default rate limits if not configured', async () => {
+      const client = new VikunjaHttpClient({
+        config: {
+          apiUrl: API_BASE,
+          token: 'test-token',
+        },
+      });
+
+      server.use(
+        http.get(`${API_BASE}/test`, () => {
+          return Response.json({ data: { message: 'test' } });
+        })
+      );
+
+      // Should use default of 500 requests per minute
+      // Just verify a few requests work without delay
+      await client.get('/test');
+      await client.get('/test');
+      await client.get('/test');
+    });
+  });
+
   describe('Request Headers', () => {
     test('should include auth token in headers', async () => {
       server.use(

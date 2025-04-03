@@ -1,5 +1,6 @@
 import type { VikunjaConfig } from '../../config/types.js';
 import type { HTTPError } from '../../types';
+import { RateLimiter } from './rate-limiter.js';
 import {
   AuthError,
   InvalidResponseError,
@@ -19,9 +20,16 @@ export class VikunjaHttpClient {
   private readonly baseUrl: string;
   private token: string;
 
+  private rateLimiter: RateLimiter;
+
   constructor({ config }: VikunjaClientConfig) {
     this.baseUrl = config.apiUrl.replace(/\/$/, ''); // Remove trailing slash if present
     this.token = config.token;
+
+    // Initialize rate limiter with default values if not provided
+    const maxRequests = config.rateLimit?.maxRequests ?? 500;
+    const timeWindow = config.rateLimit?.timeWindow ?? 60000; // 1 minute in ms
+    this.rateLimiter = new RateLimiter(maxRequests, timeWindow);
   }
 
   get config(): VikunjaConfig {
@@ -67,6 +75,9 @@ export class VikunjaHttpClient {
    * Make an HTTP request
    */
   private async request<T>(method: string, path: string, data?: unknown): Promise<T> {
+    // Check rate limit before making request
+    await this.rateLimiter.waitIfNeeded();
+
     // Ensure proper URL construction without double /api
     let requestPath = path;
     if (!requestPath.startsWith('/')) {

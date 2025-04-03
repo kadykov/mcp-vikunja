@@ -58,7 +58,14 @@ graph TD
 - Zod schema validation
 - Environment-based configuration
 
-### 4. Error Handling Pattern
+### 4. Rate Limiting Pattern
+
+- Conservative default rate limiting (500 requests/minute)
+- Client-side rate limiting implementation
+- Simple counter-based approach
+- Easy configuration through VikunjaConfig
+
+### 5. Error Handling Pattern
 
 - FastMCP error mapping
 - Resource layer error propagation
