@@ -1,33 +1,37 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { Project } from '../../../src/types';
+import { startMcpServer, createTestProject } from '../../utils/mcp-test-helpers';
+import { server } from '../../mocks/server';
 
 describe('MCP Server E2E', () => {
+  // Disable MSW for E2E tests
+  beforeAll(() => server.close());
+  afterAll(() => server.listen());
+
   let client: Client;
-  let transport: StdioClientTransport;
+  let testProject: Project;
+  let cleanup: () => Promise<void>;
 
   beforeEach(async () => {
-    // Start a new server process and connect to it
-    transport = new StdioClientTransport({
-      command: 'node',
-      args: ['dist/src/mcp/server.js'],
-    });
+    // Extend timeout for E2E tests
+    jest.setTimeout(30000);
 
-    client = new Client(
-      {
-        name: 'test-client',
-        version: '1.0.0',
-      },
-      {
-        capabilities: {
-          resources: {}, // Enable resource capabilities for testing
-        },
-      }
-    );
-    await client.connect(transport);
+    try {
+      // Start MCP server and create test data
+      const context = await startMcpServer();
+      client = context.client;
+      cleanup = context.cleanup;
+      testProject = await createTestProject();
+    } catch (error) {
+      console.error('Setup failed:', error);
+      throw error;
+    }
   });
 
   afterEach(async () => {
-    await transport.close();
+    if (cleanup) {
+      await cleanup();
+    }
   });
 
   describe('Project Resource Template', () => {
@@ -40,26 +44,43 @@ describe('MCP Server E2E', () => {
   });
 
   describe('Project Resource Reading', () => {
-    it('should return project data via MCP resource', async () => {
-      const projectId = 1;
+    it('should return real project data via MCP resource', async () => {
       const resource = await client.readResource({
-        uri: `vikunja://projects/${projectId}`,
+        uri: `vikunja://projects/${testProject.id}`,
       });
 
       expect(resource.contents).toHaveLength(1);
-      interface ProjectResponse {
-        id: number;
-        title: string;
-        description: string;
-      }
+      const content = JSON.parse(resource.contents[0].text as string) as Project;
 
-      const content = JSON.parse(resource.contents[0].text as string) as ProjectResponse;
+      // Verify the project data matches
+      expect(content.id).toBe(testProject.id);
+      expect(content.title).toBe(testProject.title);
+      expect(content.description).toBe(testProject.description);
+    });
 
-      expect(content).toStrictEqual({
-        id: projectId,
-        title: 'Not implemented',
-        description: 'Draft implementation',
-      });
+    it('should handle non-existent project', async () => {
+      const nonExistentId = 999999;
+      await expect(
+        client.readResource({
+          uri: `vikunja://projects/${nonExistentId}`,
+        })
+      ).rejects.toThrow();
+    });
+
+    it('should handle invalid project URI', async () => {
+      await expect(
+        client.readResource({
+          uri: 'vikunja://projects/invalid',
+        })
+      ).rejects.toThrow('Invalid MCP project URI format');
+    });
+
+    it('should handle malformed project URI', async () => {
+      await expect(
+        client.readResource({
+          uri: 'vikunja://invalid/123',
+        })
+      ).rejects.toThrow();
     });
   });
 });
