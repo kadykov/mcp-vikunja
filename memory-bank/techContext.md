@@ -70,7 +70,10 @@ docs/               # Documentation
 
    - Client-side rate limiting with conservative defaults (500 requests/minute)
    - Built-in protection against request floods
-   - Rate limit configuration through VikunjaConfig
+   - Rate limit configuration through:
+     - VikunjaConfig for direct client usage
+     - Environment variables for MCP server
+   - Simple counter-based implementation
    - Handle API version compatibility
    - Consider API response time in tools
 

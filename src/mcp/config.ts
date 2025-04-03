@@ -18,9 +18,19 @@ const envConfigSchema = z.object({
    */
   VIKUNJA_API_TOKEN: z.string().min(1),
 
-  // TODO: Add rate limiting configuration once implemented
-  // MCP_RATE_LIMIT
-  // MCP_RATE_LIMIT_WINDOW
+  /**
+   * Optional: Maximum API requests per window
+   * From env: VIKUNJA_API_RATE_LIMIT
+   * Default: 500
+   */
+  VIKUNJA_API_RATE_LIMIT: z.string().regex(/^\d+$/).transform(Number).optional(),
+
+  /**
+   * Optional: Rate limit window in milliseconds
+   * From env: VIKUNJA_API_RATE_LIMIT_WINDOW
+   * Default: 60000 (1 minute)
+   */
+  VIKUNJA_API_RATE_LIMIT_WINDOW: z.string().regex(/^\d+$/).transform(Number).optional(),
 });
 
 /**
@@ -47,6 +57,9 @@ export function loadConfig(): VikunjaConfig {
   return {
     apiUrl: result.data.VIKUNJA_API_URL,
     token: result.data.VIKUNJA_API_TOKEN,
-    // TODO: Add rate limiting once implemented
+    rateLimit: {
+      maxRequests: result.data.VIKUNJA_API_RATE_LIMIT ?? 500,
+      timeWindow: result.data.VIKUNJA_API_RATE_LIMIT_WINDOW ?? 60000,
+    },
   };
 }

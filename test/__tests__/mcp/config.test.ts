@@ -24,6 +24,10 @@ describe('MCP Server Configuration', () => {
     expect(config).toEqual({
       apiUrl: 'http://vikunja:3456/api/v1',
       token: 'test-token',
+      rateLimit: {
+        maxRequests: 500,
+        timeWindow: 60000,
+      },
     });
   });
 
@@ -47,6 +51,24 @@ describe('MCP Server Configuration', () => {
     process.env.VIKUNJA_API_TOKEN = 'test-token';
 
     expect(() => loadConfig()).toThrow(/VIKUNJA_API_URL/);
+  });
+
+  it('should use custom rate limit values when provided', () => {
+    process.env.VIKUNJA_API_URL = 'http://vikunja:3456/api/v1';
+    process.env.VIKUNJA_API_TOKEN = 'test-token';
+    process.env.VIKUNJA_API_RATE_LIMIT = '100';
+    process.env.VIKUNJA_API_RATE_LIMIT_WINDOW = '30000';
+
+    const config = loadConfig();
+
+    expect(config).toEqual({
+      apiUrl: 'http://vikunja:3456/api/v1',
+      token: 'test-token',
+      rateLimit: {
+        maxRequests: 100,
+        timeWindow: 30000,
+      },
+    });
   });
 
   it('should throw error if VIKUNJA_API_TOKEN is empty', () => {

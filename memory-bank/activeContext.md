@@ -166,6 +166,10 @@ graph TD
 
 ### Recently Completed
 
+- Added rate limiting configuration to MCP server
+- Added environment variables for rate limit control
+- Updated configuration tests for rate limiting
+- Updated server documentation with rate limiting details
 - Implemented client-side rate limiting with 500 req/min default
 - Added RateLimiter class with counter-based implementation
 - Created unit tests for rate limiter functionality

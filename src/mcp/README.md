@@ -11,6 +11,11 @@ The server is configured through environment variables:
 - **VIKUNJA_API_URL**: Base URL of the Vikunja API (e.g., http://vikunja:3456/api/v1)
 - **VIKUNJA_API_TOKEN**: Valid API token for Vikunja authentication
 
+### Optional Variables
+
+- **VIKUNJA_API_RATE_LIMIT**: Maximum API requests per window (default: 500)
+- **VIKUNJA_API_RATE_LIMIT_WINDOW**: Time window in milliseconds (default: 60000)
+
 ### Configuration Example
 
 ```bash
@@ -18,9 +23,22 @@ The server is configured through environment variables:
 export VIKUNJA_API_URL="http://vikunja:3456/api/v1"
 export VIKUNJA_API_TOKEN="your-api-token"
 
+# Optional rate limiting configuration
+export VIKUNJA_API_RATE_LIMIT="500"      # 500 requests per window
+export VIKUNJA_API_RATE_LIMIT_WINDOW="60000"  # 1 minute window
+
 # Start the server
 node dist/mcp/server.js
 ```
+
+### Rate Limiting
+
+The server includes built-in rate limiting for Vikunja API requests:
+
+- Default: 500 requests per minute
+- Configurable through environment variables
+- Automatic request throttling to stay within limits
+- Applies to all API operations
 
 ## Supported Features
 
@@ -60,4 +78,4 @@ npm test -- --testPathPattern=mcp
 - [ ] Implement project listing
 - [ ] Add task resources
 - [ ] Support resource completion
-- [ ] Implement rate limiting
+- [x] Implement rate limiting
