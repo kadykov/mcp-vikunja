@@ -1,4 +1,4 @@
-import type { VikunjaConfig } from '../../config/types';
+import type { VikunjaConfig } from '../../config/types.js';
 import type { HTTPError } from '../../types';
 import {
   AuthError,
@@ -9,7 +9,7 @@ import {
   TimeoutError,
   ValidationError,
   VikunjaError,
-} from './errors';
+} from './errors.js';
 
 interface VikunjaClientConfig {
   config: VikunjaConfig;
@@ -17,10 +17,21 @@ interface VikunjaClientConfig {
 
 export class VikunjaHttpClient {
   private readonly baseUrl: string;
-  private readonly token: string;
+  private token: string;
 
   constructor({ config }: VikunjaClientConfig) {
     this.baseUrl = config.apiUrl.replace(/\/$/, ''); // Remove trailing slash if present
+    this.token = config.token;
+  }
+
+  get config(): VikunjaConfig {
+    return {
+      apiUrl: this.baseUrl,
+      token: this.token,
+    };
+  }
+
+  set config(config: VikunjaConfig) {
     this.token = config.token;
   }
 
