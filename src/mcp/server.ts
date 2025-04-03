@@ -2,7 +2,7 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { VikunjaHttpClient } from '../client/http/client.js';
 import { loadConfig } from './config.js';
-import { handleProjectResource } from './resources/project.js';
+import { createProjectHandler } from './resources/project.js';
 
 // Load configuration first - will throw if invalid
 const config = loadConfig();
@@ -33,7 +33,7 @@ server.resource(
   new ResourceTemplate('vikunja://projects/{id}', {
     list: undefined, // Will implement listing later
   }),
-  handleProjectResource
+  createProjectHandler(client)
 );
 
 // Start receiving messages on stdin and sending messages on stdout
