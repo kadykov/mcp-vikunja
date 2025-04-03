@@ -46,11 +46,16 @@ security:
     @just audit
     @just check-licenses
 
+# Build the project
+build:
+    npm run build
+
 # Run all checks including security
 all:
     @just generate-types
     @just format
     @just lint
     @just type-check
+    @just build
     @just test-coverage
     @just security
