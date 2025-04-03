@@ -1,5 +1,5 @@
 import type { Project } from '../../types';
-import { BaseResource } from './base';
+import { BaseResource } from './base.js';
 
 export interface IProjectResource {
   get(id: number): Promise<Project>;

@@ -1,27 +1,44 @@
 import { ReadResourceTemplateCallback } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Variables } from '@modelcontextprotocol/sdk/shared/uriTemplate.js';
+import { ProjectResource } from '../../client/resource/project.js';
+import { VikunjaError } from '../../client/http/errors.js';
+import { fromMcpUri, toMcpContent } from '../translation/project.js';
+import { client } from '../server.js';
+
+// Create project resource using shared client
+const projectResource = new ProjectResource(client);
 
 /**
  * Handle project resource requests
- * Currently returns hardcoded response, will be updated to use translation layer
+ * Uses translation layer to convert between MCP and Vikunja formats
  */
-export const handleProjectResource: ReadResourceTemplateCallback = (
+export const handleProjectResource: ReadResourceTemplateCallback = async (
   uri: URL,
-  variables: Variables,
-  _extra: { [key: string]: unknown }
+  _variables: Variables,
+  _extra: Record<string, unknown>
 ) => {
-  // Return a resolved promise since ReadResourceTemplateCallback expects a Promise
-  return Promise.resolve({
-    contents: [
-      {
-        uri: uri.href,
-        mimeType: 'application/json',
-        text: JSON.stringify({
-          id: Number(variables.id),
-          title: 'Not implemented',
-          description: 'Draft implementation',
-        }),
-      },
-    ],
-  });
+  try {
+    // Extract project ID and fetch from Vikunja
+    const projectId = fromMcpUri(uri.href);
+    const project = await projectResource.get(projectId);
+
+    // Convert to MCP format
+    return {
+      contents: [
+        {
+          uri: uri.href,
+          mimeType: 'application/json',
+          text: toMcpContent(project),
+        },
+      ],
+    };
+  } catch (error) {
+    // Handle known errors
+    if (error instanceof VikunjaError) {
+      throw new Error(`Vikunja error: ${error.message}`);
+    }
+
+    // Handle other errors
+    throw new Error(error instanceof Error ? error.message : 'Unknown error occurred');
+  }
 };
