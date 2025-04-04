@@ -2,6 +2,7 @@ import { server } from '../../mocks/server';
 import { createTestUser } from '../../utils/vikunja-test-helpers';
 import { ProjectResource } from '../../../src/client/resource/project';
 import { VikunjaHttpClient } from '../../../src/client/http/client';
+import { NotFoundError } from '../../../src/client/http/errors';
 
 // Disable MSW for integration tests
 beforeAll(() => server.close());
@@ -26,6 +27,22 @@ describe('Project Resource Integration Tests', () => {
       },
     });
     projectResource = new ProjectResource(client);
+  });
+
+  test('should throw NotFoundError with Vikunja code for non-existent project', async () => {
+    const nonExistentId = 999999999;
+    await expect(projectResource.get(nonExistentId)).rejects.toThrow(NotFoundError);
+
+    // Test for specific Vikunja error code
+    try {
+      await projectResource.get(nonExistentId);
+    } catch (err: unknown) {
+      if (err instanceof NotFoundError) {
+        expect(err.code).toBe(3001);
+      } else {
+        throw err;
+      }
+    }
   });
 
   // Basic connectivity test

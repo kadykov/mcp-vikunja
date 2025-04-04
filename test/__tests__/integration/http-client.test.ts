@@ -1,6 +1,7 @@
 import { server } from '../../mocks/server';
 import { createTestUser } from '../../utils/vikunja-test-helpers';
 import { VikunjaHttpClient } from '../../../src/client/http/client';
+import { AuthError } from '../../../src/client/http/errors';
 
 // Disable MSW for integration tests
 beforeAll(() => server.close());
@@ -15,6 +16,19 @@ describe('HTTP Client Integration Tests', () => {
   beforeAll(async () => {
     jest.setTimeout(30000); // Increase timeout for integration tests
     testUser = await createTestUser();
+  });
+
+  describe('Error Handling', () => {
+    test('should throw AuthError with invalid token', async () => {
+      const clientWithInvalidToken = new VikunjaHttpClient({
+        config: {
+          apiUrl: 'http://vikunja:3456/api/v1',
+          token: 'invalid-token',
+        },
+      });
+
+      await expect(clientWithInvalidToken.get('/user')).rejects.toThrow(AuthError);
+    });
   });
 
   describe('Rate Limiting', () => {
