@@ -8,7 +8,7 @@ The server is configured through environment variables:
 
 ### Required Variables
 
-- **VIKUNJA_API_URL**: Base URL of the Vikunja API (e.g., http://vikunja:3456/api/v1)
+- **VIKUNJA_API_URL**: Base URL of the Vikunja server (e.g., https://app.vikunja.cloud/). The server will automatically append '/api/v1' to the URL if not present.
 - **VIKUNJA_API_TOKEN**: Valid API token for Vikunja authentication
 
 ### Optional Variables
@@ -20,7 +20,7 @@ The server is configured through environment variables:
 
 ```bash
 # Required configuration
-export VIKUNJA_API_URL="http://vikunja:3456/api/v1"
+export VIKUNJA_API_URL="https://app.vikunja.cloud/"
 export VIKUNJA_API_TOKEN="your-api-token"
 
 # Optional rate limiting configuration

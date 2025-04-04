@@ -23,7 +23,9 @@ export class VikunjaHttpClient {
   private rateLimiter: RateLimiter;
 
   constructor({ config }: VikunjaClientConfig) {
-    this.baseUrl = config.apiUrl.replace(/\/$/, ''); // Remove trailing slash if present
+    // Remove trailing slash if present and ensure /api/v1 is included
+    const cleanUrl = config.apiUrl.replace(/\/$/, '');
+    this.baseUrl = cleanUrl.endsWith('/api/v1') ? cleanUrl : `${cleanUrl}/api/v1`;
     this.token = config.token;
 
     // Initialize rate limiter with default values if not provided

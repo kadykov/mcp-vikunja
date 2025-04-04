@@ -20,6 +20,62 @@ describe('HTTP Client', () => {
     jest.useRealTimers();
   });
 
+  describe('URL Construction', () => {
+    test('should append /api/v1 to base URL if not present', async () => {
+      const baseUrl = 'http://localhost:3456';
+      const client = new VikunjaHttpClient({
+        config: {
+          apiUrl: baseUrl,
+          token: 'test-token',
+        },
+      });
+
+      server.use(
+        http.get(`${baseUrl}/api/v1/test`, () => {
+          return Response.json({ data: { message: 'test' } });
+        })
+      );
+
+      await client.get('/test');
+    });
+
+    test('should not modify URL if /api/v1 is already present', async () => {
+      const baseUrl = 'http://localhost:3456/api/v1';
+      const client = new VikunjaHttpClient({
+        config: {
+          apiUrl: baseUrl,
+          token: 'test-token',
+        },
+      });
+
+      server.use(
+        http.get(`${baseUrl}/test`, () => {
+          return Response.json({ data: { message: 'test' } });
+        })
+      );
+
+      await client.get('/test');
+    });
+
+    test('should handle URLs with trailing slashes', async () => {
+      const baseUrl = 'http://localhost:3456/';
+      const client = new VikunjaHttpClient({
+        config: {
+          apiUrl: baseUrl,
+          token: 'test-token',
+        },
+      });
+
+      server.use(
+        http.get('http://localhost:3456/api/v1/test', () => {
+          return Response.json({ data: { message: 'test' } });
+        })
+      );
+
+      await client.get('/test');
+    });
+  });
+
   describe('Rate Limiting', () => {
     test('should respect rate limits', async () => {
       const client = new VikunjaHttpClient({
