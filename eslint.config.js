@@ -10,7 +10,7 @@ export default [
   },
   eslintJs.configs.recommended,
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -46,9 +46,28 @@ export default [
   {
     files: ['test/**/*.ts'],
     languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        project: './tsconfig.test.json',
+        ecmaVersion: 2020,
+        sourceType: 'module',
+      },
       globals: {
+        ...globals.node,
         ...globals.jest,
       },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      security: security,
+    },
+    rules: {
+      ...tseslint.configs['recommended'].rules,
+      ...tseslint.configs['recommended-requiring-type-checking'].rules,
+      '@typescript-eslint/explicit-function-return-type': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-console': 'off', // Allow console in tests
     },
   },
 ];
