@@ -50,6 +50,18 @@ security:
 build:
     npm run build
 
+# Launch MCP inspector server
+inspect:
+    #!/usr/bin/env sh
+    # Load .env variables and pass them to the inspector
+    set -a
+    . .env
+    set +a
+    npx @modelcontextprotocol/inspector \
+        -e VIKUNJA_API_URL="$VIKUNJA_API_URL" \
+        -e VIKUNJA_API_TOKEN="$VIKUNJA_API_TOKEN" \
+        node dist/src/mcp/server.js
+
 # Run all checks including security
 all:
     @just generate-types
