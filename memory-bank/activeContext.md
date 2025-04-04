@@ -166,6 +166,11 @@ graph TD
 
 ### Recently Completed
 
+- Implemented project MCP resource handlers
+  - Added static resource handler for listing projects
+  - Added template resource handler for getting project by ID
+  - Registered both handlers in MCP server
+  - Added E2E tests to verify functionality
 - Enhanced error handling system in HTTP client layer
   - Implemented VikunjaError base class with immutable error codes
   - Added specific error types for different scenarios

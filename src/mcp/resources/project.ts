@@ -1,9 +1,40 @@
-import { ReadResourceTemplateCallback } from '@modelcontextprotocol/sdk/server/mcp.js';
+import {
+  ReadResourceCallback,
+  ReadResourceTemplateCallback,
+} from '@modelcontextprotocol/sdk/server/mcp.js';
 import { Variables } from '@modelcontextprotocol/sdk/shared/uriTemplate.js';
 import { VikunjaHttpClient } from '../../client/http/client.js';
 import { ProjectResource } from '../../client/resource/project.js';
 import { VikunjaError } from '../../client/http/errors.js';
 import { fromMcpUri, toMcpContent } from '../translation/project.js';
+
+/**
+ * Create project list resource handler with configured client
+ */
+export function createProjectListHandler(client: VikunjaHttpClient): ReadResourceCallback {
+  const projectResource = new ProjectResource(client);
+
+  return async () => {
+    try {
+      const projects = await projectResource.list();
+
+      return {
+        contents: [
+          {
+            uri: 'vikunja://projects',
+            mimeType: 'application/json',
+            text: toMcpContent(projects),
+          },
+        ],
+      };
+    } catch (error) {
+      if (error instanceof VikunjaError) {
+        throw new Error(`Vikunja error: ${error.message}`);
+      }
+      throw new Error(error instanceof Error ? error.message : 'Unknown error occurred');
+    }
+  };
+}
 
 /**
  * Create project resource handler with configured client

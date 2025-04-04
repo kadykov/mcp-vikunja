@@ -46,7 +46,7 @@ The server includes built-in rate limiting for Vikunja API requests:
 
 | Resource | List | Read | Complete |
 | -------- | ---- | ---- | -------- |
-| Project  | ❌   | ✅   | ❌       |
+| Project  | ✅   | ✅   | ❌       |
 
 ### URI Format
 
@@ -75,7 +75,7 @@ npm test -- --testPathPattern=mcp
 
 ## Future Enhancements
 
-- [ ] Implement project listing
+- [x] Implement project listing
 - [ ] Add task resources
 - [ ] Support resource completion
 - [x] Implement rate limiting

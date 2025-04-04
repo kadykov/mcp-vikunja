@@ -19,10 +19,10 @@ export function fromMcpUri(uri: string): number {
 }
 
 /**
- * Convert Project to MCP resource content
+ * Convert Project or Project[] to MCP resource content
  * Initially using direct JSON serialization
  * Will be updated to use Markdown format in the future
  */
-export function toMcpContent(project: Project): string {
+export function toMcpContent(project: Project | Project[]): string {
   return JSON.stringify(project, null, 2);
 }

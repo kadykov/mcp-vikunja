@@ -126,11 +126,13 @@
   - [x] Remove class-based abstraction
   - [x] Follow SDK example patterns
 
-- [ ] Resource Handlers Integration
+- [x] Resource Handlers Integration
 
   - [x] Move project handler to separate file
   - [x] Add direct URI mapping
   - [x] Connect to Project Resource layer
+  - [x] Add static project listing resource
+  - [x] Add E2E tests for resource handlers
   - [ ] Add comprehensive logging
   - [ ] Implement rate limiting
 

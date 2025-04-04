@@ -34,6 +34,42 @@ describe('MCP Server E2E', () => {
     }
   });
 
+  describe('Projects Static Resource', () => {
+    it('should list static resource in available resources', async () => {
+      const response = await client.listResources();
+      expect(response.resources).toContainEqual({
+        uri: 'vikunja://projects',
+        name: 'projects',
+      });
+    });
+
+    it('should return list of projects via MCP resource', async () => {
+      // Create test projects
+      const testProject1 = await createTestProject();
+      const testProject2 = await createTestProject();
+
+      const resource = await client.readResource({
+        uri: 'vikunja://projects',
+      });
+
+      // Verify response format and data
+      expect(resource.contents).toHaveLength(1);
+      const projects = JSON.parse(resource.contents[0].text as string) as Project[];
+      expect(projects).toContainEqual(
+        expect.objectContaining({
+          id: testProject1.id,
+          title: testProject1.title,
+        })
+      );
+      expect(projects).toContainEqual(
+        expect.objectContaining({
+          id: testProject2.id,
+          title: testProject2.title,
+        })
+      );
+    });
+  });
+
   describe('Project Resource Template', () => {
     it('should list project in available resource templates', async () => {
       const response = await client.listResourceTemplates();
