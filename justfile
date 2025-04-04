@@ -53,6 +53,7 @@ build:
 # Launch MCP inspector server
 inspect:
     #!/usr/bin/env sh
+    just build
     # Load .env variables and pass them to the inspector
     set -a
     . .env
