@@ -4,47 +4,18 @@ import { Project } from '../../src/types';
 import { VikunjaHttpClient } from '../../src/client/http/client';
 import { ProjectResource } from '../../src/client/resource/project';
 import { NotFoundError } from '../../src/client/http/errors';
-import { createTestUser } from './vikunja-test-helpers';
 
 interface McpTestContext {
   client: Client;
   transport: StdioClientTransport;
   cleanup: () => Promise<void>;
-  testUser: {
-    token: string;
-    credentials: {
-      username: string;
-      email: string;
-      password: string;
-    };
-  };
 }
-
-interface TestProject extends Project {
-  /** Indicates this is a test project that should be cleaned up */
-  _isTest?: boolean;
-}
-
-let testProjects: TestProject[] = [];
 
 /**
  * Start MCP server with test configuration
  */
-export async function startMcpServer(): Promise<McpTestContext> {
-  // Create test user
-  const testUser = await createTestUser();
-
-  // Store original env vars
-  const originalEnv = {
-    VIKUNJA_API_URL: process.env.VIKUNJA_API_URL,
-    VIKUNJA_API_TOKEN: process.env.VIKUNJA_API_TOKEN,
-  };
-
-  // Set environment variables
-  process.env.VIKUNJA_API_URL = 'http://vikunja:3456/api/v1';
-  process.env.VIKUNJA_API_TOKEN = testUser.token;
-
-  // Start a new server process and create client
+export async function startMcpServer(token: string): Promise<McpTestContext> {
+  // Start a new server process and create client with provided token
   let transport: StdioClientTransport | undefined;
   let client: Client | undefined;
 
@@ -52,7 +23,11 @@ export async function startMcpServer(): Promise<McpTestContext> {
     transport = new StdioClientTransport({
       command: 'node',
       args: ['dist/src/mcp/server.js'],
-      env: process.env as Record<string, string>, // Pass all env vars to child process
+      env: {
+        ...process.env,
+        VIKUNJA_API_URL: 'http://vikunja:3456/api/v1',
+        VIKUNJA_API_TOKEN: token,
+      } as Record<string, string>, // Pass all env vars to child process
       stderr: 'inherit', // Show server errors in test output
     });
 
@@ -75,26 +50,18 @@ export async function startMcpServer(): Promise<McpTestContext> {
       if (transport) {
         await transport.close();
       }
-      // Restore original env vars
-      process.env.VIKUNJA_API_URL = originalEnv.VIKUNJA_API_URL;
-      process.env.VIKUNJA_API_TOKEN = originalEnv.VIKUNJA_API_TOKEN;
-      // Clean up test data
-      await cleanupTestData();
     };
 
     return {
       client,
       transport,
       cleanup,
-      testUser,
     };
   } catch (error) {
     // Clean up on error
     if (transport) {
       await transport.close();
     }
-    process.env.VIKUNJA_API_URL = originalEnv.VIKUNJA_API_URL;
-    process.env.VIKUNJA_API_TOKEN = originalEnv.VIKUNJA_API_TOKEN;
     throw error;
   }
 }
@@ -102,61 +69,56 @@ export async function startMcpServer(): Promise<McpTestContext> {
 /**
  * Create a test project in Vikunja
  */
-export async function createTestProject(): Promise<TestProject> {
+export async function createTestProject(token: string, scope: string): Promise<Project> {
   const timestamp = Date.now();
   const newProject = {
-    title: `MCP Test Project ${timestamp}`,
-    description: 'Project created by MCP E2E tests',
+    title: `Test Project [${scope}] ${timestamp}`,
+    description: 'Project created by integration test',
   };
 
   const client = new VikunjaHttpClient({
     config: {
-      apiUrl: process.env.VIKUNJA_API_URL!,
-      token: process.env.VIKUNJA_API_TOKEN!,
+      apiUrl: 'http://vikunja:3456/api/v1',
+      token: token,
     },
   });
 
   const projectResource = new ProjectResource(client);
-  const project = await projectResource.create(newProject);
-
-  const testProject: TestProject = {
-    ...project,
-    _isTest: true,
-  };
-
-  testProjects.push(testProject);
-  return testProject;
+  return projectResource.create(newProject);
 }
 
 /**
- * Clean up test data created during tests
+ * Clean up test data created during tests including test projects not tracked in testProjects array
  */
-async function cleanupTestData(): Promise<void> {
-  if (testProjects.length === 0) return;
-
+export async function cleanupTestData(token: string, scope: string): Promise<void> {
   const client = new VikunjaHttpClient({
     config: {
-      apiUrl: process.env.VIKUNJA_API_URL!,
-      token: process.env.VIKUNJA_API_TOKEN!,
+      apiUrl: 'http://vikunja:3456/api/v1',
+      token: token,
     },
   });
 
   const projectResource = new ProjectResource(client);
 
-  // Clean up projects sequentially
-  for (const project of testProjects) {
-    if (typeof project.id !== 'number') continue;
+  try {
+    // Get all projects
+    const allProjects = await projectResource.list();
 
-    try {
-      await projectResource.delete(project.id);
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        // Project already deleted, ignore
-        continue;
+    // Clean up any projects that look like test projects
+    for (const project of allProjects) {
+      if (project.title?.includes(`Test Project [${scope}]`)) {
+        try {
+          await projectResource.delete(project.id!);
+        } catch (error) {
+          if (error instanceof NotFoundError) {
+            // Project already deleted, ignore
+            continue;
+          }
+          console.error(`Failed to delete project ${project.id}:`, error);
+        }
       }
     }
+  } catch (error) {
+    console.error('Failed to clean up test projects:', error);
   }
-
-  // Reset test projects array
-  testProjects = [];
 }

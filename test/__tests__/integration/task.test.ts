@@ -1,7 +1,7 @@
 import { server } from '../../mocks/server';
 import { createTestUser } from '../../utils/vikunja-test-helpers';
+import { createTestProject, cleanupTestData } from '../../utils/mcp-test-helpers';
 import { TaskResource } from '../../../src/client/resource/task';
-import { ProjectResource } from '../../../src/client/resource/project';
 import { VikunjaHttpClient } from '../../../src/client/http/client';
 
 // Disable MSW for integration tests
@@ -14,7 +14,6 @@ describe('Task Resource Integration Tests', () => {
     token: string;
   };
   let taskResource: TaskResource;
-  let projectResource: ProjectResource;
   let testProjectId: number;
 
   beforeAll(async () => {
@@ -29,22 +28,14 @@ describe('Task Resource Integration Tests', () => {
       },
     });
     taskResource = new TaskResource(client);
-    projectResource = new ProjectResource(client);
 
     // Create a test project to use for task operations
-    try {
-      const project = await projectResource.create({
-        title: 'Test Project for Tasks',
-        description: 'Project for task integration tests',
-      });
-      if (!project.id) {
-        throw new Error('Created project missing ID');
-      }
-      testProjectId = project.id;
-    } catch (error) {
-      console.error('Failed to create test project:', error);
-      throw error;
-    }
+    const project = await createTestProject(testUser.token, 'task-test');
+    testProjectId = project.id!;
+  });
+
+  afterAll(async () => {
+    await cleanupTestData(testUser.token, 'task-test');
   });
 
   // Basic connectivity test

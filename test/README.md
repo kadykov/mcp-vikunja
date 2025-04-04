@@ -66,6 +66,7 @@ Integration tests interact with a real Vikunja instance to verify actual API beh
 
 ```typescript
 import { createTestUser } from '../../utils/vikunja-test-helpers';
+import { createTestProject, cleanupTestData } from '../../utils/mcp-test-helpers';
 import { ProjectResource } from '../../../src/client/resource/project';
 
 describe('Project Resource Integration Tests', () => {
@@ -81,19 +82,39 @@ describe('Project Resource Integration Tests', () => {
     });
   });
 
+  afterAll(async () => {
+    // Clean up test data
+    await cleanupTestData(testUser.token, 'project-test');
+  });
+
   test('should perform CRUD operations', async () => {
-    // Test real API interactions
-    const project = await projectResource.create({
-      title: 'Test Project',
-      description: 'Integration test project',
-    });
+    // Test real API interactions using scoped test data
+    const project = await createTestProject(testUser.token, 'project-test');
+    expect(project.title).toContain('[project-test]'); // Projects are scoped
   });
 });
 ```
 
-#### Integration Test Infrastructure
+#### Integration Test Infrastructure and Scoping
 
-1. User Management Pattern
+1. Test Data Scoping Pattern
+
+   ```typescript
+   // Create scoped test project
+   const project = await createTestProject(token, 'my-test-scope');
+
+   // Clean up only projects with matching scope
+   await cleanupTestData(token, 'my-test-scope');
+   ```
+
+2. Parallel Test Safety
+
+   - Each test file uses its own scope for test data
+   - Prevents test interference when running in parallel
+   - Automatic cleanup of scoped test data
+   - Example scopes: 'project-test', 'task-test', 'mcp-e2e'
+
+3. User Management Pattern
 
    ```typescript
    // test/utils/vikunja-test-helpers.ts
@@ -116,14 +137,14 @@ describe('Project Resource Integration Tests', () => {
    }
    ```
 
-2. Test Organization
+4. Test Organization
 
    - Group tests by resource type
    - Start with basic CRUD verification
    - Add error case testing
    - Include comprehensive logging
 
-3. Response Handling
+5. Response Handling
    - Direct API response handling
    - Type-safe response validation
    - Response structure verification
@@ -149,10 +170,20 @@ const testTask = factories.createTask({
 
 Common test utilities:
 
+#### MCP Test Helpers (`mcp-test-helpers.ts`)
+
+- `startMcpServer`: Start MCP server for testing with provided token
+- `createTestProject`: Create a scoped test project
+- `cleanupTestData`: Clean up test data for a specific scope
+
+#### API Test Helpers
+
 - `apiFetch`: Typed fetch wrapper
 - `apiPut/apiPost`: Typed request helpers
 - `expectApiError`: Error response assertions
-- `testData`: Common path builders
+
+#### Vikunja Helpers (`vikunja-test-helpers.ts`)
+
 - `createTestUser`: Integration test user management
 - `vikunjaRequest`: Direct API communication helper
 
@@ -189,7 +220,21 @@ npm test test/__tests__/integration
    - Verify actual API behavior
    - Test real error scenarios
 
-3. General Guidelines
+3. Test Data Isolation
+
+   - Use scoped test data creation
+   - Each test file uses unique scope for its data
+   - Always clean up test data after tests
+   - Use descriptive scope names (e.g., 'project-test', 'task-test')
+
+4. Parallel Test Execution
+
+   - Tests can run in parallel safely
+   - Test data is isolated by scope
+   - No interference between test files
+   - Cleanup is scope-specific
+
+5. General Guidelines
    - Write tests before implementation
    - Keep test cases focused
    - Use proper type assertions
