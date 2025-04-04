@@ -8,6 +8,12 @@
 - Technical constraints documented
 - Project structure set up
 - Development environment configured
+- HTTP Client Layer Enhanced
+  - Robust error handling system with VikunjaError hierarchy
+  - Support for Vikunja-specific error codes (3000+)
+  - Improved error message clarity and documentation
+  - Built-in rate limiting with configurable defaults
+  - Comprehensive error handling test coverage
 - CI/CD pipeline implemented
   - Automated testing and validation
   - Security scanning with CodeQL

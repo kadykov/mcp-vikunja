@@ -166,6 +166,16 @@ graph TD
 
 ### Recently Completed
 
+- Enhanced error handling system in HTTP client layer
+  - Implemented VikunjaError base class with immutable error codes
+  - Added specific error types for different scenarios
+  - Added support for Vikunja-specific error codes (3000+)
+  - Improved error message clarity and consistency
+- Created comprehensive error handling tests
+  - Added tests for Vikunja error codes
+  - Added tests for malformed responses
+  - Added tests for non-Vikunja error formats
+- Updated HTTP client documentation with error handling details
 - Added rate limiting configuration to MCP server
 - Added environment variables for rate limit control
 - Updated configuration tests for rate limiting

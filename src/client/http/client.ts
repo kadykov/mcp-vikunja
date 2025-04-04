@@ -140,17 +140,52 @@ export class VikunjaHttpClient {
    */
   private async handleErrorResponse(response: Response): Promise<never> {
     let error: HTTPError;
+    let rawError: string | undefined;
 
     try {
-      const json = await response.json();
-      error = json as HTTPError;
-    } catch {
+      rawError = await response.text();
+      if (!rawError) {
+        throw new Error('Empty response');
+      }
+
+      let errorData = JSON.parse(rawError) as HTTPError;
+
+      // First, try to parse as a Vikunja error directly
+      if (typeof errorData.code === 'number' && errorData.code > 0) {
+        // Convert HTTP status codes to Vikunja code if needed
+        const vikunjaError = {
+          code: errorData.code,
+          message: errorData.message || response.statusText || 'Unknown error',
+        };
+
+        if (errorData.code >= 3000) {
+          // Use specific Vikunja error codes
+          switch (errorData.code) {
+            case 3001:
+            case 3002:
+              return Promise.reject(new NotFoundError(vikunjaError));
+            case 3004:
+              return Promise.reject(new AuthError(vikunjaError));
+            default:
+              return Promise.reject(new ValidationError(vikunjaError));
+          }
+        }
+      }
+
+      // Fallback to using HTTP status with original message
       error = {
         code: response.status,
-        message: response.statusText || 'Unknown error',
+        message: errorData.message || response.statusText || 'Unknown error',
+      };
+    } catch {
+      // If we can't parse JSON or it's not a Vikunja error response
+      error = {
+        code: response.status,
+        message: rawError || response.statusText || 'Unknown error',
       };
     }
 
+    // Fallback to HTTP status based error handling
     switch (response.status) {
       case 400:
         throw new ValidationError(error);

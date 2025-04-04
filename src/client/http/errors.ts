@@ -3,14 +3,22 @@ import type { HTTPError } from '../../types';
 /**
  * Base error class for HTTP client errors
  */
-export class VikunjaError extends Error {
-  readonly code: number;
-
-  constructor(message: string, code = 500) {
+export abstract class VikunjaError extends Error {
+  constructor(message: string, code: number) {
     super(message);
-    this.name = 'VikunjaError';
-    this.code = code;
+    this.name = this.constructor.name;
+
+    // Use Object.defineProperty to ensure code is immutable
+    Object.defineProperty(this, 'code', {
+      value: code,
+      writable: false,
+      enumerable: true,
+      configurable: false,
+    });
   }
+
+  // TypeScript type declaration for the code property
+  declare readonly code: number;
 }
 
 /**
@@ -20,7 +28,6 @@ export class VikunjaError extends Error {
 export class NetworkError extends VikunjaError {
   constructor(message = 'Network error occurred') {
     super(message, 0);
-    this.name = 'NetworkError';
   }
 }
 
@@ -31,7 +38,6 @@ export class NetworkError extends VikunjaError {
 export class TimeoutError extends VikunjaError {
   constructor(message = 'Request timeout') {
     super(message, 408);
-    this.name = 'TimeoutError';
   }
 }
 
@@ -42,7 +48,6 @@ export class TimeoutError extends VikunjaError {
 export class InvalidResponseError extends VikunjaError {
   constructor(message = 'Invalid response format') {
     super(message, 400);
-    this.name = 'InvalidResponseError';
   }
 }
 
@@ -52,8 +57,7 @@ export class InvalidResponseError extends VikunjaError {
  */
 export class ServerError extends VikunjaError {
   constructor(error: HTTPError) {
-    super(error.message || 'Internal server error', error.code);
-    this.name = 'ServerError';
+    super(error.message || 'Internal server error', error.code ?? 500);
   }
 }
 
@@ -63,8 +67,7 @@ export class ServerError extends VikunjaError {
  */
 export class ValidationError extends VikunjaError {
   constructor(error: HTTPError) {
-    super(error.message || 'Validation error', error.code);
-    this.name = 'ValidationError';
+    super(error.message || 'Validation error', error.code ?? 400);
   }
 }
 
@@ -74,8 +77,7 @@ export class ValidationError extends VikunjaError {
  */
 export class AuthError extends VikunjaError {
   constructor(error: HTTPError) {
-    super(error.message || 'Authentication error', error.code);
-    this.name = 'AuthError';
+    super(error.message || 'Authentication error', error.code ?? 403);
   }
 }
 
@@ -85,7 +87,13 @@ export class AuthError extends VikunjaError {
  */
 export class NotFoundError extends VikunjaError {
   constructor(error: HTTPError) {
-    super(error.message || 'Resource not found', error.code);
-    this.name = 'NotFoundError';
+    // Check if we have a valid Vikunja error code
+    const vikunjaErrorCode = 'code' in error ? error.code : undefined;
+
+    // Use Vikunja error code if it's a valid number, otherwise use 404
+    const finalCode = typeof vikunjaErrorCode === 'number' ? vikunjaErrorCode : 404;
+    const finalMessage = error.message || 'Resource not found';
+
+    super(finalMessage, finalCode);
   }
 }

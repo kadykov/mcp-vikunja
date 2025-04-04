@@ -67,10 +67,33 @@ graph TD
 
 ### 5. Error Handling Pattern
 
-- FastMCP error mapping
-- Resource layer error propagation
-- User-friendly error messages
-- Consistent error structure
+- Error Class Hierarchy
+
+  - VikunjaError base class with immutable error code
+  - Specific error types for different scenarios
+  - Type-safe error inheritance chain
+  - Clear error categorization
+
+- Error Code Management
+
+  - Support for Vikunja-specific error codes (3000+)
+  - HTTP status code mapping
+  - Custom error code preservation
+  - Immutable error codes
+
+- Error Propagation
+
+  - FastMCP error mapping
+  - Resource layer error propagation
+  - User-friendly error messages
+  - Consistent error structure
+  - Type-safe error handling
+
+- Error Testing Strategy
+  - Comprehensive test coverage
+  - Error code verification
+  - Response format validation
+  - Edge case handling
 
 ## Testing Patterns
 

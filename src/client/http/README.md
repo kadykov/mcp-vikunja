@@ -54,11 +54,37 @@ const client = new VikunjaHttpClient({
 
 ### Error Handling
 
-- Network errors
-- Timeout errors
-- Invalid responses
-- API errors (400, 401, 403, 404, 500)
-- Error type mapping to custom error classes
+The client implements a robust error handling system:
+
+#### Error Hierarchy
+
+```typescript
+VikunjaError           // Base error class with immutable error code
+├── NetworkError       // Network connectivity issues
+├── TimeoutError      // Request timeouts
+├── InvalidResponseError // Malformed responses
+├── ServerError       // 500-level errors
+├── ValidationError   // 400-level validation errors
+├── AuthError        // 401/403 authentication errors
+└── NotFoundError    // 404/3001/3002 not found errors
+```
+
+#### Error Types
+
+- Network errors (connection issues)
+- Timeout errors (408)
+- Invalid responses (malformed JSON)
+- Vikunja-specific errors (3000+ error codes)
+  - 3001/3002: Not found errors
+  - 3004: Authentication/permission errors
+- Standard HTTP errors (400, 401, 403, 404, 500)
+- Custom error classes with preserved error codes
+
+Each error includes:
+
+- Original error message
+- HTTP or Vikunja-specific error code
+- Type-safe error handling
 
 ### Extension Points
 
@@ -101,7 +127,7 @@ The client is tested using MSW (Mock Service Worker) for API mocking:
 1. Current Implementation
 
    - Basic HTTP operations only
-   - No advanced features (retry, rate limiting)
+   - Built-in rate limiting with configurable limits
    - No built-in pagination handling
 
 2. Scope

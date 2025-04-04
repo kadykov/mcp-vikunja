@@ -3,6 +3,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { Project } from '../../src/types';
 import { VikunjaHttpClient } from '../../src/client/http/client';
 import { ProjectResource } from '../../src/client/resource/project';
+import { NotFoundError } from '../../src/client/http/errors';
 import { createTestUser } from './vikunja-test-helpers';
 
 interface McpTestContext {
@@ -142,18 +143,19 @@ async function cleanupTestData(): Promise<void> {
 
   const projectResource = new ProjectResource(client);
 
-  // Clean up each test project
-  await Promise.all(
-    testProjects
-      .filter((project): project is TestProject & { id: number } => typeof project.id === 'number')
-      .map(async project => {
-        try {
-          await projectResource.delete(project.id);
-        } catch (error) {
-          console.warn(`Failed to delete test project ${project.id}:`, error);
-        }
-      })
-  );
+  // Clean up projects sequentially
+  for (const project of testProjects) {
+    if (typeof project.id !== 'number') continue;
+
+    try {
+      await projectResource.delete(project.id);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        // Project already deleted, ignore
+        continue;
+      }
+    }
+  }
 
   // Reset test projects array
   testProjects = [];
