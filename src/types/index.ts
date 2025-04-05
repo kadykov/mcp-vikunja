@@ -17,7 +17,7 @@ export type {
 } from './project';
 
 // Task types
-export type { Task, CreateTask, UpdateTask } from './task';
+export type { Task, CreateTask, UpdateTask, VikunjaTask } from './task';
 
 // Task relations
 export type { TaskRelation, CreateTaskRelation, RelatedTaskMap } from './relation';

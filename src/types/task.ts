@@ -8,7 +8,7 @@ import type { TaskReminder } from './reminder';
 import type { RelatedTaskMap } from './relation';
 
 // Original OpenAPI types
-type VikunjaTask = components['schemas']['models.Task'];
+export type VikunjaTask = components['schemas']['models.Task'];
 
 /**
  * Base properties for a task that can be modified by clients
