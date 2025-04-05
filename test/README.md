@@ -12,13 +12,12 @@ test/
 │   ├── integration/  # Integration tests
 │   └── validation/   # Validation tests
 ├── mocks/            # MSW mocking setup
-│   ├── factories.ts  # Test data factories
-│   ├── handlers.ts   # MSW request handlers
-│   ├── index.ts      # Mock exports
+│   ├── factories/    # Resource-specific test data factories
 │   ├── server.ts     # MSW server setup
 │   └── types.ts      # Mock type definitions
 ├── utils/            # Test utilities
-│   ├── test-helpers.ts
+│   ├── test-utils.ts      # Test response creators
+│   ├── test-responses.ts  # Response utilities
 │   └── vikunja-test-helpers.ts
 ├── setup.ts          # Jest setup file
 └── README.md         # This file
@@ -33,7 +32,38 @@ We use MSW to intercept and mock API requests during unit tests:
 - Type-safe request handlers based on OpenAPI types
 - Factory functions for generating test data
 - Consistent error handling
-- Utility functions for testing API responses
+- Response transformation testing
+- Default value validation
+
+#### Response Utilities and Type Safety
+
+```typescript
+// Create type-safe test responses
+const response = createTaskResponse(vikunjaTask);
+const listResponse = createTaskListResponse(vikunjaTasks);
+const errorResponse = createTaskErrorResponse('not_found');
+
+// Test data transformations
+test('should transform API response', async () => {
+  const vikunjaTask = createVikunjaTask({
+    id: 123,
+    title: 'Test Task',
+  });
+
+  server.use(
+    http.get(`${API_BASE}/tasks/123`, () => {
+      return createTaskResponse(vikunjaTask);
+    })
+  );
+
+  const result = await taskResource.get(123);
+  expect(result).toMatchObject({
+    id: vikunjaTask.id,
+    title: vikunjaTask.title,
+    description: '', // Default value
+  });
+});
+```
 
 #### MSW Usage
 
@@ -137,38 +167,49 @@ describe('Project Resource Integration Tests', () => {
    }
    ```
 
-4. Test Organization
+### Test Data Factories and Type Safety
 
-   - Group tests by resource type
-   - Start with basic CRUD verification
-   - Add error case testing
-   - Include comprehensive logging
-
-5. Response Handling
-   - Direct API response handling
-   - Type-safe response validation
-   - Response structure verification
-   - Error response testing
-
-### Test Data Factories
-
-Use factory functions to create test data:
+Our factory functions ensure type-safe test data:
 
 ```typescript
-import { factories } from '../mocks/index';
+// Basic usage
+const task = createVikunjaTask();
 
-const testProject = factories.createProject({
+// Override specific fields
+const customTask = createVikunjaTask({
+  id: 123,
   title: 'Custom Title',
 });
 
-const testTask = factories.createTask({
-  project_id: testProject.id,
+// Test data relationships
+const project = createVikunjaProject();
+const projectTask = createVikunjaTask({
+  project_id: project.id,
 });
 ```
+
+Each factory:
+
+- Provides sensible defaults
+- Ensures required fields
+- Maintains relationships
+- Validates field types
 
 ### Test Helpers
 
 Common test utilities:
+
+#### Response Utilities (`test-utils.ts`)
+
+```typescript
+// Success responses
+const response = createTaskResponse(vikunjaTask);
+const listResponse = createTaskListResponse(vikunjaTasks);
+
+// Type-safe error responses
+const notFound = createTaskErrorResponse('not_found');
+const invalidInput = createTaskErrorResponse('invalid_input');
+```
 
 #### MCP Test Helpers (`mcp-test-helpers.ts`)
 
@@ -201,6 +242,9 @@ npm run test:watch
 
 # Run integration tests only
 npm test test/__tests__/integration
+
+# Run specific resource tests
+npm test test/__tests__/client/resource/task.test.ts
 ```
 
 ## Best Practices
@@ -211,6 +255,9 @@ npm test test/__tests__/integration
    - Keep tests focused and isolated
    - Mock all external dependencies
    - Test both success and error cases
+   - Verify type transformations
+   - Test default values
+   - Validate required fields
 
 2. Integration Tests
 
@@ -225,7 +272,7 @@ npm test test/__tests__/integration
    - Use scoped test data creation
    - Each test file uses unique scope for its data
    - Always clean up test data after tests
-   - Use descriptive scope names (e.g., 'project-test', 'task-test')
+   - Use descriptive scope names
 
 4. Parallel Test Execution
 
@@ -234,9 +281,19 @@ npm test test/__tests__/integration
    - No interference between test files
    - Cleanup is scope-specific
 
-5. General Guidelines
+5. Response Handling
+
+   - Use type-safe response creators
+   - Test transformation edge cases
+   - Validate field defaults
+   - Check error responses
+   - Test optional fields
+
+6. General Guidelines
    - Write tests before implementation
    - Keep test cases focused
    - Use proper type assertions
    - Add meaningful error messages
    - Document complex test setups
+   - Maintain test data relationships
+   - Use factory functions consistently

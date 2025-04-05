@@ -11,20 +11,87 @@ The types are generated using:
 
 The generation script is located in `scripts/generate-types.sh`.
 
-## How to update
+## Type System Organization
 
-To update the types after API changes:
+Our type system is organized in layers:
 
-```bash
-npm run generate-types
+1. **Raw API Types** (VikunjaXXX)
+
+   - Generated from OpenAPI spec
+   - Represent exact API response shapes
+   - Have optional fields matching API spec
+   - Example: `VikunjaTask`, `VikunjaProject`
+
+2. **Domain Types** (XXX)
+
+   - Our internal representation
+   - Required fields are enforced
+   - Default values are applied
+   - Example: `Task`, `Project`
+
+3. **Operation Types** (CreateXXX, UpdateXXX)
+   - Types for specific operations
+   - Only include relevant fields
+   - Proper optionality based on operation
+   - Example: `CreateTask`, `UpdateProject`
+
+## Type Transformations
+
+Resources handle transforming between API and domain types:
+
+```typescript
+// API Response (VikunjaTask)
+{
+  id?: number,
+  title?: string,
+  // ... other optional fields
+}
+
+// Domain Type (Task)
+{
+  id: number,         // Required
+  title: string,      // Required
+  description: string // Defaults applied
+  // ... other fields with proper types
+}
 ```
 
 ## Usage
 
-Import types from the main types index file:
+Import domain types from the main types index file:
 
 ```typescript
-import { Task, Project, User } from '../types';
+import type { Task, Project, User } from '../types';
+```
+
+For API types (when needed):
+
+```typescript
+import type { VikunjaTask, VikunjaProject } from '../types';
 ```
 
 Do not import directly from this directory as the types are regenerated and may change structure.
+
+## Type Safety
+
+- API responses are validated using resource transformers
+- Required fields are checked at runtime
+- Proper error handling for missing/invalid data
+- Type guards ensure data integrity
+
+Example transformation:
+
+```typescript
+private transformTask(vikunjaTask: VikunjaTask): Task {
+  if (!vikunjaTask.id || !vikunjaTask.title) {
+    throw new Error('Invalid task data: missing required fields');
+  }
+
+  return {
+    id: vikunjaTask.id,
+    title: vikunjaTask.title,
+    description: vikunjaTask.description ?? '',
+    // ... other fields with proper defaults
+  };
+}
+```
