@@ -1,7 +1,6 @@
 import { server } from './mocks/server';
-import { handlers } from './mocks/handlers';
 
-export { server, handlers };
+export { server };
 
 // Test configuration
 export const TEST_API_URL = 'http://localhost:3456';
