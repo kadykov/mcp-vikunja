@@ -1,16 +1,7 @@
 import { server } from './mocks/server';
 import { handlers } from './mocks/handlers';
-import { createProject, createTask, createComment, createUser } from './mocks/factories';
 
 export { server, handlers };
-
-// Export factory functions
-export const factories = {
-  project: createProject,
-  task: createTask,
-  comment: createComment,
-  user: createUser,
-};
 
 // Test configuration
 export const TEST_API_URL = 'http://localhost:3456';

@@ -3,11 +3,11 @@ import type {
   Project,
   Task,
   TaskComment,
-  TaskLabel,
-  ProjectView,
+  Label,
+  VikunjaProjectView,
   User,
   HTTPError,
-  TaskBucket,
+  Bucket,
   TaskAttachment,
 } from '../../src/types';
 
@@ -37,10 +37,10 @@ export type ApiHandler = (typeof http)[RequestMethod];
 export type ProjectFactory = (data?: Partial<Project>) => Project;
 export type TaskFactory = (data?: Partial<Task>) => Task;
 export type CommentFactory = (data?: Partial<TaskComment>) => TaskComment;
-export type LabelFactory = (data?: Partial<TaskLabel>) => TaskLabel;
-export type ViewFactory = (data?: Partial<ProjectView>) => ProjectView;
+export type LabelFactory = (data?: Partial<Label>) => Label;
+export type ViewFactory = (data?: Partial<VikunjaProjectView>) => VikunjaProjectView;
 export type UserFactory = (data?: Partial<User>) => User;
-export type BucketFactory = (data?: Partial<TaskBucket>) => TaskBucket;
+export type BucketFactory = (data?: Partial<Bucket>) => Bucket;
 export type AttachmentFactory = (data?: Partial<TaskAttachment>) => TaskAttachment;
 
 // Error factory with Vikunja's error type
