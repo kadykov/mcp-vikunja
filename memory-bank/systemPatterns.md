@@ -35,7 +35,59 @@ graph TD
 
 ## Core Patterns
 
-### 1. MCP Resource Pattern
+### 1. Rendering Layer Pattern
+
+The rendering layer follows a clear object-oriented design for handling different output formats and entity types:
+
+```mermaid
+graph TD
+    subgraph Interfaces
+        IR[IRenderer]
+        IMR[IMarkdownRenderer]
+    end
+
+    subgraph Base Classes
+        BMR[BaseMarkdownRenderer]
+    end
+
+    subgraph Implementations
+        PMR[ProjectMarkdownRenderer]
+        TMR[TaskMarkdownRenderer]
+    end
+
+    IR --> IMR
+    IMR --> BMR
+    BMR --> PMR
+    BMR --> TMR
+```
+
+Key Components:
+
+1. Core Interfaces
+
+   - IRenderer: Base rendering interface
+   - IMarkdownRenderer: Markdown-specific extensions
+
+2. Base Implementation
+
+   - BaseMarkdownRenderer: Common markdown functionality
+   - Shared utilities and helpers
+
+3. Entity-Specific Renderers
+   - ProjectMarkdownRenderer: Project-specific rendering
+   - TaskMarkdownRenderer: Task-specific rendering
+   - Future renderers for other entities
+
+Benefits:
+
+- Clear separation of concerns
+- Extensible architecture
+- Reusable components
+- Strong type safety
+- Easy testing
+- Future-proof design
+
+### 2. MCP Resource Pattern
 
 - FastMCP-based resource implementation
 - URIs follow pattern: `vikunja://{entity}/{id}`

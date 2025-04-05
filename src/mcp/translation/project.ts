@@ -1,4 +1,7 @@
 import { Project } from '../../types';
+import { ProjectMarkdownRenderer } from '../../renderers/markdown/ProjectMarkdownRenderer.js';
+
+const projectRenderer = new ProjectMarkdownRenderer();
 
 /**
  * Convert Vikunja project ID to MCP URI
@@ -20,9 +23,11 @@ export function fromMcpUri(uri: string): number {
 
 /**
  * Convert Project or Project[] to MCP resource content
- * Initially using direct JSON serialization
- * Will be updated to use Markdown format in the future
+ * Uses Markdown format for lists and JSON for single projects
  */
 export function toMcpContent(project: Project | Project[]): string {
-  return JSON.stringify(project, null, 2);
+  if (Array.isArray(project)) {
+    return projectRenderer.renderList(project);
+  }
+  return projectRenderer.render(project);
 }

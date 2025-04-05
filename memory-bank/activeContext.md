@@ -2,25 +2,25 @@
 
 ## Current Focus
 
-Implementing connection between MCP project resource handler and project resource class to enable real data access through the MCP protocol.
+Implementing a new rendering layer to format MCP responses in Markdown, starting with project listings.
 
 ## Implementation Plan
 
-### 1. Translation Layer (Initial JSON Phase)
+### 1. Rendering Layer Architecture
 
-- Create src/mcp/translation/project.ts
-- Implement basic JSON serialization
-- Set up URI mapping utilities
-- Design for future Markdown compatibility
-- Define clear interfaces for testability
+- Create new renderers directory structure
+- Implement core interfaces (IRenderer, IMarkdownRenderer)
+- Create BaseMarkdownRenderer abstract class
+- Build ProjectMarkdownRenderer implementation
+- Set up markdown utilities
 
-### 2. Project Resource Handler Integration
+### 2. Project Resource Integration
 
-- Connect to ProjectResource class
-- Implement token handling through extra params
-- Add comprehensive error handling
-- Set up direct URI mapping (vikunja://projects/{id})
-- Integrate with translation layer
+- Update MCP handlers to use renderers
+- Connect renderer with translation layer
+- Modify URI handling for project links
+- Update tests for Markdown format
+- Keep backward compatibility
 
 ### 3. E2E Testing Infrastructure
 
