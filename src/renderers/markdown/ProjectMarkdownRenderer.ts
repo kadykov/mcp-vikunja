@@ -1,6 +1,7 @@
 import { Project } from '../../types/index.js';
 import { BaseMarkdownRenderer } from './BaseMarkdownRenderer.js';
-import { toMcpUri } from '../../mcp/translation/project.js';
+import { toMcpUri } from '../../mcp/utils/uri.js';
+import { createLink, createListItem } from '../utils/markdown-helpers.js';
 
 /**
  * Markdown renderer for Project entities
@@ -15,13 +16,10 @@ export class ProjectMarkdownRenderer extends BaseMarkdownRenderer<Project> {
 
   /**
    * Render a project as a markdown list item with a link
-   * @throws Error if project.id is undefined
    */
   renderAsListItem(project: Project): string {
-    if (project.id === undefined) {
-      throw new Error('Cannot render project without ID');
-    }
-    return `- [${project.title}](${toMcpUri(project.id)})`;
+    const projectLink = createLink(project.title ?? 'Untitled Project', toMcpUri(project.id));
+    return createListItem(projectLink);
   }
 
   /**

@@ -6,7 +6,8 @@ import { Variables } from '@modelcontextprotocol/sdk/shared/uriTemplate.js';
 import { VikunjaHttpClient } from '../../client/http/client.js';
 import { ProjectResource } from '../../client/resource/project.js';
 import { VikunjaError } from '../../client/http/errors.js';
-import { fromMcpUri, toMcpContent } from '../translation/project.js';
+import { toMcpContent } from '../translation/project.js';
+import { fromMcpUri } from '../utils/uri.js';
 
 /**
  * Create project list resource handler with configured client

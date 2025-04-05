@@ -3,6 +3,8 @@ import { Project } from '../../../src/types';
 import { startMcpServer, createTestProject, cleanupTestData } from '../../utils/mcp-test-helpers';
 import { server } from '../../mocks/server';
 import { createTestUser } from '../../utils/vikunja-test-helpers';
+import { toMcpUri } from '../../../src/mcp/utils/uri';
+import { escapeMarkdown } from '../../../src/renderers/utils/markdown-helpers';
 
 describe('MCP Server E2E', () => {
   // Disable MSW for E2E tests
@@ -57,7 +59,7 @@ describe('MCP Server E2E', () => {
       });
     });
 
-    it('should return list of projects via MCP resource', async () => {
+    it('should return list of projects via MCP resource as Markdown', async () => {
       // Create test projects
       const testProject1 = await createTestProject(testToken, 'mcp-e2e');
       const testProject2 = await createTestProject(testToken, 'mcp-e2e');
@@ -68,19 +70,14 @@ describe('MCP Server E2E', () => {
 
       // Verify response format and data
       expect(resource.contents).toHaveLength(1);
-      const projects = JSON.parse(resource.contents[0].text as string) as Project[];
+      const content = resource.contents[0].text as string;
 
-      expect(projects).toContainEqual(
-        expect.objectContaining({
-          id: testProject1.id,
-          title: testProject1.title,
-        })
+      // Check that it contains Markdown links to both projects with escaped characters
+      expect(content).toContain(
+        `- [${escapeMarkdown(testProject1.title ?? 'Untitled Project')}](${toMcpUri(testProject1.id)})`
       );
-      expect(projects).toContainEqual(
-        expect.objectContaining({
-          id: testProject2.id,
-          title: testProject2.title,
-        })
+      expect(content).toContain(
+        `- [${escapeMarkdown(testProject2.title ?? 'Untitled Project')}](${toMcpUri(testProject2.id)})`
       );
     });
   });
