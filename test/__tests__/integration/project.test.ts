@@ -116,7 +116,7 @@ describe('Project Resource Integration Tests', () => {
     expect(created.id).toBeDefined();
 
     // Then get it by ID
-    const project = await projectResource.get(created.id!);
+    const project = await projectResource.get(created.id);
 
     expect(project.id).toBe(created.id);
     expect(project.title).toBe(created.title);
@@ -129,14 +129,14 @@ describe('Project Resource Integration Tests', () => {
     expect(created.id).toBeDefined();
 
     // Delete the project
-    await projectResource.delete(created.id!);
+    await projectResource.delete(created.id);
 
     // Verify the project is deleted by attempting to get it
-    await expect(projectResource.get(created.id!)).rejects.toThrow(NotFoundError);
+    await expect(projectResource.get(created.id)).rejects.toThrow(NotFoundError);
 
     // Verify the specific Vikunja error code
     try {
-      await projectResource.get(created.id!);
+      await projectResource.get(created.id);
     } catch (err: unknown) {
       if (err instanceof NotFoundError) {
         expect(err.code).toBe(3001); // Vikunja's not found code

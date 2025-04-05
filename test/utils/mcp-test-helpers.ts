@@ -108,7 +108,7 @@ export async function cleanupTestData(token: string, scope: string): Promise<voi
     for (const project of allProjects) {
       if (project.title?.includes(`Test Project [${scope}]`)) {
         try {
-          await projectResource.delete(project.id!);
+          await projectResource.delete(project.id);
         } catch (error) {
           if (error instanceof NotFoundError) {
             // Project already deleted, ignore
