@@ -38,27 +38,40 @@ describe('Task Resource Integration Tests', () => {
     await cleanupTestData(testUser.token, 'task-test');
   });
 
-  // Basic connectivity test
-  test('should list tasks', async () => {
+  test('should list tasks correctly', async () => {
     try {
-      const tasks = await taskResource.list(testProjectId);
+      // Create some test tasks
+      const tasksToCreate = [
+        {
+          title: 'Task 1',
+          description: 'First test task',
+          project_id: testProjectId,
+        },
+        {
+          title: 'Task 2',
+          description: 'Second test task',
+          project_id: testProjectId,
+        },
+      ];
 
-      // More detailed assertions
-      expect(typeof tasks).toBe('object');
-      expect(tasks).not.toBeNull();
-      expect(Array.isArray(tasks)).toBe(true);
+      const createdTasks = await Promise.all(tasksToCreate.map(task => taskResource.create(task)));
 
-      // Check structure of any tasks if they exist
-      if (tasks.length > 0) {
-        expect(tasks[0]).toHaveProperty('id');
-        expect(tasks[0]).toHaveProperty('title');
-        expect(tasks[0]).toHaveProperty('project_id');
+      // Now list tasks and verify
+      const listedTasks = await taskResource.list(testProjectId);
+
+      // Verify each created task is present in the listed tasks
+      for (const createdTask of createdTasks) {
+        const foundTask = listedTasks.find(task => task.id === createdTask.id);
+        expect(foundTask).toBeDefined();
+        expect(foundTask?.title).toBe(createdTask.title);
+        expect(foundTask?.description).toBe(createdTask.description);
+        expect(foundTask?.project_id).toBe(testProjectId);
       }
     } catch (error) {
       if (error instanceof Error && 'response' in error) {
         const axiosError = error as { response?: { status: number; data: unknown } };
         console.error(
-          'Error listing tasks:',
+          'Error in list tasks test:',
           axiosError.response?.status,
           axiosError.response?.data
         );
