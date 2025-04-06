@@ -4,24 +4,25 @@ The resource layer provides a higher-level, resource-oriented abstraction over t
 
 ## Design Pattern
 
-The resource layer follows these key patterns:
+The resource layer uses an object-oriented approach with these key patterns:
 
-1. **Base Resource**
+1. **Domain Objects**
 
-   - Generic type-safe base class
-   - Standard CRUD operations
-   - Common error handling
-   - Consistent response handling
+   - Type-safe classes for each resource type
+   - Private constructors to ensure data validity
+   - Static factory methods for object creation
+   - Instance methods for operations
+   - Getters for data access
 
-2. **Resource-Specific Implementations**
+2. **Resource Factories**
 
-   - Type-safe interfaces for each resource
-   - Data transformation from API to domain types
-   - Resource-specific validations
-   - Custom error handling
+   - Convenient access through resource classes
+   - Client management
+   - CRUD operations
+   - Type-safe interfaces
 
 3. **Type Transformations**
-   - Convert API responses to domain types
+   - Convert API responses to domain objects
    - Handle missing or optional fields
    - Apply default values
    - Validate required fields
@@ -37,71 +38,105 @@ const client = new VikunjaHttpClient({
   },
 });
 
-// Create a resource instance
+// Using resource factories (recommended)
+const projectResource = new ProjectResource(client);
 const taskResource = new TaskResource(client);
 
-// Use type-safe methods
-const task = await taskResource.get(123);
-const newTask = await taskResource.create({
+// Create and get projects
+const project = await projectResource.create({
+  title: 'New Project',
+  description: 'Project Description',
+});
+
+const projects = await projectResource.list();
+const singleProject = await projectResource.get(123);
+
+// Create tasks in a project
+const task = await project.createTask({
   title: 'New Task',
   description: 'Task Description',
-  project_id: 1,
 });
+
+// List tasks in a project
+const projectTasks = await project.listTasks();
+
+// Get all tasks
+const allTasks = await taskResource.list();
+const singleTask = await taskResource.get(456);
+
+// Update and delete
+await project.update({
+  title: 'Updated Project',
+});
+
+await task.update({
+  title: 'Updated Task',
+});
+
+await task.delete();
+await project.delete();
 ```
 
 ## Resource Structure
 
 ```typescript
-// Resource interface with proper types
-export interface ITaskResource {
-  get(id: number): Promise<Task>;
-  create(data: CreateTask): Promise<Task>;
-  update(id: number, data: UpdateTask): Promise<Task>;
-  delete(id: number): Promise<void>;
-  list(projectId: number): Promise<Task[]>;
+// Resource implementation with OOP pattern
+export class Project implements ProjectType {
+  // Private constructor ensures data validity
+  private constructor(client: VikunjaHttpClient, data: VikunjaProject) {
+    // Validate required fields
+    if (!data.id || !data.title) {
+      throw new Error('Invalid project data');
+    }
+  }
+
+  // Factory methods
+  static async create(client: VikunjaHttpClient, data: CreateProject): Promise<Project>;
+  static async get(client: VikunjaHttpClient, id: number): Promise<Project>;
+  static async list(client: VikunjaHttpClient): Promise<Project[]>;
+
+  // Instance methods
+  async update(data: UpdateProject): Promise<void>;
+  async delete(): Promise<void>;
+
+  // Task-related methods
+  async createTask(data: CreateTask): Promise<Task>;
+  async listTasks(): Promise<Task[]>;
+
+  // Data getters
+  get id(): number;
+  get title(): string;
+  get description(): string;
+  // ... other getters
 }
 
-// Implementation with data transformation
-export class TaskResource extends BaseResource<Task> implements ITaskResource {
-  private transformTask(vikunjaTask: VikunjaTask): Task {
-    // Validate required fields
-    if (!vikunjaTask.id || !vikunjaTask.title) {
-      throw new Error('Invalid task data: missing required fields');
-    }
+// Resource factory for convenient access
+export class ProjectResource {
+  constructor(private client: VikunjaHttpClient) {}
 
-    // Transform with defaults
-    return {
-      id: vikunjaTask.id,
-      title: vikunjaTask.title,
-      description: vikunjaTask.description ?? '',
-      // ... other fields
-    };
-  }
-
-  async get(id: number): Promise<Task> {
-    const response = await this.client.get<VikunjaTask>(`/tasks/${id}`);
-    return this.transformTask(response);
-  }
+  create(data: CreateProject): Promise<Project>;
+  get(id: number): Promise<Project>;
+  list(): Promise<Project[]>;
 }
 ```
 
 ## Testing Resources
 
-Each resource has comprehensive tests that:
+Each resource has comprehensive tests that verify:
 
-1. **Type Safety**
+1. **Object Creation**
 
-   - Validate API response transformations
-   - Test required field handling
-   - Check default values
-   - Verify error cases
+   - Factory method behavior
+   - Required field validation
+   - Default value handling
+   - Type safety
 
-2. **Data Validation**
+2. **Instance Operations**
 
-   - Test missing required fields
-   - Validate field transformations
-   - Check error response handling
-   - Test edge cases
+   - Method behavior
+   - Data updates
+   - Error handling
+   - Resource relationships
 
 3. **Test Utilities**
    - Factory functions for test data
@@ -112,36 +147,38 @@ Each resource has comprehensive tests that:
 Example test:
 
 ```typescript
-test('should transform API response to domain type', async () => {
-  const vikunjaTask = createVikunjaTask({
-    id: 123,
-    title: 'Test Task',
-  });
+describe('Project', () => {
+  it('should create a project', async () => {
+    const projectResource = new ProjectResource(client);
+    const project = await projectResource.create({
+      title: 'Test Project',
+      description: 'Test Description',
+    });
 
-  server.use(
-    http.get('${API_BASE}/tasks/123', () => {
-      return createTaskResponse(vikunjaTask);
-    })
-  );
+    expect(project.title).toBe('Test Project');
+    expect(project.description).toBe('Test Description');
 
-  const result = await taskResource.get(123);
-  expect(result).toMatchObject({
-    id: 123,
-    title: 'Test Task',
-    description: '', // Default value
+    // Create a task in the project
+    const task = await project.createTask({
+      title: 'Test Task',
+      description: 'Task Description',
+    });
+
+    expect(task.project_id).toBe(project.id);
+    expect(task.title).toBe('Test Task');
   });
 });
 ```
 
 ## Error Handling
 
-Resources handle errors in a consistent way:
+Resources handle errors through:
 
-1. **Validation Errors**
+1. **Validation**
 
-   - Missing required fields
-   - Invalid data types
-   - Resource-specific validations
+   - Constructor validation of required fields
+   - Method parameter validation
+   - Type checking
 
 2. **API Errors**
 
@@ -149,10 +186,10 @@ Resources handle errors in a consistent way:
    - Permission errors
    - Server errors
 
-3. **Type-Safe Error Responses**
-   - Consistent error format
-   - Resource-specific error codes
-   - Descriptive error messages
+3. **Type Safety**
+   - Compile-time type checking
+   - Runtime data validation
+   - Consistent error types
 
 ## Future Extensions
 
