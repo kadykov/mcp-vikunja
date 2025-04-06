@@ -56,6 +56,13 @@
   - Removed example tests in favor of comprehensive resource layer tests
   - Removed HTTP layer tests as they're covered by resource layer
   - Testing focused on resource abstractions
+- Renderer system implementation
+  - Common markdown utilities with clear escaping strategy
+  - Project renderer with list and single view support
+  - Task renderer with GitHub-style task lists
+  - Label renderer with hashtag formatting
+  - Integration tests for all renderers
+  - Comprehensive documentation and usage examples
 
 ## What's Left to Build
 
@@ -111,8 +118,8 @@
   - [ ] Error case testing
   - [ ] Query parameter support
 
-- [ ] Additional Resources
-  - [ ] Labels
+- [x] Additional Resources
+  - [x] Labels
   - [ ] Comments
   - [ ] Teams
   - [ ] Users
@@ -169,9 +176,10 @@ Implementing final MCP server features:
    - Successfully running against real Vikunja instance
 
 2. Resource Handler Integration (In Progress)
-   - Project resource class connected and tested
+   - Project and task resources connected and tested
    - Environment-based configuration working
    - Basic error handling implemented
+   - Renderer system complete with comprehensive testing
    - Need to add performance monitoring and rate limiting
 
 ## Next Steps:

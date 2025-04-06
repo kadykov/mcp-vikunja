@@ -6,14 +6,15 @@
  * Escape markdown special characters in text
  */
 export function escapeMarkdown(text: string): string {
-  return text.replace(/[*_`[\]()#>]/g, '\\$&');
+  // Replace each special character with a single backslash escape
+  return text.replace(/[*_`[\]()#>]/g, match => `\\${match}`);
 }
 
 /**
  * Create a markdown link
  */
 export function createLink(text: string, url: string): string {
-  return `[${escapeMarkdown(text)}](${url})`;
+  return `[${text}](${url})`;
 }
 
 /**

@@ -18,12 +18,15 @@ graph TD
     subgraph Implementations
         PMR[ProjectMarkdownRenderer]
         TMR[TaskMarkdownRenderer]
+        LMR[LabelMarkdownRenderer]
     end
 
     IR --> IMR
     IMR --> BMR
     BMR --> PMR
     BMR --> TMR
+    BMR --> LMR
+    TMR -.-> LMR[Uses]
 ```
 
 ## Components
@@ -50,9 +53,22 @@ graph TD
 ### Entity Renderers
 
 - `ProjectMarkdownRenderer`: Renders Project entities
+
   - List items as links to projects
   - Full JSON for single project view (temporary)
   - Future: Rich Markdown for single project view
+
+- `TaskMarkdownRenderer`: Renders Task entities
+
+  - List items in GitHub task list format (- [ ] / - [x])
+  - Task titles as links with proper Markdown escaping
+  - Full details including due dates, labels, and assignees
+  - Uses LabelMarkdownRenderer for label formatting
+
+- `LabelMarkdownRenderer`: Renders Label entities
+  - Hashtag format (#label-name)
+  - Sanitizes label text (strips special chars, replaces spaces)
+  - Optional description in full render mode
 
 ### Utilities
 
@@ -66,34 +82,61 @@ graph TD
 ## Usage
 
 ```typescript
-// Creating a renderer
-const renderer = new ProjectMarkdownRenderer();
+// Project rendering
+const projectRenderer = new ProjectMarkdownRenderer();
+const markdown = projectRenderer.renderList(projects);
 
-// Rendering a list of projects
-const projects = await projectResource.list();
-const markdown = renderer.renderList(projects);
-
-// Rendering a single project
-const project = await projectResource.get(1);
-const markdown = renderer.render(project);
+// Task rendering with labels
+const taskRenderer = new TaskMarkdownRenderer();
+const taskMarkdown = taskRenderer.render(task);
+// Output:
+// # Task Title
+// - [ ] Due: 2025-12-31
+//
+// Task description here...
+// Progress: 75%
+// #important #in-progress
+// Assigned to: @user1, @user2
 ```
+
+## Markdown Escaping Strategy
+
+The renderers follow a consistent strategy for handling Markdown special characters:
+
+1. **Utility Functions**: Base utilities like `createLink`, `createHeading`, etc. do not perform escaping
+
+   ```typescript
+   createLink('Text with *stars*', 'url'); // -> [Text with *stars*](url)
+   ```
+
+2. **Explicit Escaping**: The `escapeMarkdown` utility handles special characters:
+
+   ```typescript
+   escapeMarkdown('Text with *stars*'); // -> Text with \*stars\*
+   ```
+
+3. **Renderer Responsibility**: Each renderer is responsible for escaping its content:
+   ```typescript
+   // In TaskMarkdownRenderer:
+   const title = task.title ? task.title : 'Untitled';
+   const taskLink = createLink(escapeMarkdown(title), toMcpUri(task.id));
+   ```
+
+This approach ensures:
+
+- Clear responsibility for escaping
+- No double-escaping issues
+- Consistent rendering across the application
 
 ## Future Extensions
 
 1. Rich project rendering
 
-   - Title as heading
    - Description as body text
    - Tasks as checklist
    - Child projects as tree
 
-2. Task renderer
-
-   - Checkbox lists
-   - Labels as tags
-   - Due dates and priorities
-
-3. Additional formats
+2. Additional formats
    - HTML renderer
    - Plain text renderer
    - Custom format renderers

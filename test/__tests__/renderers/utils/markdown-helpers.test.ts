@@ -37,10 +37,29 @@ describe('Markdown Helpers', () => {
       expect(createLink('Example', 'http://example.com')).toBe('[Example](http://example.com)');
     });
 
-    it('should escape special characters in link text', () => {
+    it('should pass through special characters without escaping', () => {
+      // Note: createLink does not escape special characters
+      // Escaping should be handled at the renderer level using escapeMarkdown
       expect(createLink('Example [with] *chars*', 'http://example.com')).toBe(
-        '[Example \\[with\\] \\*chars\\*](http://example.com)'
+        '[Example [with] *chars*](http://example.com)'
       );
+    });
+  });
+
+  describe('Markdown Escaping Strategy', () => {
+    it('utility functions should not escape markdown characters', () => {
+      // These utilities pass through special characters without escaping
+      // The renderer components are responsible for escaping when needed
+      expect(createHeading('Title with *emphasis*')).toBe('# Title with *emphasis*');
+      expect(createListItem('Item with [brackets]')).toBe('- Item with [brackets]');
+      expect(createLink('Text with *stars*', 'url')).toBe('[Text with *stars*](url)');
+    });
+
+    it('escapeMarkdown should be used explicitly when needed', () => {
+      const text = 'Text with *stars* and [brackets]';
+      const escaped = escapeMarkdown(text);
+      // Example of proper escaping at renderer level:
+      expect(createLink(escaped, 'url')).toBe('[Text with \\*stars\\* and \\[brackets\\]](url)');
     });
   });
 

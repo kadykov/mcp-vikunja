@@ -1,7 +1,7 @@
 import { Project } from '../../types/index.js';
 import { BaseMarkdownRenderer } from './BaseMarkdownRenderer.js';
 import { toMcpUri } from '../../mcp/utils/uri.js';
-import { createLink, createListItem } from '../utils/markdown-helpers.js';
+import { createLink, createListItem, escapeMarkdown } from '../utils/markdown-helpers.js';
 
 /**
  * Markdown renderer for Project entities
@@ -18,7 +18,8 @@ export class ProjectMarkdownRenderer extends BaseMarkdownRenderer<Project> {
    * Render a project as a markdown list item with a link
    */
   renderAsListItem(project: Project): string {
-    const projectLink = createLink(project.title ?? 'Untitled Project', toMcpUri(project.id));
+    const title = project.title ?? 'Untitled Project';
+    const projectLink = createLink(escapeMarkdown(title), toMcpUri(project.id));
     return createListItem(projectLink);
   }
 
