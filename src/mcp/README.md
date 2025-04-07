@@ -46,22 +46,67 @@ The server includes built-in rate limiting for Vikunja API requests:
 
 | Resource | List | Read | Complete |
 | -------- | ---- | ---- | -------- |
-| Project  | ✅   | ✅   | ❌       |
+| Projects | ❌   | ✅   | ✅       |
+| Tasks    | ❌   | ✅   | ✅       |
 
 ### URI Format
 
-Resources are accessed using the following URI format:
+Resources are accessed using a unified URI template:
 
-- **Projects**: `vikunja://projects/{id}`
+```
+vikunja://{resource}/{id}
+```
+
+Where:
+
+- **resource**: either `projects` or `tasks`
+- **id**: numeric identifier of the resource
+
+Example URIs:
+
+- `vikunja://projects/123`
+- `vikunja://tasks/456`
 
 ## Development
 
+### Architecture
+
+1. **URI Handling**
+
+   - Single URI template for all resources
+   - Type-safe resource type validation
+   - Built-in template parsing via MCP SDK
+
+2. **Resource Handlers**
+
+   - Unified handler for all resources
+   - Resource type discrimination in variables
+   - Direct renderer usage for content generation
+
+3. **Renderers**
+   - Markdown generation for each resource type
+   - Async support for related data fetching
+   - Type-safe URI creation
+
 ### Adding New Resources
 
-1. Create a translation layer in `src/mcp/translation/`
-2. Create a resource handler in `src/mcp/resources/`
-3. Register the resource in `src/mcp/server.ts`
-4. Add tests for translation and resource handler
+1. Add new resource type to `src/mcp/uri.ts`:
+
+   ```typescript
+   export type ResourceType = 'projects' | 'tasks' | 'your-resource';
+   ```
+
+2. Update unified resource handler in `src/mcp/resources/index.ts`:
+
+   ```typescript
+   if (resource === 'your-resource') {
+     const data = await yourResource.get(Number(id));
+     return { contents: [{ uri: uri.href, text: await yourRenderer.render(data) }] };
+   }
+   ```
+
+3. Add a Markdown renderer for the resource type
+4. Add tests for renderer and update E2E tests
 
 ### Running Tests
 
@@ -71,11 +116,16 @@ npm test
 
 # Run only MCP tests
 npm test -- --testPathPattern=mcp
+
+# Run E2E tests
+npm test -- --testPathPattern=e2e
 ```
 
 ## Future Enhancements
 
-- [x] Implement project listing
-- [ ] Add task resources
-- [ ] Support resource completion
+- [ ] Implement resource listing
+- [x] Add task resources
+- [x] Support resource URI completion
 - [x] Implement rate limiting
+- [ ] Support filtering resources
+- [ ] Add label resources

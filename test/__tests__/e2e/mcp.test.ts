@@ -1,9 +1,9 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { Project } from '../../../src/types';
+import { Project, Task } from '../../../src/types';
 import { startMcpServer, createTestProject, cleanupTestData } from '../../utils/mcp-test-helpers';
 import { server } from '../../mocks/server';
 import { createTestUser } from '../../utils/vikunja-test-helpers';
-import { toMcpUri } from '../../../src/mcp/utils/uri';
+import { createUri } from '../../../src/mcp/uri';
 import { escapeMarkdown } from '../../../src/renderers/utils/markdown-helpers';
 
 describe('MCP Server E2E', () => {
@@ -13,6 +13,7 @@ describe('MCP Server E2E', () => {
 
   let client: Client;
   let testProject: Project;
+  let testTask: Task;
   let cleanup: () => Promise<void>;
   let testToken: string;
 
@@ -31,6 +32,11 @@ describe('MCP Server E2E', () => {
 
       // Create test data
       testProject = await createTestProject(testToken, 'mcp-e2e');
+      // Create a test task within the project
+      testTask = await testProject.createTask({
+        title: 'Test Task',
+        description: 'Task Description',
+      });
     } catch (error) {
       console.error('Setup failed:', error);
       throw error;
@@ -50,83 +56,91 @@ describe('MCP Server E2E', () => {
     }
   });
 
-  describe('Projects Static Resource', () => {
-    it('should list static resource in available resources', async () => {
-      const response = await client.listResources();
-      expect(response.resources).toContainEqual({
-        uri: 'vikunja://projects',
-        name: 'projects',
-      });
-    });
-
-    it('should return list of projects via MCP resource as Markdown', async () => {
-      // Create test projects
-      const testProject1 = await createTestProject(testToken, 'mcp-e2e');
-      const testProject2 = await createTestProject(testToken, 'mcp-e2e');
-
-      const resource = await client.readResource({
-        uri: 'vikunja://projects',
-      });
-
-      // Verify response format and data
-      expect(resource.contents).toHaveLength(1);
-      const content = resource.contents[0].text as string;
-
-      // Check that it contains Markdown links to both projects with escaped characters
-      expect(content).toContain(
-        `- [${escapeMarkdown(testProject1.title ?? 'Untitled Project')}](${toMcpUri(testProject1.id)})`
-      );
-      expect(content).toContain(
-        `- [${escapeMarkdown(testProject2.title ?? 'Untitled Project')}](${toMcpUri(testProject2.id)})`
-      );
-    });
-  });
-
-  describe('Project Resource Template', () => {
-    it('should list project in available resource templates', async () => {
+  describe('Resource Templates', () => {
+    it('should list available resource templates', async () => {
       const response = await client.listResourceTemplates();
       expect(response.resourceTemplates).toHaveLength(1);
-      expect(response.resourceTemplates[0].name).toBe('project');
-      expect(response.resourceTemplates[0].uriTemplate).toBe('vikunja://projects/{id}');
+      expect(response.resourceTemplates[0].name).toBe('vikunja');
+      expect(response.resourceTemplates[0].uriTemplate).toBe('vikunja://{resource}/{id}');
     });
   });
 
   describe('Project Resource Reading', () => {
-    it('should return real project data via MCP resource', async () => {
+    it('should return project data via MCP resource', async () => {
       const resource = await client.readResource({
-        uri: `vikunja://projects/${testProject.id}`,
+        uri: createUri('projects', testProject.id),
       });
 
       expect(resource.contents).toHaveLength(1);
-      const content = JSON.parse(resource.contents[0].text as string) as Project;
+      const content = resource.contents[0].text as string;
 
-      // Verify the project data matches
-      expect(content.id).toBe(testProject.id);
-      expect(content.title).toBe(testProject.title);
-      expect(content.description).toBe(testProject.description);
+      // Verify the project markdown contains expected content
+      expect(content).toContain(`# ${escapeMarkdown(testProject.title)}`);
+      if (testProject.description) {
+        expect(content).toContain(testProject.description);
+      }
+      // Should include task information
+      expect(content).toContain('## Tasks');
+      expect(content).toContain(escapeMarkdown(testTask.title));
     });
 
     it('should handle non-existent project', async () => {
       const nonExistentId = 999999;
       await expect(
         client.readResource({
-          uri: `vikunja://projects/${nonExistentId}`,
+          uri: createUri('projects', nonExistentId),
         })
       ).rejects.toThrow();
     });
+  });
 
-    it('should handle invalid project URI', async () => {
+  describe('Task Resource Reading', () => {
+    it('should return task data via MCP resource', async () => {
+      const resource = await client.readResource({
+        uri: createUri('tasks', testTask.id),
+      });
+
+      expect(resource.contents).toHaveLength(1);
+      const content = resource.contents[0].text as string;
+
+      // Verify the task markdown contains expected content
+      expect(content).toContain(`# ${escapeMarkdown(testTask.title)}`);
+      if (testTask.description) {
+        expect(content).toContain(testTask.description);
+      }
+    });
+
+    it('should handle non-existent task', async () => {
+      const nonExistentId = 999999;
+      await expect(
+        client.readResource({
+          uri: createUri('tasks', nonExistentId),
+        })
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('Invalid Resource Handling', () => {
+    it('should handle invalid resource type', async () => {
+      await expect(
+        client.readResource({
+          uri: 'vikunja://invalid/123',
+        })
+      ).rejects.toThrow('Invalid resource type: invalid');
+    });
+
+    it('should handle malformed URI', async () => {
       await expect(
         client.readResource({
           uri: 'vikunja://projects/invalid',
         })
-      ).rejects.toThrow('Invalid MCP project URI format');
+      ).rejects.toThrow();
     });
 
-    it('should handle malformed project URI', async () => {
+    it('should handle missing resource ID', async () => {
       await expect(
         client.readResource({
-          uri: 'vikunja://invalid/123',
+          uri: 'vikunja://projects/',
         })
       ).rejects.toThrow();
     });

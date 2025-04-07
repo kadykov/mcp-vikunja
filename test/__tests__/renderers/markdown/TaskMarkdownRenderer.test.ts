@@ -2,7 +2,7 @@ import { TaskMarkdownRenderer } from '../../../../src/renderers/markdown/TaskMar
 import { createTask } from '../../../mocks/factories/task';
 import { createLabel } from '../../../mocks/factories/label';
 import { createUser } from '../../../mocks/factories/user';
-import { toMcpUri } from '../../../../src/mcp/utils/uri';
+import { createUri } from '../../../../src/mcp/uri';
 import { escapeMarkdown } from '../../../../src/renderers/utils/markdown-helpers';
 
 describe('TaskMarkdownRenderer', () => {
@@ -25,39 +25,35 @@ describe('TaskMarkdownRenderer', () => {
   });
 
   describe('renderAsListItem', () => {
-    it('should render an incomplete task as a markdown list item with link', () => {
-      const result = renderer.renderAsListItem(mockTask);
-      expect(result).toBe(`- [ ] [Test Task](${toMcpUri(mockTask.id)}) #priority #in-progress`);
+    it('should render an incomplete task as a markdown list item with link', async () => {
+      const result = await renderer.renderAsListItem(mockTask);
+      expect(result).toBe(
+        `- [ ] [Test Task](${createUri('tasks', mockTask.id)}) #priority #in-progress`
+      );
     });
 
-    it('should render a completed task as a markdown list item with checkbox', () => {
+    it('should render a completed task as a markdown list item with checkbox', async () => {
       const completedTask = createTask({ id: 2, title: 'Done Task', done: true, labels: [] });
-      const result = renderer.renderAsListItem(completedTask);
-      expect(result).toBe(`- [x] [Done Task](${toMcpUri(completedTask.id)})`);
+      const result = await renderer.renderAsListItem(completedTask);
+      expect(result).toBe(`- [x] [Done Task](${createUri('tasks', completedTask.id)})`);
     });
 
-    it('should handle special characters in task title', () => {
+    it('should handle special characters in task title', async () => {
       const taskWithSpecialChars = createTask({
         id: 3,
         title: 'Task with [special] *chars*',
         labels: [],
       });
-      const result = renderer.renderAsListItem(taskWithSpecialChars);
+      const result = await renderer.renderAsListItem(taskWithSpecialChars);
       expect(result).toBe(
-        `- [ ] [Task with \\[special\\] \\*chars\\*](${toMcpUri(taskWithSpecialChars.id)})`
+        `- [ ] [Task with \\[special\\] \\*chars\\*](${createUri('tasks', taskWithSpecialChars.id)})`
       );
-    });
-
-    it('should handle untitled task', () => {
-      const untitledTask = createTask({ id: 4, title: undefined, labels: [] });
-      const result = renderer.renderAsListItem(untitledTask);
-      expect(result).toBe(`- [ ] [Untitled Task](${toMcpUri(untitledTask.id)})`);
     });
   });
 
   describe('render', () => {
-    it('should render a task with all details', () => {
-      const result = renderer.render(mockTask);
+    it('should render a task with all details', async () => {
+      const result = await renderer.render(mockTask);
       const expected = [
         '# Test Task',
         '- [ ] Due: 2025-12-31',
@@ -73,7 +69,7 @@ describe('TaskMarkdownRenderer', () => {
       expect(result).toBe(expected);
     });
 
-    it('should handle task without optional fields', () => {
+    it('should handle task without optional fields', async () => {
       const simpleTask = createTask({
         id: 5,
         title: 'Simple Task',
@@ -82,17 +78,17 @@ describe('TaskMarkdownRenderer', () => {
         labels: [],
       });
       const expected = ['# Simple Task', '- [ ] No due date'].join('\n');
-      expect(renderer.render(simpleTask)).toBe(expected);
+      expect(await renderer.render(simpleTask)).toBe(expected);
     });
 
-    it('should handle completed task', () => {
+    it('should handle completed task', async () => {
       const completedTask = createTask({
         id: 6,
         title: 'Done Task',
         done: true,
         labels: [],
       });
-      expect(renderer.render(completedTask)).toContain('- [x] No due date');
+      expect(await renderer.render(completedTask)).toContain('- [x] No due date');
     });
   });
 
@@ -102,19 +98,18 @@ describe('TaskMarkdownRenderer', () => {
       createTask({ id: 2, title: 'Task 2', done: true, labels: [] }),
     ];
 
-    it('should render multiple tasks as a markdown list', () => {
-      const result = renderer.renderList(mockTasks);
+    it('should render multiple tasks as a markdown list', async () => {
+      const result = await renderer.renderList(mockTasks);
       const expected = mockTasks
         .map(
-          t =>
-            `- [${t.done ? 'x' : ' '}] [${t.title ? escapeMarkdown(t.title) : 'Untitled Task'}](${toMcpUri(t.id)})`
+          t => `- [${t.done ? 'x' : ' '}] [${escapeMarkdown(t.title)}](${createUri('tasks', t.id)})`
         )
         .join('\n');
       expect(result).toBe(expected);
     });
 
-    it('should handle empty list', () => {
-      const result = renderer.renderList([]);
+    it('should handle empty list', async () => {
+      const result = await renderer.renderList([]);
       expect(result).toBe('');
     });
   });

@@ -17,6 +17,7 @@ test-coverage *ARGS='':
 # Lint code
 lint:
     npm run lint
+    @echo "Linting completed successfully!"
 
 # Format code
 format:
@@ -25,6 +26,7 @@ format:
 # Type check
 type-check:
     npm run type-check
+    @echo "Type checking completed successfully!"
 
 # Generate types
 generate-types:

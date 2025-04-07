@@ -40,14 +40,14 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.23.0",
+    "@eslint/js": "^9.24.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.14",
+    "@types/node": "^22.14.0",
     "@types/node-fetch": "^2.6.12",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.29.0",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
     "axios": "^1.8.4",
-    "eslint": "^9.23.0",
+    "eslint": "^9.24.0",
     "eslint-plugin-security": "^3.0.1",
     "globals": "^16.0.0",
     "husky": "^9.1.7",
@@ -58,7 +58,7 @@
     "openapi-typescript": "^7.6.1",
     "prettier": "^3.5.3",
     "swagger2openapi": "^7.0.8",
-    "ts-jest": "^29.3.0",
-    "typescript": "^5.8.2"
+    "ts-jest": "^29.3.1",
+    "typescript": "^5.8.3"
   }
 }

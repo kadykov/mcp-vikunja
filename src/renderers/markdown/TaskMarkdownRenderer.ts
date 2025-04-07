@@ -1,7 +1,7 @@
 import { Task } from '../../types/index.js';
 import { BaseMarkdownRenderer } from './BaseMarkdownRenderer.js';
 import { LabelMarkdownRenderer } from './LabelMarkdownRenderer.js';
-import { toMcpUri } from '../../mcp/utils/uri.js';
+import { createUri } from '../../mcp/uri.js';
 import { createLink, createHeading, escapeMarkdown } from '../utils/markdown-helpers.js';
 
 /**
@@ -19,23 +19,22 @@ export class TaskMarkdownRenderer extends BaseMarkdownRenderer<Task> {
    * Render a task as a markdown list item
    * Format: - [x] [Task Title](uri) #label1 #label2
    */
-  renderAsListItem(task: Task): string {
+  renderAsListItem(task: Task): Promise<string> {
     const checkbox = task.done ? '[x]' : '[ ]';
-    const title = task.title ? task.title : 'Untitled Task';
-    const taskLink = createLink(escapeMarkdown(title), toMcpUri(task.id));
+    const taskLink = createLink(escapeMarkdown(task.title), createUri('tasks', task.id));
     const labels = task.labels?.length
       ? ' ' + task.labels.map(label => this.labelRenderer.renderAsHashtag(label)).join(' ')
       : '';
 
-    return `- ${checkbox} ${taskLink}${labels}`;
+    return Promise.resolve(`- ${checkbox} ${taskLink}${labels}`);
   }
 
   /**
    * Render a task with full details in markdown
    */
-  render(task: Task): string {
+  render(task: Task): Promise<string> {
     const parts: string[] = [
-      createHeading(task.title ? escapeMarkdown(task.title) : 'Untitled Task', 1),
+      createHeading(escapeMarkdown(task.title), 1),
       `- ${task.done ? '[x]' : '[ ]'} ${task.due_date ? `Due: ${task.due_date}` : 'No due date'}`,
     ];
 
@@ -57,6 +56,6 @@ export class TaskMarkdownRenderer extends BaseMarkdownRenderer<Task> {
       parts.push('', `Assigned to: ${assignees}`);
     }
 
-    return parts.join('\n');
+    return Promise.resolve(parts.join('\n'));
   }
 }

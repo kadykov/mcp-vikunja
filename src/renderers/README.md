@@ -35,13 +35,13 @@ graph TD
 
 - `IRenderer<T>`: Base interface for all renderers
 
-  - `render(data: T): string` - Render a single item
-  - `renderList(items: T[]): string` - Render a list of items
+  - `render(data: T): Promise<string>` - Render a single item
+  - `renderList(items: T[]): Promise<string>` - Render a list of items
 
 - `IMarkdownRenderer<T>`: Markdown-specific renderer interface
   - Extends `IRenderer<T>`
-  - Adds `renderAsListItem(item: T): string`
-  - Optional `renderAsTree?(item: T): string`
+  - Adds `renderAsListItem(item: T): Promise<string>`
+  - Optional `renderAsTree?(item: T): Promise<string>`
 
 ### Base Classes
 
@@ -79,16 +79,58 @@ graph TD
   - `createHeading(text: string, level?: number): string`
   - `createCodeBlock(text: string, language?: string): string`
 
-## Usage
+## URI Handling
+
+Renderers use the MCP URI system to create resource links:
+
+```typescript
+import { createUri } from '../../mcp/uri';
+
+class TaskMarkdownRenderer extends BaseMarkdownRenderer<Task> {
+  async renderAsListItem(task: Task): Promise<string> {
+    const taskLink = createLink(
+      escapeMarkdown(task.title),
+      createUri('tasks', task.id) // Creates: vikunja://tasks/123
+    );
+    return `- [ ] ${taskLink}`;
+  }
+}
+
+class ProjectMarkdownRenderer extends BaseMarkdownRenderer<Project> {
+  async renderAsListItem(project: Project): Promise<string> {
+    const projectLink = createLink(
+      escapeMarkdown(project.title),
+      createUri('projects', project.id) // Creates: vikunja://projects/123
+    );
+    return `- ${projectLink}`;
+  }
+}
+```
+
+Each renderer:
+
+1. Uses type-safe `createUri` for URI generation
+2. Properly escapes content before using in URIs
+3. Creates consistent resource links across the application
+
+## Output Examples
 
 ```typescript
 // Project rendering
 const projectRenderer = new ProjectMarkdownRenderer();
-const markdown = projectRenderer.renderList(projects);
+const markdown = await projectRenderer.render(project);
+// Output:
+// # Project Title
+//
+// Project description here...
+//
+// ## Tasks
+// - [ ] [Task One](vikunja://tasks/1)
+// - [x] [Task Two](vikunja://tasks/2)
 
 // Task rendering with labels
 const taskRenderer = new TaskMarkdownRenderer();
-const taskMarkdown = taskRenderer.render(task);
+const taskMarkdown = await taskRenderer.render(task);
 // Output:
 // # Task Title
 // - [ ] Due: 2025-12-31
@@ -98,6 +140,34 @@ const taskMarkdown = taskRenderer.render(task);
 // #important #in-progress
 // Assigned to: @user1, @user2
 ```
+
+## Asynchronous Design
+
+All renderers use async/await to support operations that may require asynchronous data fetching:
+
+1. **All Methods Return Promises**: Every rendering method returns a Promise
+
+   ```typescript
+   render(data: T): Promise<string>
+   renderList(items: T[]): Promise<string>
+   renderAsListItem(item: T): Promise<string>
+   ```
+
+2. **Async Data Fetching**: Some renderers need to fetch related data
+
+   ```typescript
+   // ProjectMarkdownRenderer
+   async render(project: Project): Promise<string> {
+     // ... other rendering ...
+     const tasks = await project.listTasks();
+     // ... render tasks ...
+   }
+   ```
+
+3. **Error Propagation**: Async errors are propagated to the caller
+   - No internal error handling in renderers
+   - Caller responsible for handling data fetch errors
+   - Clear error boundaries and responsibilities
 
 ## Markdown Escaping Strategy
 

@@ -1,119 +1,146 @@
-import type { Project, CreateProject, UpdateProject, VikunjaProject } from '../../types';
-import { BaseResource } from './base.js';
+import { VikunjaHttpClient } from '../http/client.js';
+import type { CreateProject, UpdateProject, VikunjaProject, CreateTask, User } from '../../types';
+import type { components } from '../../types/openapi';
+import { Task } from './task.js';
 
-export interface IProjectResource {
-  /**
-   * Get a project by its ID
-   * @param id The project ID
-   * @returns The project details
-   */
-  get(id: number): Promise<Project>;
-
-  /**
-   * Create a new project
-   * @param data The project data to create
-   * @returns The created project
-   */
-  create(data: CreateProject): Promise<Project>;
-
-  /**
-   * Update an existing project
-   * @param id The project ID to update
-   * @param data The project data to update
-   * @returns The updated project
-   */
-  update(id: number, data: UpdateProject): Promise<Project>;
-
-  /**
-   * Delete a project
-   * @param id The project ID to delete
-   */
-  delete(id: number): Promise<void>;
-
-  /**
-   * List all projects the user has access to
-   * @returns Array of projects
-   */
-  list(): Promise<Project[]>;
-}
-
-export class ProjectResource extends BaseResource<Project> implements IProjectResource {
-  /**
-   * Transform a Vikunja project to our Project type
-   * Ensures required fields are present and handles type conversions
-   *
-   * @throws Error if required fields are missing
-   */
-  private transformProject(vikunjaProject: VikunjaProject): Project {
-    if (
-      !vikunjaProject.id ||
-      !vikunjaProject.title ||
-      !vikunjaProject.created ||
-      !vikunjaProject.updated
-    ) {
+export class ProjectImpl {
+  private constructor(
+    private client: VikunjaHttpClient,
+    private data: components['schemas']['models.Project']
+  ) {
+    // Validate required fields
+    if (!data.id || !data.title || !data.created || !data.updated) {
       throw new Error('Invalid project data: missing required fields');
     }
+  }
 
-    // Convert Vikunja user to our User type (ensuring required fields)
-    const owner = vikunjaProject.owner
+  // Factory methods
+  static async create(client: VikunjaHttpClient, data: CreateProject): Promise<ProjectImpl> {
+    const response = await client.put<VikunjaProject>('/projects', data);
+    return new ProjectImpl(client, response);
+  }
+
+  static async get(client: VikunjaHttpClient, id: number): Promise<ProjectImpl> {
+    const response = await client.get<VikunjaProject>(`/projects/${id}`);
+    return new ProjectImpl(client, response);
+  }
+
+  static async list(client: VikunjaHttpClient): Promise<ProjectImpl[]> {
+    const response = await client.get<VikunjaProject[]>('/projects');
+    return response.map(p => new ProjectImpl(client, p));
+  }
+
+  // Instance methods
+  async update(data: UpdateProject): Promise<void> {
+    const response = await this.client.post<VikunjaProject>(`/projects/${this.id}`, data);
+    this.data = response;
+  }
+
+  async delete(): Promise<void> {
+    await this.client.delete(`/projects/${this.id}`);
+  }
+
+  // Task-related methods
+  async createTask(data: Omit<CreateTask, 'project_id'>): Promise<Task> {
+    const fullData = { ...data, project_id: this.id } as CreateTask;
+    return Task.create(this.client, this.id, fullData);
+  }
+
+  async listTasks(): Promise<Task[]> {
+    const response = await this.client.get<components['schemas']['models.Task'][]>(
+      `/projects/${this.id}/tasks`
+    );
+    const tasks = await Promise.all(response.map(t => Task.get(this.client, t.id!)));
+    return tasks;
+  }
+
+  // Data getters
+  get id(): number {
+    return this.data.id!;
+  }
+  get title(): string {
+    return this.data.title!;
+  }
+  get description(): string {
+    return this.data.description ?? '';
+  }
+  get identifier(): string {
+    return this.data.identifier ?? '';
+  }
+  get is_archived(): boolean {
+    return this.data.is_archived ?? false;
+  }
+  get is_favorite(): boolean {
+    return this.data.is_favorite ?? false;
+  }
+  get created(): string {
+    return this.data.created!;
+  }
+  get updated(): string {
+    return this.data.updated!;
+  }
+  get background_blur_hash(): string | undefined {
+    return this.data.background_blur_hash;
+  }
+  get background_information(): unknown {
+    return this.data.background_information;
+  }
+  get hex_color(): string | undefined {
+    return this.data.hex_color;
+  }
+  get parent_project_id(): number | undefined {
+    return this.data.parent_project_id;
+  }
+  get position(): number | undefined {
+    return this.data.position;
+  }
+
+  get subscription(): components['schemas']['models.Subscription'] | undefined {
+    return this.data.subscription;
+  }
+
+  get views(): components['schemas']['models.ProjectView'][] {
+    return this.data.views ?? [];
+  }
+
+  get owner(): User {
+    const owner = this.data.owner;
+    return owner
       ? {
-          id: vikunjaProject.owner.id ?? 0,
-          username: vikunjaProject.owner.username ?? 'unknown',
-          email: vikunjaProject.owner.email ?? '',
-          name: vikunjaProject.owner.name ?? '',
-          created: vikunjaProject.owner.created ?? vikunjaProject.created,
-          updated: vikunjaProject.owner.updated ?? vikunjaProject.updated,
+          id: owner.id ?? 0,
+          username: owner.username ?? 'unknown',
+          email: owner.email ?? '',
+          name: owner.name ?? '',
+          created: owner.created ?? this.data.created!,
+          updated: owner.updated ?? this.data.updated!,
         }
       : {
           id: 0,
           username: 'unknown',
           email: '',
           name: '',
-          created: vikunjaProject.created,
-          updated: vikunjaProject.updated,
+          created: this.data.created!,
+          updated: this.data.updated!,
         };
-
-    return {
-      id: vikunjaProject.id,
-      title: vikunjaProject.title,
-      description: vikunjaProject.description,
-      identifier: vikunjaProject.identifier ?? '',
-      owner,
-      is_archived: vikunjaProject.is_archived ?? false,
-      is_favorite: vikunjaProject.is_favorite ?? false,
-      created: vikunjaProject.created,
-      updated: vikunjaProject.updated,
-      background_blur_hash: vikunjaProject.background_blur_hash,
-      background_information: vikunjaProject.background_information,
-      hex_color: vikunjaProject.hex_color,
-      parent_project_id: vikunjaProject.parent_project_id,
-      position: vikunjaProject.position,
-      subscription: vikunjaProject.subscription,
-      views: vikunjaProject.views ?? [],
-    };
-  }
-
-  async get(id: number): Promise<Project> {
-    const vikunjaProject = await this.client.get<VikunjaProject>(`/projects/${id}`);
-    return this.transformProject(vikunjaProject);
-  }
-
-  async create(data: CreateProject): Promise<Project> {
-    const vikunjaProject = await this.client.put<VikunjaProject>('/projects', data);
-    return this.transformProject(vikunjaProject);
-  }
-
-  async update(id: number, data: UpdateProject): Promise<Project> {
-    const vikunjaProject = await this.client.post<VikunjaProject>(`/projects/${id}`, data);
-    return this.transformProject(vikunjaProject);
-  }
-
-  async delete(id: number): Promise<void> {
-    await this.client.delete(`/projects/${id}`);
-  }
-
-  async list(): Promise<Project[]> {
-    const vikunjaProjects = await this.client.get<VikunjaProject[]>('/projects');
-    return vikunjaProjects.map(p => this.transformProject(p));
   }
 }
+
+// Factory class for convenient client access
+export class ProjectResource {
+  constructor(private client: VikunjaHttpClient) {}
+
+  create(data: CreateProject): Promise<ProjectImpl> {
+    return ProjectImpl.create(this.client, data);
+  }
+
+  get(id: number): Promise<ProjectImpl> {
+    return ProjectImpl.get(this.client, id);
+  }
+
+  list(): Promise<ProjectImpl[]> {
+    return ProjectImpl.list(this.client);
+  }
+}
+
+// For use in other files
+export { ProjectImpl as Project };

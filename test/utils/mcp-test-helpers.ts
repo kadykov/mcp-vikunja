@@ -1,8 +1,7 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { Project } from '../../src/types';
 import { VikunjaHttpClient } from '../../src/client/http/client';
-import { ProjectResource } from '../../src/client/resource/project';
+import { ProjectResource, ProjectImpl } from '../../src/client/resource/project';
 import { NotFoundError } from '../../src/client/http/errors';
 
 interface McpTestContext {
@@ -69,7 +68,7 @@ export async function startMcpServer(token: string): Promise<McpTestContext> {
 /**
  * Create a test project in Vikunja
  */
-export async function createTestProject(token: string, scope: string): Promise<Project> {
+export async function createTestProject(token: string, scope: string): Promise<ProjectImpl> {
   const timestamp = Date.now();
   const newProject = {
     title: `Test Project [${scope}] ${timestamp}`,
@@ -102,13 +101,13 @@ export async function cleanupTestData(token: string, scope: string): Promise<voi
 
   try {
     // Get all projects
-    const allProjects = await projectResource.list();
+    const projects = await projectResource.list();
 
     // Clean up any projects that look like test projects
-    for (const project of allProjects) {
-      if (project.title?.includes(`Test Project [${scope}]`)) {
+    for (const project of projects) {
+      if (project.title.includes(`Test Project [${scope}]`)) {
         try {
-          await projectResource.delete(project.id);
+          await project.delete();
         } catch (error) {
           if (error instanceof NotFoundError) {
             // Project already deleted, ignore
