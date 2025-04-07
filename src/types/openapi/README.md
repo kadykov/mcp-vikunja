@@ -24,10 +24,11 @@ Our type system is organized in layers:
 
 2. **Domain Types** (XXX)
 
-   - Our internal representation
-   - Required fields are enforced
-   - Default values are applied
-   - Example: `Task`, `Project`
+   - Class implementations with methods
+   - Required fields enforced via constructor
+   - Default values applied
+   - HTTP client operations included
+   - Example: `Task` (implementation of `TaskImpl`), `Project` (implementation of `ProjectImpl`)
 
 3. **Operation Types** (CreateXXX, UpdateXXX)
    - Types for specific operations
@@ -37,7 +38,7 @@ Our type system is organized in layers:
 
 ## Type Transformations
 
-Resources handle transforming between API and domain types:
+Resource implementations handle transforming between API and domain types:
 
 ```typescript
 // API Response (VikunjaTask)
@@ -47,21 +48,35 @@ Resources handle transforming between API and domain types:
   // ... other optional fields
 }
 
-// Domain Type (Task)
-{
-  id: number,         // Required
-  title: string,      // Required
-  description: string // Defaults applied
-  // ... other fields with proper types
+// Domain Implementation (TaskImpl)
+class TaskImpl {
+  constructor(client: VikunjaHttpClient, data: VikunjaTask) {
+    // Validates required fields
+    // Sets up HTTP client
+  }
+
+  // Methods
+  update(data: UpdateTask): Promise<void>
+  delete(): Promise<void>
+  // ... other methods
+
+  // Getters ensure non-null values
+  get id(): number
+  get title(): string
+  // ... other properties
 }
 ```
 
 ## Usage
 
-Import domain types from the main types index file:
+Import domain implementations from the main types index file:
 
 ```typescript
-import type { Task, Project, User } from '../types';
+import { Task, Project } from '../types';
+
+// Full implementation with methods
+const task = await Task.get(client, id);
+await task.update({ title: 'New Title' });
 ```
 
 For API types (when needed):
@@ -74,24 +89,26 @@ Do not import directly from this directory as the types are regenerated and may 
 
 ## Type Safety
 
-- API responses are validated using resource transformers
+- API responses are validated in constructors
 - Required fields are checked at runtime
 - Proper error handling for missing/invalid data
+- Getters ensure non-null values
 - Type guards ensure data integrity
 
-Example transformation:
+Example implementation:
 
 ```typescript
-private transformTask(vikunjaTask: VikunjaTask): Task {
-  if (!vikunjaTask.id || !vikunjaTask.title) {
-    throw new Error('Invalid task data: missing required fields');
+class TaskImpl {
+  constructor(client: VikunjaHttpClient, data: VikunjaTask) {
+    if (!data.id || !data.title || !data.created || !data.updated) {
+      throw new Error('Invalid task data: missing required fields');
+    }
+    this.client = client;
+    this.data = data;
   }
 
-  return {
-    id: vikunjaTask.id,
-    title: vikunjaTask.title,
-    description: vikunjaTask.description ?? '',
-    // ... other fields with proper defaults
-  };
+  get title(): string {
+    return this.data.title!; // Safe because constructor validates
+  }
 }
 ```

@@ -18,8 +18,7 @@ export class ProjectMarkdownRenderer extends BaseMarkdownRenderer<Project> {
    * Render a project as a markdown list item with a link
    */
   renderAsListItem(project: Project): string {
-    const title = project.title ?? 'Untitled Project';
-    const projectLink = createLink(escapeMarkdown(title), toMcpUri(project.id));
+    const projectLink = createLink(escapeMarkdown(project.title), toMcpUri(project.id));
     return createListItem(projectLink);
   }
 

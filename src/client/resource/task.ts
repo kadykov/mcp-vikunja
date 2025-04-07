@@ -1,4 +1,4 @@
-import { VikunjaHttpClient } from '../http/client';
+import { VikunjaHttpClient } from '../http/client.js';
 import type {
   Task as TaskType,
   CreateTask,

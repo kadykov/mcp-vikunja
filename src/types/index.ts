@@ -8,16 +8,12 @@ import type { components, paths } from './openapi';
 export type { User, VikunjaUser } from './user';
 
 // Project types
-export type {
-  Project,
-  CreateProject,
-  UpdateProject,
-  VikunjaProject,
-  VikunjaProjectView,
-} from './project';
+export type { CreateProject, UpdateProject, VikunjaProject, VikunjaProjectView } from './project';
+export { Project } from '../client/resource/project';
 
 // Task types
-export type { Task, CreateTask, UpdateTask, VikunjaTask } from './task';
+export type { CreateTask, UpdateTask, VikunjaTask } from './task';
+export { Task } from '../client/resource/task';
 
 // Task relations
 export type { TaskRelation, CreateTaskRelation, RelatedTaskMap } from './relation';

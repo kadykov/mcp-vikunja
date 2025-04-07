@@ -47,12 +47,6 @@ describe('TaskMarkdownRenderer', () => {
         `- [ ] [Task with \\[special\\] \\*chars\\*](${toMcpUri(taskWithSpecialChars.id)})`
       );
     });
-
-    it('should handle untitled task', () => {
-      const untitledTask = createTask({ id: 4, title: undefined, labels: [] });
-      const result = renderer.renderAsListItem(untitledTask);
-      expect(result).toBe(`- [ ] [Untitled Task](${toMcpUri(untitledTask.id)})`);
-    });
   });
 
   describe('render', () => {
@@ -105,10 +99,7 @@ describe('TaskMarkdownRenderer', () => {
     it('should render multiple tasks as a markdown list', () => {
       const result = renderer.renderList(mockTasks);
       const expected = mockTasks
-        .map(
-          t =>
-            `- [${t.done ? 'x' : ' '}] [${t.title ? escapeMarkdown(t.title) : 'Untitled Task'}](${toMcpUri(t.id)})`
-        )
+        .map(t => `- [${t.done ? 'x' : ' '}] [${escapeMarkdown(t.title)}](${toMcpUri(t.id)})`)
         .join('\n');
       expect(result).toBe(expected);
     });

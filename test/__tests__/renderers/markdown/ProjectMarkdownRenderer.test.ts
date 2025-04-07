@@ -37,19 +37,13 @@ describe('ProjectMarkdownRenderer', () => {
         `- [Project with \\[special\\] \\*chars\\*](${toMcpUri(mockProjects[2].id)})`
       );
     });
-
-    it('should handle untitled project', () => {
-      const untitledProject = createProject({ id: 4, title: undefined });
-      const result = renderer.renderAsListItem(untitledProject);
-      expect(result).toBe(`- [Untitled Project](${toMcpUri(untitledProject.id)})`);
-    });
   });
 
   describe('renderList', () => {
     it('should render multiple projects as a markdown list', () => {
       const result = renderer.renderList(mockProjects);
       const expected = mockProjects
-        .map(p => `- [${escapeMarkdown(p.title ?? 'Untitled Project')}](${toMcpUri(p.id)})`)
+        .map(p => `- [${escapeMarkdown(p.title)}](${toMcpUri(p.id)})`)
         .join('\n');
       expect(result).toBe(expected);
     });

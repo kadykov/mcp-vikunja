@@ -1,4 +1,4 @@
-import { VikunjaHttpClient } from '../http/client';
+import { VikunjaHttpClient } from '../http/client.js';
 import type { CreateProject, UpdateProject, VikunjaProject, CreateTask, User } from '../../types';
 import type { components } from '../../types/openapi';
 import { Task } from './task.js';
