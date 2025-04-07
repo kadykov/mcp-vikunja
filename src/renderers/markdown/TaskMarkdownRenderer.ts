@@ -1,7 +1,7 @@
 import { Task } from '../../types/index.js';
 import { BaseMarkdownRenderer } from './BaseMarkdownRenderer.js';
 import { LabelMarkdownRenderer } from './LabelMarkdownRenderer.js';
-import { toMcpUri } from '../../mcp/utils/uri.js';
+import { createUri } from '../../mcp/uri.js';
 import { createLink, createHeading, escapeMarkdown } from '../utils/markdown-helpers.js';
 
 /**
@@ -21,7 +21,7 @@ export class TaskMarkdownRenderer extends BaseMarkdownRenderer<Task> {
    */
   renderAsListItem(task: Task): Promise<string> {
     const checkbox = task.done ? '[x]' : '[ ]';
-    const taskLink = createLink(escapeMarkdown(task.title), toMcpUri(task.id));
+    const taskLink = createLink(escapeMarkdown(task.title), createUri('tasks', task.id));
     const labels = task.labels?.length
       ? ' ' + task.labels.map(label => this.labelRenderer.renderAsHashtag(label)).join(' ')
       : '';

@@ -2,7 +2,7 @@ import { TaskMarkdownRenderer } from '../../../../src/renderers/markdown/TaskMar
 import { createTask } from '../../../mocks/factories/task';
 import { createLabel } from '../../../mocks/factories/label';
 import { createUser } from '../../../mocks/factories/user';
-import { toMcpUri } from '../../../../src/mcp/utils/uri';
+import { createUri } from '../../../../src/mcp/uri';
 import { escapeMarkdown } from '../../../../src/renderers/utils/markdown-helpers';
 
 describe('TaskMarkdownRenderer', () => {
@@ -27,13 +27,15 @@ describe('TaskMarkdownRenderer', () => {
   describe('renderAsListItem', () => {
     it('should render an incomplete task as a markdown list item with link', async () => {
       const result = await renderer.renderAsListItem(mockTask);
-      expect(result).toBe(`- [ ] [Test Task](${toMcpUri(mockTask.id)}) #priority #in-progress`);
+      expect(result).toBe(
+        `- [ ] [Test Task](${createUri('tasks', mockTask.id)}) #priority #in-progress`
+      );
     });
 
     it('should render a completed task as a markdown list item with checkbox', async () => {
       const completedTask = createTask({ id: 2, title: 'Done Task', done: true, labels: [] });
       const result = await renderer.renderAsListItem(completedTask);
-      expect(result).toBe(`- [x] [Done Task](${toMcpUri(completedTask.id)})`);
+      expect(result).toBe(`- [x] [Done Task](${createUri('tasks', completedTask.id)})`);
     });
 
     it('should handle special characters in task title', async () => {
@@ -44,7 +46,7 @@ describe('TaskMarkdownRenderer', () => {
       });
       const result = await renderer.renderAsListItem(taskWithSpecialChars);
       expect(result).toBe(
-        `- [ ] [Task with \\[special\\] \\*chars\\*](${toMcpUri(taskWithSpecialChars.id)})`
+        `- [ ] [Task with \\[special\\] \\*chars\\*](${createUri('tasks', taskWithSpecialChars.id)})`
       );
     });
   });
@@ -99,7 +101,9 @@ describe('TaskMarkdownRenderer', () => {
     it('should render multiple tasks as a markdown list', async () => {
       const result = await renderer.renderList(mockTasks);
       const expected = mockTasks
-        .map(t => `- [${t.done ? 'x' : ' '}] [${escapeMarkdown(t.title)}](${toMcpUri(t.id)})`)
+        .map(
+          t => `- [${t.done ? 'x' : ' '}] [${escapeMarkdown(t.title)}](${createUri('tasks', t.id)})`
+        )
         .join('\n');
       expect(result).toBe(expected);
     });

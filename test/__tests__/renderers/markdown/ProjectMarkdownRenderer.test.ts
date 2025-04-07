@@ -1,6 +1,6 @@
 import { ProjectMarkdownRenderer } from '../../../../src/renderers/markdown/ProjectMarkdownRenderer';
 import { createProject } from '../../../mocks/factories/project';
-import { toMcpUri } from '../../../../src/mcp/utils/uri';
+import { createUri } from '../../../../src/mcp/uri';
 import { escapeMarkdown } from '../../../../src/renderers/utils/markdown-helpers';
 
 describe('ProjectMarkdownRenderer', () => {
@@ -39,9 +39,11 @@ describe('ProjectMarkdownRenderer', () => {
         [
           '# Test Project',
           '',
+          'A test project',
+          '',
           '## Tasks',
-          '- [ ] [Task 1](vikunja://tasks/1)',
-          '- [x] [Task 2](vikunja://tasks/2)',
+          `- [ ] [Task 1](${createUri('tasks', 1)})`,
+          `- [x] [Task 2](${createUri('tasks', 2)})`,
         ].join('\n')
       );
     });
@@ -64,18 +66,20 @@ describe('ProjectMarkdownRenderer', () => {
   describe('renderAsListItem', () => {
     it('should render a project as a markdown list item with link', async () => {
       const result = await renderer.renderAsListItem(mockProject);
-      expect(result).toBe(`- [Test Project](${toMcpUri(mockProject.id)})`);
+      expect(result).toBe(`- [Test Project](${createUri('projects', mockProject.id)})`);
     });
 
     it('should render an archived project with prefix', async () => {
       const result = await renderer.renderAsListItem(archivedProject);
-      expect(result).toBe(`- (ARCHIVED) [Archived Project](${toMcpUri(archivedProject.id)})`);
+      expect(result).toBe(
+        `- (ARCHIVED) [Archived Project](${createUri('projects', archivedProject.id)})`
+      );
     });
 
     it('should handle special characters in project title', async () => {
       const result = await renderer.renderAsListItem(mockProjects[2]);
       expect(result).toBe(
-        `- [Project with \\[special\\] \\*chars\\*](${toMcpUri(mockProjects[2].id)})`
+        `- [Project with \\[special\\] \\*chars\\*](${createUri('projects', mockProjects[2].id)})`
       );
     });
   });
@@ -84,7 +88,7 @@ describe('ProjectMarkdownRenderer', () => {
     it('should render multiple projects as a markdown list', async () => {
       const result = await renderer.renderList(mockProjects);
       const expected = mockProjects
-        .map(p => `- [${escapeMarkdown(p.title)}](${toMcpUri(p.id)})`)
+        .map(p => `- [${escapeMarkdown(p.title)}](${createUri('projects', p.id)})`)
         .join('\n');
       expect(result).toBe(expected);
     });

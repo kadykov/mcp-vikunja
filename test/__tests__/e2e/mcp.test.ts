@@ -3,7 +3,7 @@ import { Project } from '../../../src/types';
 import { startMcpServer, createTestProject, cleanupTestData } from '../../utils/mcp-test-helpers';
 import { server } from '../../mocks/server';
 import { createTestUser } from '../../utils/vikunja-test-helpers';
-import { toMcpUri } from '../../../src/mcp/utils/uri';
+import { createUri } from '../../../src/mcp/uri';
 import { escapeMarkdown } from '../../../src/renderers/utils/markdown-helpers';
 
 describe('MCP Server E2E', () => {
@@ -74,10 +74,10 @@ describe('MCP Server E2E', () => {
 
       // Check that it contains Markdown links to both projects with escaped characters
       expect(content).toContain(
-        `- [${escapeMarkdown(testProject1.title)}](${toMcpUri(testProject1.id)})`
+        `- [${escapeMarkdown(testProject1.title)}](${createUri('projects', testProject1.id)})`
       );
       expect(content).toContain(
-        `- [${escapeMarkdown(testProject2.title)}](${toMcpUri(testProject2.id)})`
+        `- [${escapeMarkdown(testProject2.title)}](${createUri('projects', testProject2.id)})`
       );
     });
   });
@@ -94,7 +94,7 @@ describe('MCP Server E2E', () => {
   describe('Project Resource Reading', () => {
     it('should return real project data via MCP resource', async () => {
       const resource = await client.readResource({
-        uri: `vikunja://projects/${testProject.id}`,
+        uri: createUri('projects', testProject.id),
       });
 
       expect(resource.contents).toHaveLength(1);
@@ -111,7 +111,7 @@ describe('MCP Server E2E', () => {
       const nonExistentId = 999999;
       await expect(
         client.readResource({
-          uri: `vikunja://projects/${nonExistentId}`,
+          uri: createUri('projects', nonExistentId),
         })
       ).rejects.toThrow();
     });

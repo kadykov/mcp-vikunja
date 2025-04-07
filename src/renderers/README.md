@@ -79,12 +79,54 @@ graph TD
   - `createHeading(text: string, level?: number): string`
   - `createCodeBlock(text: string, language?: string): string`
 
-## Usage
+## URI Handling
+
+Renderers use the MCP URI system to create resource links:
+
+```typescript
+import { createUri } from '../../mcp/uri';
+
+class TaskMarkdownRenderer extends BaseMarkdownRenderer<Task> {
+  async renderAsListItem(task: Task): Promise<string> {
+    const taskLink = createLink(
+      escapeMarkdown(task.title),
+      createUri('tasks', task.id) // Creates: vikunja://tasks/123
+    );
+    return `- [ ] ${taskLink}`;
+  }
+}
+
+class ProjectMarkdownRenderer extends BaseMarkdownRenderer<Project> {
+  async renderAsListItem(project: Project): Promise<string> {
+    const projectLink = createLink(
+      escapeMarkdown(project.title),
+      createUri('projects', project.id) // Creates: vikunja://projects/123
+    );
+    return `- ${projectLink}`;
+  }
+}
+```
+
+Each renderer:
+
+1. Uses type-safe `createUri` for URI generation
+2. Properly escapes content before using in URIs
+3. Creates consistent resource links across the application
+
+## Output Examples
 
 ```typescript
 // Project rendering
 const projectRenderer = new ProjectMarkdownRenderer();
-const markdown = await projectRenderer.renderList(projects);
+const markdown = await projectRenderer.render(project);
+// Output:
+// # Project Title
+//
+// Project description here...
+//
+// ## Tasks
+// - [ ] [Task One](vikunja://tasks/1)
+// - [x] [Task Two](vikunja://tasks/2)
 
 // Task rendering with labels
 const taskRenderer = new TaskMarkdownRenderer();

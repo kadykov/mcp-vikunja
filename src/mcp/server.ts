@@ -2,7 +2,8 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { VikunjaHttpClient } from '../client/http/client.js';
 import { loadConfig } from './config.js';
-import { createProjectHandler, createProjectListHandler } from './resources/project.js';
+import { createResourceHandler } from './resources/index.js';
+import { uriTemplate } from './uri.js';
 
 // Load configuration first - will throw if invalid
 const config = loadConfig();
@@ -19,23 +20,24 @@ const server = new McpServer(
   {
     capabilities: {
       resources: {
-        list: true, // Enable listing of resources
+        list: false, // We don't support listing yet
         read: true, // Enable reading resources
-        complete: false, // We don't support completion yet
+        complete: true, // Enable resource type completion
       },
     },
   }
 );
 
-// Register Vikunja resources
-server.resource('projects', 'vikunja://projects', createProjectListHandler(client));
-
+// Register Vikunja resource handler
 server.resource(
-  'project',
-  new ResourceTemplate('vikunja://projects/{id}', {
+  'vikunja',
+  new ResourceTemplate(uriTemplate.toString(), {
     list: undefined,
+    complete: {
+      resource: (): string[] => ['projects', 'tasks'],
+    },
   }),
-  createProjectHandler(client)
+  createResourceHandler(client)
 );
 
 // Start receiving messages on stdin and sending messages on stdout

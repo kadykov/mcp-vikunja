@@ -1,7 +1,7 @@
 import { Project } from '../../types/index.js';
 import { BaseMarkdownRenderer } from './BaseMarkdownRenderer.js';
 import { TaskMarkdownRenderer } from './TaskMarkdownRenderer.js';
-import { toMcpUri } from '../../mcp/utils/uri.js';
+import { createUri } from '../../mcp/uri.js';
 import {
   createLink,
   createListItem,
@@ -33,7 +33,7 @@ export class ProjectMarkdownRenderer extends BaseMarkdownRenderer<Project> {
 
     // Add parent project link if exists
     if (project.parent_project_id) {
-      parts.push(createLink('Parent Project', toMcpUri(project.parent_project_id)));
+      parts.push(createLink('Parent Project', createUri('projects', project.parent_project_id)));
     }
 
     // Add description if available
@@ -57,7 +57,10 @@ export class ProjectMarkdownRenderer extends BaseMarkdownRenderer<Project> {
    */
   renderAsListItem(project: Project): Promise<string> {
     const archivedPrefix = project.is_archived ? '(ARCHIVED) ' : '';
-    const projectLink = createLink(escapeMarkdown(project.title), toMcpUri(project.id));
+    const projectLink = createLink(
+      escapeMarkdown(project.title),
+      createUri('projects', project.id)
+    );
     return Promise.resolve(createListItem(archivedPrefix + projectLink));
   }
 }
