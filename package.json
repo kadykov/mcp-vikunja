@@ -59,6 +59,6 @@
     "prettier": "^3.5.3",
     "swagger2openapi": "^7.0.8",
     "ts-jest": "^29.3.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   }
 }
