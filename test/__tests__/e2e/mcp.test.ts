@@ -74,10 +74,10 @@ describe('MCP Server E2E', () => {
 
       // Check that it contains Markdown links to both projects with escaped characters
       expect(content).toContain(
-        `- [${escapeMarkdown(testProject1.title ?? 'Untitled Project')}](${toMcpUri(testProject1.id)})`
+        `- [${escapeMarkdown(testProject1.title)}](${toMcpUri(testProject1.id)})`
       );
       expect(content).toContain(
-        `- [${escapeMarkdown(testProject2.title ?? 'Untitled Project')}](${toMcpUri(testProject2.id)})`
+        `- [${escapeMarkdown(testProject2.title)}](${toMcpUri(testProject2.id)})`
       );
     });
   });
@@ -98,12 +98,13 @@ describe('MCP Server E2E', () => {
       });
 
       expect(resource.contents).toHaveLength(1);
-      const content = JSON.parse(resource.contents[0].text as string) as Project;
+      const content = resource.contents[0].text as string;
 
-      // Verify the project data matches
-      expect(content.id).toBe(testProject.id);
-      expect(content.title).toBe(testProject.title);
-      expect(content.description).toBe(testProject.description);
+      // Verify the project markdown contains expected content
+      expect(content).toContain(`# ${escapeMarkdown(testProject.title)}`);
+      if (testProject.description) {
+        expect(content).toContain(testProject.description);
+      }
     });
 
     it('should handle non-existent project', async () => {

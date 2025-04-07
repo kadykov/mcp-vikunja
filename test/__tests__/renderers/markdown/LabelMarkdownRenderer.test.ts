@@ -38,41 +38,41 @@ describe('LabelMarkdownRenderer', () => {
   });
 
   describe('render', () => {
-    it('should render a label with description', () => {
-      const result = renderer.render(mockLabel);
+    it('should render a label with description', async () => {
+      const result = await renderer.render(mockLabel);
       expect(result).toBe('#test-label - A test label');
     });
 
-    it('should render a label without description', () => {
+    it('should render a label without description', async () => {
       const labelWithoutDesc = createLabel({
         id: 6,
         title: 'No Description',
         description: undefined,
       });
-      const result = renderer.render(labelWithoutDesc);
+      const result = await renderer.render(labelWithoutDesc);
       expect(result).toBe('#no-description');
     });
   });
 
   describe('renderAsListItem', () => {
-    it('should render a label as a list item', () => {
-      const result = renderer.renderAsListItem(mockLabel);
+    it('should render a label as a list item', async () => {
+      const result = await renderer.renderAsListItem(mockLabel);
       expect(result).toBe('- #test-label');
     });
   });
 
   describe('renderList', () => {
-    it('should render multiple labels as a markdown list', () => {
+    it('should render multiple labels as a markdown list', async () => {
       const simpleLabels = [
         createLabel({ id: 1, title: 'One' }),
         createLabel({ id: 2, title: 'Two' }),
       ];
-      const result = renderer.renderList(simpleLabels);
+      const result = await renderer.renderList(simpleLabels);
       expect(result).toBe('- #one\n- #two');
     });
 
-    it('should handle empty list', () => {
-      const result = renderer.renderList([]);
+    it('should handle empty list', async () => {
+      const result = await renderer.renderList([]);
       expect(result).toBe('');
     });
   });

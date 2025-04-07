@@ -7,7 +7,7 @@ const taskRenderer = new TaskMarkdownRenderer();
  * Convert Task or Task[] to MCP resource content
  * Uses Markdown format for consistent task representation
  */
-export function toMcpContent(task: Task | Task[]): string {
+export async function toMcpContent(task: Task | Task[]): Promise<string> {
   if (Array.isArray(task)) {
     return taskRenderer.renderList(task);
   }

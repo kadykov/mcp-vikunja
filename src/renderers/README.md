@@ -35,13 +35,13 @@ graph TD
 
 - `IRenderer<T>`: Base interface for all renderers
 
-  - `render(data: T): string` - Render a single item
-  - `renderList(items: T[]): string` - Render a list of items
+  - `render(data: T): Promise<string>` - Render a single item
+  - `renderList(items: T[]): Promise<string>` - Render a list of items
 
 - `IMarkdownRenderer<T>`: Markdown-specific renderer interface
   - Extends `IRenderer<T>`
-  - Adds `renderAsListItem(item: T): string`
-  - Optional `renderAsTree?(item: T): string`
+  - Adds `renderAsListItem(item: T): Promise<string>`
+  - Optional `renderAsTree?(item: T): Promise<string>`
 
 ### Base Classes
 
@@ -84,11 +84,11 @@ graph TD
 ```typescript
 // Project rendering
 const projectRenderer = new ProjectMarkdownRenderer();
-const markdown = projectRenderer.renderList(projects);
+const markdown = await projectRenderer.renderList(projects);
 
 // Task rendering with labels
 const taskRenderer = new TaskMarkdownRenderer();
-const taskMarkdown = taskRenderer.render(task);
+const taskMarkdown = await taskRenderer.render(task);
 // Output:
 // # Task Title
 // - [ ] Due: 2025-12-31
@@ -98,6 +98,34 @@ const taskMarkdown = taskRenderer.render(task);
 // #important #in-progress
 // Assigned to: @user1, @user2
 ```
+
+## Asynchronous Design
+
+All renderers use async/await to support operations that may require asynchronous data fetching:
+
+1. **All Methods Return Promises**: Every rendering method returns a Promise
+
+   ```typescript
+   render(data: T): Promise<string>
+   renderList(items: T[]): Promise<string>
+   renderAsListItem(item: T): Promise<string>
+   ```
+
+2. **Async Data Fetching**: Some renderers need to fetch related data
+
+   ```typescript
+   // ProjectMarkdownRenderer
+   async render(project: Project): Promise<string> {
+     // ... other rendering ...
+     const tasks = await project.listTasks();
+     // ... render tasks ...
+   }
+   ```
+
+3. **Error Propagation**: Async errors are propagated to the caller
+   - No internal error handling in renderers
+   - Caller responsible for handling data fetch errors
+   - Clear error boundaries and responsibilities
 
 ## Markdown Escaping Strategy
 

@@ -5,9 +5,9 @@ const projectRenderer = new ProjectMarkdownRenderer();
 
 /**
  * Convert Project or Project[] to MCP resource content
- * Uses Markdown format for lists and JSON for single projects
+ * Uses Markdown format for projects and task lists
  */
-export function toMcpContent(project: Project | Project[]): string {
+export async function toMcpContent(project: Project | Project[]): Promise<string> {
   if (Array.isArray(project)) {
     return projectRenderer.renderList(project);
   }

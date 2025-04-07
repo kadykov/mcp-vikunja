@@ -23,7 +23,7 @@ export function createProjectListHandler(client: VikunjaHttpClient): ReadResourc
         contents: [
           {
             uri: 'vikunja://projects',
-            text: toMcpContent(projects),
+            text: await toMcpContent(projects),
           },
         ],
       };
@@ -54,7 +54,7 @@ export function createProjectHandler(client: VikunjaHttpClient): ReadResourceTem
         contents: [
           {
             uri: uri.href,
-            text: toMcpContent(project),
+            text: await toMcpContent(project),
           },
         ],
       };

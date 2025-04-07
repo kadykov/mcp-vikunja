@@ -1,6 +1,6 @@
 import { toMcpUri, fromMcpUri } from '../../../../src/mcp/utils/uri';
 import { toMcpContent } from '../../../../src/mcp/translation/project';
-import { Project } from '../../../../src/types';
+import { createTask } from '../../../mocks/factories/task';
 import { createProject } from '../../../mocks/factories/project';
 
 describe('Project Translation', () => {
@@ -34,48 +34,48 @@ describe('Project Translation', () => {
 
   describe('Content Conversion', () => {
     describe('Single Project', () => {
-      it('should convert project to JSON content', () => {
+      it('should convert project to markdown content', async () => {
         const project = createProject({
           id: 123,
           title: 'Test Project',
           description: 'Project Description',
         });
+        project.listTasks = jest.fn().mockResolvedValue([]);
 
-        const content = toMcpContent(project);
-        const parsed = JSON.parse(content) as Project;
-
-        expect(parsed).toEqual(project);
+        const content = await toMcpContent(project);
+        expect(content).toContain('# Test Project');
+        expect(content).toContain('Project Description');
       });
 
-      it('should preserve all project fields in conversion', () => {
+      it('should include archived status', async () => {
         const project = createProject({
           id: 123,
           title: 'Test Project',
-          description: 'Project Description',
-          identifier: 'TEST-123',
-          hex_color: '#FF0000',
-          is_archived: false,
-          is_favorite: true,
-          position: 1,
+          is_archived: true,
         });
+        project.listTasks = jest.fn().mockResolvedValue([]);
 
-        const content = toMcpContent(project);
-        const parsed = JSON.parse(content) as Project;
-
-        expect(parsed).toEqual(project);
+        const content = await toMcpContent(project);
+        expect(content).toContain('# Test Project');
+        expect(content).toContain('(ARCHIVED)');
       });
 
-      it('should handle empty fields', () => {
+      it('should include tasks when available', async () => {
         const project = createProject({
           id: 123,
           title: 'Test Project',
-          description: '',
         });
+        project.listTasks = jest
+          .fn()
+          .mockResolvedValue([
+            createTask({ id: 1, title: 'Task 1', done: false }),
+            createTask({ id: 2, title: 'Task 2', done: true }),
+          ]);
 
-        const content = toMcpContent(project);
-        const parsed = JSON.parse(content) as Project;
-
-        expect(parsed).toEqual(project);
+        const content = await toMcpContent(project);
+        expect(content).toContain('## Tasks');
+        expect(content).toContain('- [ ] [Task 1](vikunja://tasks/1)');
+        expect(content).toContain('- [x] [Task 2](vikunja://tasks/2)');
       });
     });
 
@@ -86,8 +86,8 @@ describe('Project Translation', () => {
         createProject({ id: 3, title: 'Project with [special] *chars*' }),
       ];
 
-      it('should render projects as markdown list with links', () => {
-        const result = toMcpContent(mockProjects);
+      it('should render projects as markdown list with links', async () => {
+        const result = await toMcpContent(mockProjects);
         expect(result).toContain('- [Project 1](vikunja://projects/1)');
         expect(result).toContain('- [Project 2](vikunja://projects/2)');
         expect(result).toContain(
@@ -95,8 +95,8 @@ describe('Project Translation', () => {
         );
       });
 
-      it('should handle empty list', () => {
-        expect(toMcpContent([])).toBe('');
+      it('should handle empty list', async () => {
+        expect(await toMcpContent([])).toBe('');
       });
     });
   });

@@ -16,20 +16,20 @@ export class LabelMarkdownRenderer extends BaseMarkdownRenderer<Label> {
   /**
    * Render a label with full details
    */
-  render(label: Label): string {
+  render(label: Label): Promise<string> {
     const hashtag = this.renderAsHashtag(label);
     if (label.description) {
-      return `${hashtag} - ${label.description}`;
+      return Promise.resolve(`${hashtag} - ${label.description}`);
     }
-    return hashtag;
+    return Promise.resolve(hashtag);
   }
 
   /**
    * Render a label as a list item
    * This is mainly for consistency with the BaseMarkdownRenderer interface
    */
-  renderAsListItem(label: Label): string {
-    return `- ${this.renderAsHashtag(label)}`;
+  renderAsListItem(label: Label): Promise<string> {
+    return Promise.resolve(`- ${this.renderAsHashtag(label)}`);
   }
 
   /**

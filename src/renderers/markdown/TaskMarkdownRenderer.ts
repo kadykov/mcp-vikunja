@@ -19,20 +19,20 @@ export class TaskMarkdownRenderer extends BaseMarkdownRenderer<Task> {
    * Render a task as a markdown list item
    * Format: - [x] [Task Title](uri) #label1 #label2
    */
-  renderAsListItem(task: Task): string {
+  renderAsListItem(task: Task): Promise<string> {
     const checkbox = task.done ? '[x]' : '[ ]';
     const taskLink = createLink(escapeMarkdown(task.title), toMcpUri(task.id));
     const labels = task.labels?.length
       ? ' ' + task.labels.map(label => this.labelRenderer.renderAsHashtag(label)).join(' ')
       : '';
 
-    return `- ${checkbox} ${taskLink}${labels}`;
+    return Promise.resolve(`- ${checkbox} ${taskLink}${labels}`);
   }
 
   /**
    * Render a task with full details in markdown
    */
-  render(task: Task): string {
+  render(task: Task): Promise<string> {
     const parts: string[] = [
       createHeading(escapeMarkdown(task.title), 1),
       `- ${task.done ? '[x]' : '[ ]'} ${task.due_date ? `Due: ${task.due_date}` : 'No due date'}`,
@@ -56,6 +56,6 @@ export class TaskMarkdownRenderer extends BaseMarkdownRenderer<Task> {
       parts.push('', `Assigned to: ${assignees}`);
     }
 
-    return parts.join('\n');
+    return Promise.resolve(parts.join('\n'));
   }
 }
