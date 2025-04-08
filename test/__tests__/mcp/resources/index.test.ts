@@ -76,6 +76,7 @@ describe('Resource Handler', () => {
       expect(result.contents[0]).toEqual({
         uri: uri.href,
         text: mockRenderedContent,
+        mimeType: 'text/markdown',
       });
       expect(mockProjectGet).toHaveBeenCalledWith(123);
     });
@@ -112,6 +113,7 @@ describe('Resource Handler', () => {
       expect(result.contents[0]).toEqual({
         uri: uri.href,
         text: mockRenderedContent,
+        mimeType: 'text/markdown',
       });
       expect(mockTaskGet).toHaveBeenCalledWith(456);
     });

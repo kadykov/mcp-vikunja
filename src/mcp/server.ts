@@ -28,7 +28,12 @@ const server = new McpServer(
   }
 );
 
-server.resource('projects', 'vikunja://projects', createProjectListHandler(client));
+server.resource(
+  'projects',
+  'vikunja://projects',
+  { mimeType: 'text/markdown' },
+  createProjectListHandler(client)
+);
 
 // Register Vikunja resource handler
 server.resource(

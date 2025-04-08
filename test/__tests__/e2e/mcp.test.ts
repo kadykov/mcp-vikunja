@@ -62,6 +62,7 @@ describe('MCP Server E2E', () => {
       expect(response.resources).toContainEqual({
         uri: 'vikunja://projects',
         name: 'projects',
+        mimeType: 'text/markdown',
       });
     });
 

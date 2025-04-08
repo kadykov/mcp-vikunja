@@ -43,6 +43,7 @@ export function createResourceHandler(client: VikunjaHttpClient): ReadResourceTe
             {
               uri: uri.href,
               text: await projectRenderer.render(project),
+              mimeType: 'text/markdown',
             },
           ],
         };
@@ -53,6 +54,7 @@ export function createResourceHandler(client: VikunjaHttpClient): ReadResourceTe
             {
               uri: uri.href,
               text: await taskRenderer.render(task),
+              mimeType: 'text/markdown',
             },
           ],
         };
@@ -81,6 +83,7 @@ export function createProjectListHandler(client: VikunjaHttpClient): ReadResourc
           {
             uri: 'vikunja://projects',
             text: await projectRenderer.renderList(projects),
+            mimeType: 'text/markdown',
           },
         ],
       };
