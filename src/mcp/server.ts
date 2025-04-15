@@ -2,7 +2,7 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { VikunjaHttpClient } from '../client/http/client.js';
 import { loadConfig } from './config.js';
-import { createResourceHandler } from './resources/index.js';
+import { createResourceHandler, createProjectListHandler } from './resources/index.js';
 import { uriTemplate } from './uri.js';
 
 // Load configuration first - will throw if invalid
@@ -26,6 +26,13 @@ const server = new McpServer(
       },
     },
   }
+);
+
+server.resource(
+  'projects',
+  'vikunja://projects',
+  { mimeType: 'text/markdown' },
+  createProjectListHandler(client)
 );
 
 // Register Vikunja resource handler

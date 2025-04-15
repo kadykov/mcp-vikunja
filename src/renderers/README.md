@@ -188,7 +188,7 @@ The renderers follow a consistent strategy for handling Markdown special charact
 3. **Renderer Responsibility**: Each renderer is responsible for escaping its content:
    ```typescript
    // In TaskMarkdownRenderer:
-   const title = task.title ? task.title : 'Untitled';
+   const title = task.title;
    const taskLink = createLink(escapeMarkdown(title), toMcpUri(task.id));
    ```
 
