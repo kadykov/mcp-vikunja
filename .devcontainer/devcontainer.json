@@ -7,7 +7,8 @@
     "ghcr.io/devcontainers/features/common-utils:2": {
       "username": "vscode"
     },
-    "ghcr.io/guiyomh/features/just:0": {}
+    "ghcr.io/guiyomh/features/just:0": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
   "remoteUser": "vscode",
   "postCreateCommand": "just install",
@@ -22,5 +23,12 @@
         "ms-vscode.vscode-typescript-next"
       ]
     }
-  }
+  },
+  "mounts": [
+    {
+      "source": "vscode-home",
+      "target": "/home/vscode",
+      "type": "volume"
+    }
+  ]
 }
