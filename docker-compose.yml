@@ -4,6 +4,8 @@ services:
     build: .
     volumes:
       - .:/workspaces/mcp-vikunja:cached
+    env_file:
+      - .env
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
     # Use the custom network to communicate with vikunja service
@@ -11,11 +13,14 @@ services:
       - vikunja_net
     # Add initialization for Vikunja volumes during devcontainer startup
     init: true
-    entrypoint:
-      [
+    entrypoint: [
         '/bin/sh',
         '-c',
-        'mkdir -p /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files && chown -R 1000:1000 /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files && exec sleep infinity',
+        'mkdir -p /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files &&
+        chown -R 1000:1000 /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files &&
+        mkdir -p /home/vscode/.vscode-server &&
+        chown -R vscode:vscode /home/vscode &&
+        exec sleep infinity',
       ]
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://vikunja:3456/health']

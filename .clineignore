@@ -1,0 +1,3 @@
+# Large files
+local-docs/openapi.json
+src/types/openapi/index.ts
