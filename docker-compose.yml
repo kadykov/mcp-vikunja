@@ -18,8 +18,6 @@ services:
         '-c',
         'mkdir -p /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files &&
         chown -R 1000:1000 /workspaces/mcp-vikunja/db /workspaces/mcp-vikunja/files &&
-        mkdir -p /home/vscode/.vscode-server &&
-        chown -R vscode:vscode /home/vscode &&
         exec sleep infinity',
       ]
     healthcheck:
