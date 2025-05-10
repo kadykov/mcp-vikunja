@@ -22,5 +22,12 @@
         "ms-vscode.vscode-typescript-next"
       ]
     }
-  }
+  },
+  "mounts": [
+    {
+      "source": "vscode-home",
+      "target": "/home/vscode",
+      "type": "volume"
+    }
+  ]
 }
