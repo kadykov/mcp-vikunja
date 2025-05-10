@@ -55,7 +55,7 @@
     "jest-silent-reporter": "^0.6.0",
     "license-checker": "^25.0.1",
     "msw": "^2.7.6",
-    "openapi-typescript": "^7.6.1",
+    "openapi-typescript": "^7.8.0",
     "prettier": "^3.5.3",
     "swagger2openapi": "^7.0.8",
     "ts-jest": "^29.3.2",
