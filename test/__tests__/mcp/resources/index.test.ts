@@ -5,6 +5,7 @@ import { createTask } from '../../../mocks/factories/task';
 import { VikunjaHttpClient } from '../../../../src/client/http/client';
 import { uriTemplate } from '../../../../src/mcp/uri';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
+import { Request, Notification, RequestId } from '@modelcontextprotocol/sdk/types.js';
 import { ProjectResource } from '../../../../src/client/resource/project';
 import { TaskResource } from '../../../../src/client/resource/task';
 
@@ -50,8 +51,11 @@ describe('Resource Handler', () => {
   const mockClient = {} as VikunjaHttpClient;
   const abortController = new AbortController();
   const handler = createResourceHandler(mockClient);
-  const mockExtra: RequestHandlerExtra = {
+  const mockExtra: RequestHandlerExtra<Request, Notification> = {
     signal: abortController.signal,
+    requestId: 'test-123' as RequestId,
+    sendNotification: jest.fn(),
+    sendRequest: jest.fn(),
   };
 
   beforeEach(() => {
