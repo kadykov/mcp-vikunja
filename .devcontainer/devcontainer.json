@@ -7,10 +7,11 @@
     "ghcr.io/devcontainers/features/common-utils:2": {
       "username": "vscode"
     },
-    "ghcr.io/guiyomh/features/just:0": {}
+    "ghcr.io/guiyomh/features/just:0": {},
+    "ghcr.io/cirolosapio/devcontainers-features/alpine-docker-outside-of-docker:0": {}
   },
   "remoteUser": "vscode",
-  "postCreateCommand": "just install",
+  "postCreateCommand": "sudo usermod -aG docker vscode && sudo chmod 666 /var/run/docker.sock && just install",
   "customizations": {
     "vscode": {
       "extensions": [
